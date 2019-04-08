@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SophisSyncAddin": {
+      "commandName": "Executable",
+      "executablePath": "$(Sophis_v71319_x64)\\SophisValue.exe",
+      "workingDirectory": "$(Sophis_v71319_x64)"
+    }
+  }
+}
