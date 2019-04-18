@@ -1,4 +1,4 @@
-# Sophis2Excel
+# FusionLink
 
 Provides the ability to get live ticking numbers from Finastra FusionInvest (Sophis Value) client into Excel. 
 
