@@ -27,5 +27,20 @@ namespace sophis.portfolio
         {
             throw new NotImplementedException();
         }
+
+        public bool IsLoaded()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Compute()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

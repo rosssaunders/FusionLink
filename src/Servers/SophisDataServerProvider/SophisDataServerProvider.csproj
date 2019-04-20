@@ -28,7 +28,7 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\SophisMocks\SophisMocks.csproj" />
+    <ProjectReference Include="..\..\Shared\SophisMocks\SophisMocks.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
     <Reference Include="SophisDotNetToolkit">
@@ -51,6 +51,11 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y" />
+    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;Debug_7_1_3_14\Toolkits&quot; /y" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
+      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;Debug_7_1_3_19\Toolkits&quot; /y" />
+    </ItemGroup>
   </Target>
 </Project>

@@ -31,5 +31,10 @@ namespace sophis.portfolio
         {
             throw new NotImplementedException();
         }
+
+        public CSMPortfolio GetPortfolio()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
