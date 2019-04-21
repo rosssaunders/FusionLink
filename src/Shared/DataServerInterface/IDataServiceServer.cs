@@ -1,9 +1,10 @@
-﻿//  Copyright (c) RXD SOlutions. All rights reserved.
-//  Sophis2Excel is licensed under the MIT license. See LICENSE.txt for details.
+﻿//  Copyright (c) RXD Solutions. All rights reserved.
+//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System.Collections.Generic;
 using System.ServiceModel;
 
-namespace RxdSolutions.Sophis2Excel.Interface
+namespace RxdSolutions.FusionLink.Interface
 {
     [ServiceContract(CallbackContract = typeof(IDataServiceClient))]
     public interface IDataServiceServer
@@ -15,9 +16,15 @@ namespace RxdSolutions.Sophis2Excel.Interface
         void UnRegister();
 
         [OperationContract(IsOneWay = true)]
-        void SubscribeToPosition(int positionId, string column);
+        void SubscribeToPositionValue(int positionId, string column);
 
         [OperationContract(IsOneWay = true)]
-        void SubscribeToPortfolio(int folioId, string column);
+        void SubscribeToPortfolioValue(int folioId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToPortfolioDate();
+
+        [OperationContract]
+        List<int> GetPositions(int folioId);
     }
 }

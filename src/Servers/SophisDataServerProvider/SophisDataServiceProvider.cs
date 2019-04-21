@@ -1,76 +1,64 @@
-﻿//  Copyright (c) RXD SOlutions. All rights reserved.
-//  Sophis2Excel is licensed under the MIT license. See LICENSE.txt for details.
+﻿//  Copyright (c) RXD Solutions. All rights reserved.
+//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using RxdSolutions.Sophis2Excel.Interface;
+using RxdSolutions.FusionLink.Interface;
 using sophis.portfolio;
+using sophisTools;
 
-namespace RxdSolutions.Sophis2Excel
+namespace RxdSolutions.FusionLink
 {
-    public class SophisDataServiceProvider : IDataServiceProvider
+    public class SophisDataServiceProvider : IDataServerProvider
     {
         private readonly SynchronizationContext _context;
 
         private Queue<int> _portfoliosToLoad = new Queue<int>();
 
-        private Queue<int> _positionsToLoad = new Queue<int>();
-
         public SophisDataServiceProvider(SynchronizationContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public bool IsBusy { get; private set; }
 
+        public bool LoadUnloadedPortfolios { get; set; } = false;
+
         private void LoadRequiredData()
         {
-            if(_portfoliosToLoad.Count > 0)
+            if(LoadUnloadedPortfolios)
             {
-                IsBusy = true;
-
-                while (_portfoliosToLoad.Count > 0)
+                if (_portfoliosToLoad.Count > 0)
                 {
-                    var portfolioId = _portfoliosToLoad.Dequeue();
-                    using (var portfolio = CSMPortfolio.GetCSRPortfolio(portfolioId))
+                    while (_portfoliosToLoad.Count > 0)
                     {
-                        if(!portfolio.IsLoaded())
+                        var portfolioId = _portfoliosToLoad.Dequeue();
+                        using (var portfolio = CSMPortfolio.GetCSRPortfolio(portfolioId))
                         {
-                            portfolio.Load();
-                            portfolio.Compute();
-                        }
-                    }   
-                }
-                
-                IsBusy = false;
-            }
-
-            if(_positionsToLoad.Count > 0)
-            {
-                IsBusy = true;
-
-                while (_positionsToLoad.Count > 0)
-                {
-                    var positionId = _positionsToLoad.Dequeue();
-                    using (var position  = CSMPosition.GetCSRPosition(positionId))
-                    using (var portfolio = CSMPortfolio.GetCSRPortfolio(position.GetPortfolioCode()))
-                    {
-                        if(!portfolio.IsLoaded())
-                        {
-                            portfolio.Load();
-                            portfolio.Compute();
+                            EnsurePortfolioLoaded(portfolio);
                         }
                     }
                 }
+            }
+        }
+
+        private void EnsurePortfolioLoaded(CSMPortfolio portfolio)
+        {
+            if (!portfolio.IsLoaded())
+            {
+                IsBusy = true;
+
+                portfolio.Load();
+                portfolio.Compute();
 
                 IsBusy = false;
             }
         }
 
-        public (DataTypeEnum dataType, object value) GetPortfolioValue(int portfolioId, string column)
+        public object GetPortfolioValue(int portfolioId, string column)
         {
-            (DataTypeEnum dataType, object value) result = (DataTypeEnum.String, "#N/A");
+            object result = "#N/A";
 
             _context.Send(state => {
 
@@ -86,21 +74,27 @@ namespace RxdSolutions.Sophis2Excel
                     {
                         if(portfolio is null)
                         {
-                            result = (DataTypeEnum.String, $"The requested Portfolio '{portfolioId}' cannot be found");
+                            result = $"The requested Portfolio '{portfolioId}' cannot be found";
                             return;
                         }
 
                         if(portfolioColumn is null)
                         {
-                            result = (DataTypeEnum.String, $"The requested Portfolio Column '{column}' cannot be found");
+                            result = $"The requested Portfolio Column '{column}' cannot be found";
                             return;
                         }
 
                         if (!portfolio.IsLoaded())
                         {
-                            result = (DataTypeEnum.String, "Loading the portfolio (F8)... please wait");
-
-                            _portfoliosToLoad.Enqueue(portfolioId);
+                            if(LoadUnloadedPortfolios)
+                            {
+                                result = "Loading the portfolio (F8)... please wait";
+                                _portfoliosToLoad.Enqueue(portfolioId);
+                            }
+                            else
+                            {
+                                result = $"The requested portfolio '{portfolioId}' is not loaded. Please load in the FusionInvest client.";
+                            }
                         }
                         else
                         {
@@ -112,7 +106,7 @@ namespace RxdSolutions.Sophis2Excel
                 }
                 catch (Exception ex)
                 {
-                    result = (DataTypeEnum.String, ex.Message);
+                    result = ex.Message;
                 }
 
             }, null);
@@ -120,9 +114,9 @@ namespace RxdSolutions.Sophis2Excel
             return result;
         }
 
-        public (DataTypeEnum dataType, object value) GetPositionValue(int positionId, string column)
+        public object GetPositionValue(int positionId, string column)
         {
-            (DataTypeEnum dataType, object value) result = (DataTypeEnum.String, "#N/A");
+            object result = "#N/A";
 
             _context.Send(state => {
 
@@ -138,13 +132,13 @@ namespace RxdSolutions.Sophis2Excel
                     {
                         if (position is null)
                         {
-                            result = (DataTypeEnum.String, $"The requested Position '{positionId}' cannot be found");
+                            result = $"The requested position '{positionId}' is either not loaded or does not exist. Please load the positions portfolio in Sophis.";
                             return;
                         }
 
                         if (portfolioColumn is null)
                         {
-                            result = (DataTypeEnum.String, $"The requested Portfolio Column '{column}' cannot be found");
+                            result = $"The requested Portfolio Column '{column}' cannot be found";
                             return;
                         }
 
@@ -152,9 +146,16 @@ namespace RxdSolutions.Sophis2Excel
                         {
                             if (!portfolio.IsLoaded())
                             {
-                                result = (DataTypeEnum.String, "Loading the position");
+                                if(LoadUnloadedPortfolios)
+                                {
+                                    result = "Loading the portfolio. Please wait...";
 
-                                _positionsToLoad.Enqueue(positionId);
+                                    _portfoliosToLoad.Enqueue(portfolio.GetCode());
+                                }
+                                else
+                                {
+                                    result = $"The requested portfolio '{portfolio.GetCode()}' is not loaded. Please load in the FusionInvest client.";
+                                }
                             }
                             else
                             {
@@ -167,7 +168,7 @@ namespace RxdSolutions.Sophis2Excel
                 }
                 catch(Exception ex)
                 {
-                    result = (DataTypeEnum.String, ex.Message);
+                    result = ex.Message;
                 }
 
             }, null);
@@ -175,52 +176,118 @@ namespace RxdSolutions.Sophis2Excel
             return result;
         }
 
-        private (DataTypeEnum type, object value) GetDataPoint(string column, int position, SSMCellValue cv, SSMCellStyle cs)
+        private object GetDataPoint(string column, int position, SSMCellValue cv, SSMCellStyle cs)
         {
             switch (cs.kind)
             {
                 case NSREnums.eMDataType.M_dDate:
                 case NSREnums.eMDataType.M_dDateTime:
-                    return (DataTypeEnum.DateTime, cv.GetString());
-
+                    {
+                        var day = new CSMDay(cv.integerValue);
+                        return new DateTime(day.fYear, day.fMonth, day.fDay);
+                    }
+                    
                 case NSREnums.eMDataType.M_dInt:
-                    return (DataTypeEnum.Int64, (long)cv.integerValue);
+                    return (long)cv.integerValue;
 
                 case NSREnums.eMDataType.M_dPascalString:
                 case NSREnums.eMDataType.M_dUnicodeString:
                 case NSREnums.eMDataType.M_dNullTerminatedString:
-                    return (DataTypeEnum.String, cv.GetString());
+                    return cv.GetString();
 
                 case NSREnums.eMDataType.M_dLong:
                 case NSREnums.eMDataType.M_dLongLong:
-                    return (DataTypeEnum.Int64, cv.longlongValue);
+                    return cv.longlongValue;
 
                 case NSREnums.eMDataType.M_dArray:
-                    return (DataTypeEnum.String, cv.GetString());
+                    return cv.GetString();
 
                 case NSREnums.eMDataType.M_dSlidingDate:
-                    return (DataTypeEnum.String, cv.GetString());
+                    return cv.GetString();
 
                 case NSREnums.eMDataType.M_dBool:
-                    return (DataTypeEnum.Boolean, cv.shortInteger);
+                    return cv.shortInteger;
 
                 case NSREnums.eMDataType.M_dPointer:
-                    return (DataTypeEnum.Int64, cv.shortInteger);
+                    return cv.shortInteger;
 
                 case NSREnums.eMDataType.M_dDouble:
-                    return (DataTypeEnum.Double, cv.doubleValue);
+                    return cv.doubleValue;
 
                 case NSREnums.eMDataType.M_dFloat:
-                    return (DataTypeEnum.Double, (double)cv.floatValue);
+                    return (double)cv.floatValue;
 
                 case NSREnums.eMDataType.M_dShort:
-                    return (DataTypeEnum.Double, (double)cv.shortInteger);
+                    return (double)cv.shortInteger;
 
                 case NSREnums.eMDataType.M_dSmallIcon:
-                    return (DataTypeEnum.Double, (double)cv.iconIdentifier);
+                    return (double)cv.iconIdentifier;
             }
 
             throw new ApplicationException("Unknown eMDataType");
+        }
+
+        public DateTime GetPortfolioDate()
+        {
+            DateTime ? dt = null;
+
+            _context.Send(state => {
+
+                var portfolioDate = CSMPortfolio.GetPortfolioDate();
+                using (var day = new CSMDay(portfolioDate))
+                {
+                    dt = new DateTime(day.fYear, day.fMonth, day.fDay);
+                }
+
+            }, null);
+
+            if(dt.HasValue)
+                return dt.Value;
+
+            throw new ApplicationException("Unable to get the Portfolio date");
+        }
+
+        public List<int> GetPositions(int folioId)
+        {
+            var results = new List<int>();
+
+            _context.Send(state => {
+
+                using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
+                {
+                    EnsurePortfolioLoaded(portfolio);
+
+                    GetPositions(folioId, results);
+                }
+
+            }, null);
+
+            return results;
+        }
+
+        private void GetPositions(int folioId, List<int> positions)
+        {
+            using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
+            {
+                var positionCount = portfolio.GetTreeViewPositionCount();
+                for (var i = 0; i < positionCount; i++)
+                {
+                    using (var position = portfolio.GetNthTreeViewPosition(i))
+                    {
+                        positions.Add(position.GetIdentifier());
+                    }
+                }
+
+                var childPortfolioCount = portfolio.GetChildCount();
+
+                for(var i = 0; i < childPortfolioCount; i++)
+                {
+                    using (var childPortfolio = portfolio.GetNthChild(i))
+                    {
+                        GetPositions(childPortfolio.GetCode(), positions);
+                    }
+                }
+            }
         }
     }
 }

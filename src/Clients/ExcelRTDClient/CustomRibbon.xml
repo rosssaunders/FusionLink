@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="OnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="CustomRibbonTab" label="FusionLink">
+        <group id="ConnectionGroup" label="Connections">
+          <button id="refresh" label="Refresh" size="large" imageMso="Refresh" onAction="OnRefresh" />
+          <dynamicMenu id="ConnectionsMenu"
+                       label="Change connection"
+                       getContent="OnGetContent"
+                       invalidateContentOnDrop="true"
+                       size="large"
+                       imageMso="DataOptionsMenu" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

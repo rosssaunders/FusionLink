@@ -1,66 +1,296 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-//  Sophis2Excel is licensed under the MIT license. See LICENSE.txt for details.
+//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
-using RxdSolutions.Sophis2Excel.Interface;
+using System.ServiceModel.Discovery;
+using RxdSolutions.FusionLink.Interface;
 
-namespace RTD.Excel
+namespace RxdSolutions.FusionLink.RTDClient
 {
-    public class DataServiceClient : IDataServiceClient
+    public class DataServiceClient : IDisposable
     {
         private IDataServiceServer _server;
+        private DataServiceClientCallback _callback;
+
+        private readonly HashSet<(int Id, string Column)> _positionSubscriptions;
+        private readonly HashSet<(int Id, string Column)> _portfolioSubscriptions;
+        private readonly List<EndpointAddress> _availableEndpoints;
+        private readonly AnnouncementService _announcementService;
+        private readonly ServiceHost _announcementServiceHost;
+        
+        public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
+        public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
+        public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
+        public event EventHandler<PortfolioDateReceivedEventArgs> OnPortfolioDateReceived;
 
         public DataServiceClient()
         {
+            _positionSubscriptions = new HashSet<(int, string)>();
+            _portfolioSubscriptions = new HashSet<(int, string)>();
 
+            _availableEndpoints = new List<EndpointAddress>();
+
+            // Subscribe the announcement events
+            _announcementService = new AnnouncementService();
+            _announcementService.OnlineAnnouncementReceived += OnOnlineEvent;
+            _announcementService.OfflineAnnouncementReceived += OnOfflineEvent;
+
+            // Create ServiceHost for the AnnouncementService
+            _announcementServiceHost = new ServiceHost(_announcementService);
+            _announcementServiceHost.AddServiceEndpoint(new UdpAnnouncementEndpoint());
+            _announcementServiceHost.Open();
         }
 
-        public void Open()
+        private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
         {
-            // setup connection to server
+            _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
+        }
 
-            var user = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+        private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
+        {
+            _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
+        }
 
-            var a = new EndpointAddress(
-                    new Uri("net.pipe://localhost/SophisDataService"),
-                    EndpointIdentity.CreateUpnIdentity(user));
+        public CommunicationState State 
+        {
+            get 
+            {
+                if (_server is object)
+                    return ((ICommunicationObject)_server).State;
 
-            var b = new NetNamedPipeBinding();
+                return CommunicationState.Closed;
+            }
+        }
 
-            var f = new DuplexChannelFactory<IDataServiceServer>(this, b, a);
-            _server = f.CreateChannel();
-            _server.Register(); // this makes the server get a callback channel to us so it can call SendValue
+        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
+
+        public EndpointAddress Connection { get; private set; }
+
+        public EndpointAddress FindEndpoint(Uri connection)
+        {
+            lock(_availableEndpoints)
+            {
+                return _availableEndpoints.SingleOrDefault(x => x.Uri == connection);
+            }
+        }
+
+        public void FindAvailableServices()
+        {
+            var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+            var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
+
+            foreach(var endPoints in findResponse.Endpoints)
+            {
+                var found = false;
+
+                foreach (var knownEndpoint in _availableEndpoints)
+                {
+                    if(knownEndpoint.Uri == endPoints.Address.Uri)
+                    {
+                        found = true;
+                        break;
+                    }   
+                }
+
+                if (!found)
+                {
+                    lock (_availableEndpoints)
+                    {
+                        _availableEndpoints.Add(endPoints.Address);
+                    }
+                }
+            }
+
+            foreach(var knownEndpoint in _availableEndpoints.ToList())
+            {
+                var found = false;
+                foreach (var endPoints in findResponse.Endpoints)
+                {
+                    if (knownEndpoint.Uri == endPoints.Address.Uri)
+                    {
+                        found = true;
+                        break;
+                    }    
+                }
+
+                if (!found)
+                {
+                    lock (_availableEndpoints)
+                    {
+                        _availableEndpoints.Remove(knownEndpoint);
+                    }
+                }
+            }
+        }
+
+        public void Open(EndpointAddress endpointAddress)
+        {
+            var address = endpointAddress;
+           
+            var binding = new NetNamedPipeBinding();
+            binding.MaxReceivedMessageSize = int.MaxValue;
+            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
+            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
+
+            _callback = new DataServiceClientCallback();
+            _callback.OnPortfolioDateReceived += CallBack_OnPortfolioDateReceived;
+            _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
+            _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
+
+            _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
+            
+            try
+            {
+                _server.Register();
+
+                //Subscribe to any topics in case this is a reconnection
+                foreach(var ps in _positionSubscriptions)
+                    _server.SubscribeToPositionValue(ps.Id, ps.Column);
+
+                foreach (var ps in _portfolioSubscriptions)
+                    _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
+
+                Connection = address;
+            }
+            catch (TimeoutException)
+            {
+                //Do Nothing. Wait for the next update.
+            }
+            catch (Exception)
+            {
+                //The endpoint must be dead. Remove it.
+                _availableEndpoints.Remove(endpointAddress);
+
+                throw;
+            }
+            finally
+            {
+                OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
+            }
+        }
+
+        private void CallBack_OnPortfolioValueReceived(object sender, PortfolioValueReceivedEventArgs e)
+        {
+            OnPortfolioValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
+        {
+            OnPositionValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPortfolioDateReceived(object sender, PortfolioDateReceivedEventArgs e)
+        {
+            OnPortfolioDateReceived?.Invoke(sender, e);
+        }
+
+        public List<int> GetPositions(int portfolioId)
+        {
+            return _server.GetPositions(portfolioId);
         }
 
         public void Close()
         {
-            _server.UnRegister();
+            if (_callback is object)
+            {
+                try
+                {
+                    _callback.OnPortfolioDateReceived -= CallBack_OnPortfolioDateReceived;
+                    _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
+                    _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
+                    _callback = null;
+                }
+                catch
+                {
+                    //Sink
+                }
+            }
+
+            if (_server is object)
+            {
+                try
+                {
+                    var clientChannel = (IClientChannel)_server;
+
+                    if (State == CommunicationState.Opened)
+                    {
+                        _server.UnRegister();
+                    }
+
+                    try
+                    {
+                        if (State != CommunicationState.Faulted)
+                        {
+                            clientChannel.Close();
+                        }
+                    }
+                    finally
+                    {
+                        if (State != CommunicationState.Closed)
+                        {
+                            clientChannel.Abort();
+                        }
+                    }
+
+                    clientChannel.Dispose();
+                    _server = null;
+                }
+                catch
+                {
+                    //Sink
+                }
+            }
         }
 
-        public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
-        public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
-
-        public void SendPortfolioValue(int portfolioId, string column, DataTypeEnum type, object value)
+        public void SubscribeToPositionValue(int positionId, string column)
         {
-            // invert method call from WCF into event for Rx
-            OnPortfolioValueReceived?.Invoke(this, new PortfolioValueReceivedEventArgs(portfolioId, column, type, value));
+            if(!_positionSubscriptions.Contains((positionId, column)))
+                _positionSubscriptions.Add((positionId, column));
+
+            _server.SubscribeToPositionValue(positionId, column);
         }
 
-        public void SendPositionValue(int positionId, string column, DataTypeEnum type, object value)
+        public void SubscribeToPortfolioValue(int folioId, string column)
         {
-            // invert method call from WCF into event for Rx
-            OnPositionValueReceived?.Invoke(this, new PositionValueReceivedEventArgs(positionId, column, type, value));
+            if (!_portfolioSubscriptions.Contains((folioId, column)))
+                _portfolioSubscriptions.Add((folioId, column));
+
+            _server.SubscribeToPortfolioValue(folioId, column);
         }
 
-        public void SubscribeToPosition(int positionId, string column)
+        public void SubscribeToPortfolioDate()
         {
-            _server.SubscribeToPosition(positionId, column);
+            _server.SubscribeToPortfolioDate();
         }
 
-        public void SubscribeToPortfolio(int folioId, string column)
+        #region IDisposable Support
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
         {
-            _server.SubscribeToPortfolio(folioId, column);
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _positionSubscriptions.Clear();
+                    _portfolioSubscriptions.Clear();
+
+                    _announcementServiceHost.Close();
+                }
+
+                disposedValue = true;
+            }
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }

@@ -1,15 +1,19 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-//  Sophis2Excel is licensed under the MIT license. See LICENSE.txt for details.
+//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
+using System.Linq;
 using System.Reflection;
 using ExcelDna.Integration;
-using ExcelDna.Integration.RxExcel;
+using static ExcelDna.Integration.XlCall;
 
-namespace RTD.Excel
+namespace RxdSolutions.FusionLink.RTDClient
 {
     public class RTDAddIn : IExcelAddIn
     {
-        static DataServiceClient client;
+        //The client needs to be static so the Excel functions (which must be static) can access it.
+        public static DataServiceClient Client; 
+        static ConnectionMonitor _connectionMonitor;
 
         public void AutoOpen()
         {
@@ -24,25 +28,123 @@ namespace RTD.Excel
             rtd.GetType().InvokeMember("ThrottleInterval", BindingFlags.SetProperty, null, rtd, new object[] { 100 });
 
             //Open the client connection
-            client = new DataServiceClient();
-            client.Open();
+            Client = new DataServiceClient();
+            Client.FindAvailableServices();
+
+            //Start the monitor
+            _connectionMonitor = new ConnectionMonitor(Client);
+
+            if(Client.AvailableEndpoints.Count > 0)
+            {
+                _connectionMonitor.SetConnection(Client.AvailableEndpoints[0].Uri);
+            }
+            
+            _connectionMonitor.Start();
         }
 
         public void AutoClose()
         {
-            client.Close();
+            _connectionMonitor.Stop();
+
+            Client.Close();
         }
 
         [ExcelFunction("Gets Position values")]
         public static object GetPositionValue(int positionId, string column)
         {
-            return ExcelAsyncUtil.Observe(nameof(GetPositionValue), new object[] { positionId, column }, () => new PositionExcelObservable(positionId, column, client));
+            return ExcelAsyncUtil.Observe(nameof(GetPositionValue), new object[] { positionId, column }, () => new PositionValueExcelObservable(positionId, column, Client));
         }
 
-        [ExcelFunction("Gets portfolio values")]
+        [ExcelFunction("Gets Portfolio values")]
         public static object GetPortfolioValue(int portfolioId, string column)
         {
-            return ExcelAsyncUtil.Observe(nameof(GetPortfolioValue), new object[] { portfolioId, column }, () => new PortfolioExcelObservable(portfolioId, column, client));
+            return ExcelAsyncUtil.Observe(nameof(GetPortfolioValue), new object[] { portfolioId, column }, () => new PortfolioValueExcelObservable(portfolioId, column, Client));
+        }
+
+        [ExcelFunction("Returns the status of the connection to FusionInvest")]
+        public static object GetConnectionStatus()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetConnectionStatus), null, () => new ConnectionStatusExcelObservable(Client));
+        }
+
+        [ExcelFunction("Returns the status of the connection to FusionInvest")]
+        public static object GetAvailableConnections()
+        {
+            Client.FindAvailableServices();
+
+            return string.Join(",", Client.AvailableEndpoints.Select(x => x.Uri.ToString()));
+        }
+
+        [ExcelFunction("Returns the status of the connection to FusionInvest")]
+        public static void SetConnection(string connection)
+        {
+            if(!string.IsNullOrWhiteSpace(connection))
+            {
+                _connectionMonitor.SetConnection(new Uri(connection));
+            }
+        }
+
+        [ExcelFunction("Returns the connection string of the connection to FusionInvest")]
+        public static object GetConnection()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionExcelObservable(Client));
+        }
+
+        [ExcelFunction("Returns the Portfolio Date of FusionInvest")]
+        public static object GetPortfolioDate()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new PortfolioDateExcelObservable(Client));
+        }
+
+        [ExcelFunction("Returns a list of position ids of the given portfolio")]
+        public static object GetPositions(int portfolioId)
+        {
+            var positionIds = Client.GetPositions(portfolioId);
+
+            double[,] array = new double[positionIds.Count,1];
+            for (var i = 0; i < positionIds.Count; i++)
+            {
+                array[i, 0] = positionIds[i];
+            }
+
+            var caller = Excel(xlfCaller) as ExcelReference;
+            if (caller == null)
+                return array;
+
+            int rows = array.GetLength(0);
+            int columns = array.GetLength(1);
+
+            if (rows == 0 || columns == 0)
+                return array;
+
+            if ((caller.RowLast - caller.RowFirst + 1 == rows) &&
+                (caller.ColumnLast - caller.ColumnFirst + 1 == columns))
+            {
+                // Size is already OK - just return result
+                return array;
+            }
+
+            var rowLast = caller.RowFirst + rows - 1;
+            var columnLast = caller.ColumnFirst + columns - 1;
+
+            // Check for the sheet limits
+            if (rowLast > ExcelDnaUtil.ExcelLimits.MaxRows - 1 ||
+                columnLast > ExcelDnaUtil.ExcelLimits.MaxColumns - 1)
+            {
+                // Can't resize - goes beyond the end of the sheet - just return #VALUE
+                // (Can't give message here, or change cells)
+                return ExcelError.ExcelErrorValue;
+            }
+
+            // TODO: Add some kind of guard for ever-changing result?
+            ExcelAsyncUtil.QueueAsMacro(() => {
+                // Create a reference of the right size
+                var target = new ExcelReference(caller.RowFirst, rowLast, caller.ColumnFirst, columnLast, caller.SheetId);
+                ExcelRangeResizer.DoResize(target); // Will trigger a recalc by writing formula
+            });
+
+            // Return what we have - to prevent flashing #N/A
+            return array;
         }
     }
 }

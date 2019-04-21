@@ -3,10 +3,10 @@
   <PropertyGroup>
     <ProjectGuid>{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RxdSolutions.Sophis2Excel</RootNamespace>
-    <AssemblyName>Sophis2ExcelInterface</AssemblyName>
+    <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
+    <AssemblyName>FusionLinkInterface</AssemblyName>
     <TargetFrameworks>net452</TargetFrameworks>
-    <Configurations>Debug;Release;Debug_7_1_3_14;Debug_7_1_3_19</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

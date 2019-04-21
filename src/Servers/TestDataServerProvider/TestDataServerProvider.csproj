@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{34BEF956-77AB-4AB6-87EC-2A72798941DE}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestDataServer</RootNamespace>
+    <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
     <AssemblyName>TestDataServer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -49,19 +49,20 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDataServiceProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj">
+      <Project>{da859d73-3d82-4ee1-bc66-1d47d16e5ac4}</Project>
+      <Name>DataServiceInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataServer\DataServer.csproj">
       <Project>{1d5ff3ed-123d-41fc-a6ed-c2c763a71168}</Project>
       <Name>DataServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj">
-      <Project>{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}</Project>
-      <Name>DataServiceInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

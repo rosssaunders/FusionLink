@@ -3,7 +3,7 @@
   <PropertyGroup>
     <ProjectGuid>{A556116C-59FB-42D9-820A-CB8040CDF3E9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RxdSolutions</RootNamespace>
+    <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
     <AssemblyName>SophisDataServer</AssemblyName>
     <TargetFramework>net452</TargetFramework>
     <FileAlignment>512</FileAlignment>
@@ -16,6 +16,7 @@
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Discovery" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -34,10 +35,43 @@
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\7.1.3.14\SophisDotNetToolkit.dll</HintPath>
     </Reference>
+    <Reference Include="SophisDotNetToolkitGUI">
+      <HintPath>..\..\..\libs\7.1.3.14\SophisDotNetToolkitGUI.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>..\..\..\libs\7.1.3.14\SophisPortfoliosGUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets">
+      <HintPath>..\..\..\libs\7.1.3.14\Sophis.Windows.Widgets.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetTools">
+      <HintPath>..\..\..\libs\7.1.3.14\SophisDotNetTools.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>..\..\..\libs\7.1.3.14\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
         <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\7.1.3.19\SophisDotNetToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetToolkit">
+      <HintPath>..\..\..\libs\7.1.3.19\SophisDotNetToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitGUI">
+      <HintPath>..\..\..\libs\7.1.3.19\SophisDotNetToolkitGUI.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>..\..\..\libs\7.1.3.19\SophisPortfoliosGUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets">
+      <HintPath>..\..\..\libs\7.1.3.19\Sophis.Windows.Widgets.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetTools">
+      <HintPath>..\..\..\libs\7.1.3.19\SophisDotNetTools.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>..\..\..\libs\7.1.3.19\DevExpress.XtraTreeList.v11.2.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +80,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
     <ProjectReference Include="..\DataServer\DataServer.csproj" />
+    <ProjectReference Include="..\MFCCaptionBar\MFCCaptionBar.vcxproj">
+      <Private>true</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

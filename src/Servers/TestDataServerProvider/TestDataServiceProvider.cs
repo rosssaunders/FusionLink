@@ -1,17 +1,17 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-//  Sophis2Excel is licensed under the MIT license. See LICENSE.txt for details.
+//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using RxdSolutions;
-using RxdSolutions.Sophis2Excel.Interface;
+using RxdSolutions.FusionLink.Interface;
 
-namespace TestDataServer
+namespace RxdSolutions.FusionLink
 {
-    public class TestDataServiceProvider : IDataServiceProvider
+    public class TestDataServiceProvider : IDataServerProvider
     {
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
         public static string RandomString(int length)
         {
@@ -45,44 +45,54 @@ namespace TestDataServer
             intColumns.Add("Number Of Securities", RandomInt);
         }
 
-        public (DataTypeEnum dataType, object value) GetPortfolioValue(int portfolioId, string column)
+        public object GetPortfolioValue(int portfolioId, string column)
         {
             if(stringColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.String, stringColumns[column]());
+                return stringColumns[column]();
             }
 
             if (doubleColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.Double, doubleColumns[column]());
+                return doubleColumns[column]();
             }
 
             if (intColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.Int64, intColumns[column]());
+                return intColumns[column]();
             }
 
-            return (DataTypeEnum.Double, RandomDouble());
+            return RandomDouble();
         }
 
-        public (DataTypeEnum dataType, object value) GetPositionValue(int positionId, string column)
+        public object GetPositionValue(int positionId, string column)
         {
             if (stringColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.String, stringColumns[column]());
+                return stringColumns[column]();
             }
 
             if (doubleColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.Double, doubleColumns[column]());
+                return doubleColumns[column]();
             }
 
             if (intColumns.ContainsKey(column))
             {
-                return (DataTypeEnum.Int64, intColumns[column]());
+                return intColumns[column]();
             }
 
-            return (DataTypeEnum.Double, RandomDouble());
+            return RandomDouble();
+        }
+
+        public DateTime GetPortfolioDate()
+        {
+            return DateTime.Today;
+        }
+
+        public List<int> GetPositions(int folioId)
+        {
+            return new List<int>() { 1, 2, 3, 4, 5 };
         }
     }
 }
