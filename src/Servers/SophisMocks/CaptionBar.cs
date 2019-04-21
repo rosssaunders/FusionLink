@@ -4,15 +4,15 @@
 using System;
 using NSREnums;
 
-public class SSMCellStyle : IDisposable
+public class CaptionBar
 {
-    public SSMCellStyle()
+    public CaptionBar()
     {
     }
 
-    public eMDataType kind { get; set; }
+    public string Text { get; set; }
 
-    public void Dispose()
+    public void Show()
     {
         throw new NotImplementedException();
     }

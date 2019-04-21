@@ -52,7 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
-        <Reference Include="SophisDotNetToolkit">
+    <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\7.1.3.19\SophisDotNetToolkit.dll</HintPath>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
@@ -87,7 +87,12 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" >
+    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71314_x64)\Toolkits&quot; /y" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y" />
+    </ItemGroup>
   </Target>
 </Project>

@@ -2,17 +2,11 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using RxdSolutions.FusionLink;
 
 namespace RxdSolutions.FusionLink
 {
     class Program
     {
-        public ServiceHost host;
-
         static void Main(string[] args)
         {
             foreach (var a in args)
