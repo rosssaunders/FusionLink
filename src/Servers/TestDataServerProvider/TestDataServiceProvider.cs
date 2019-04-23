@@ -94,5 +94,15 @@ namespace RxdSolutions.FusionLink
         {
             return new List<int>() { 1, 2, 3, 4, 5 };
         }
+
+        public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

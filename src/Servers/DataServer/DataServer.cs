@@ -2,13 +2,10 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.ServiceModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using RxdSolutions.FusionLink.Interface;
@@ -25,11 +22,11 @@ namespace RxdSolutions.FusionLink
         internal Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
 
         private System.Timers.Timer _providerDataRefreshTimer;
-        private bool _isProviderRefreshRunning;
 
         private ObservableValue<DateTime> _portfolioDate;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
+        public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
 
         public IReadOnlyList<IDataServiceClient> Clients => _clients;
 
@@ -39,6 +36,8 @@ namespace RxdSolutions.FusionLink
         /// In milliseconds
         /// </summary>
         public int ProviderPollingInterval { get; set; } = 2000;
+
+        public bool IsRunning { get; private set; }
 
         public DataServer(IDataServerProvider dataService)
         {
@@ -83,14 +82,14 @@ namespace RxdSolutions.FusionLink
         {
             lock(this)
             {
-                if (_isProviderRefreshRunning)
+                if (IsRunning)
                     return;
 
                 _providerDataRefreshTimer = new System.Timers.Timer(ProviderPollingInterval);
                 _providerDataRefreshTimer.Elapsed += UpdateDataFromProvider;
                 _providerDataRefreshTimer.Start();
 
-                _isProviderRefreshRunning = true;
+                IsRunning = true;
             }
         }
 
@@ -98,7 +97,7 @@ namespace RxdSolutions.FusionLink
         {
             lock(this)
             {
-                if (!_isProviderRefreshRunning)
+                if (!IsRunning)
                     return;
 
                 if (_providerDataRefreshTimer is object)
@@ -108,7 +107,7 @@ namespace RxdSolutions.FusionLink
                     _providerDataRefreshTimer.Dispose();
                 }
 
-                _isProviderRefreshRunning = false;
+                IsRunning = false;
             }
         }
 
@@ -185,23 +184,31 @@ namespace RxdSolutions.FusionLink
         {
             var keys = _positionSubscriptions.GetKeys();
 
-            foreach (var (Id, Column) in keys)
-            {
-                var value = _dataServiceProvider.GetPositionValue(Id, Column);
+            var dict = new Dictionary<(int, string), object>();
+            foreach (var key in keys)
+                dict.Add(key, null);
 
-                _positionSubscriptions.Get((Id, Column)).Value = value;
+            _dataServiceProvider.GetPositionValues(dict);
+
+            foreach (var kvp in dict)
+            {
+                _positionSubscriptions.Get(kvp.Key).Value = kvp.Value;
             }
         }
 
         private void UpdatePortfolioSubscriptions()
         {
             var keys = _portfolioSubscriptions.GetKeys();
-            
-            foreach (var (Id, Column) in keys)
-            {
-                var value = _dataServiceProvider.GetPortfolioValue(Id, Column);
 
-                _portfolioSubscriptions.Get((Id, Column)).Value = value;
+            var dict = new Dictionary<(int, string), object>();
+            foreach (var key in keys)
+                dict.Add(key, null);
+
+            _dataServiceProvider.GetPortfolioValues(dict);
+
+            foreach (var kvp in dict)
+            {
+                _portfolioSubscriptions.Get(kvp.Key).Value = kvp.Value;
             }
         }
 
@@ -220,14 +227,24 @@ namespace RxdSolutions.FusionLink
 
             if (!_dataServiceProvider.IsBusy)
             {
-                Task.Run(() => {
+                //Avoid overloading the service provider
+                lock(_dataServiceProvider)
+                {
+                    Task.Run(() => {
 
-                    UpdatePositionSubscriptions();
+                        var timer = Stopwatch.StartNew();
 
-                    UpdatePortfolioSubscriptions();
+                        UpdatePositionSubscriptions();
 
-                    UpdatePortfolioDate();
-                });
+                        UpdatePortfolioSubscriptions();
+
+                        UpdatePortfolioDate();
+
+                        timer.Stop();
+
+                        OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(timer.Elapsed));
+                    });
+                }
             }
         }
 

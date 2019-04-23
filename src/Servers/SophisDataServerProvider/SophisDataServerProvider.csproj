@@ -87,12 +87,10 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
-      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71314_x64)\Toolkits&quot; /y" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
-      <Exec Command="xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y" />
-    </ItemGroup>
-  </Target>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+    <PostBuildEvent>xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71314_x64)\Toolkits&quot; /y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
+    <PostBuildEvent>xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y</PostBuildEvent>
+  </PropertyGroup>
 </Project>

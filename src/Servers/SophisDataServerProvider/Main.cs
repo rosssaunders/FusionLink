@@ -1,7 +1,9 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
 using System.ServiceModel;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using sophis;
@@ -18,6 +20,8 @@ namespace RxdSolutions.FusionLink
 
         private static DataServer _dataServer;
         private static CaptionBar _captionBar;
+
+        private TimeSpan ? _lastRefreshTimeTaken = null;
 
         public void EntryPoint()
         {
@@ -62,6 +66,7 @@ namespace RxdSolutions.FusionLink
 
                 _dataServer.Start();
                 _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
+                _dataServer.OnDataUpdatedFromProvider += OnDataUpdatedFromProvider;
 
             }).ContinueWith(t => {
                 UpdateCaption();
@@ -83,22 +88,49 @@ namespace RxdSolutions.FusionLink
 
         private void UpdateCaption()
         {
+            var caption = new StringBuilder();
+
+            //Listening
+            var processId = System.Diagnostics.Process.GetCurrentProcess().Id;
+            var dataServiceIdentifierCaption = $"FusionLink Connection Id is {processId}";
+            caption.Append(dataServiceIdentifierCaption);
+
+            //Clients
             var clientCount = _dataServer.Clients.Count;
 
-            string clientsConnectedCaption = "";
-            if (clientCount == 1)
+            if(clientCount > 0)
             {
-                clientsConnectedCaption = $" ({clientCount} client connected)";
-            }
-            else if(clientCount > 1)
-            {
-                clientsConnectedCaption = $" ({clientCount} clients connected)";
-            }
+                string clientsConnectedCaption = "";
+                if (clientCount == 1)
+                {
+                    clientsConnectedCaption = $" {clientCount} client connected";
+                }
+                else if (clientCount > 1)
+                {
+                    clientsConnectedCaption = $" {clientCount} clients connected";
+                }
 
-            var processId = System.Diagnostics.Process.GetCurrentProcess().Id;
-            var dataServiceIdentifierCaption = $"Excel connection Id is {processId}";
+                if (!string.IsNullOrWhiteSpace(clientsConnectedCaption))
+                {
+                    caption.Append(" / ");
+                    caption.Append(clientsConnectedCaption);
 
-            _captionBar.Text = $"{dataServiceIdentifierCaption} {clientsConnectedCaption}";
+                    //Config
+                    var refreshRate = $"Refreshing every {Math.Ceiling((double)_dataServer.ProviderPollingInterval / 1000)} second(s)";
+                    caption.Append(" / ");
+                    caption.Append(refreshRate);
+
+                    //Perf
+                    if (_lastRefreshTimeTaken.HasValue)
+                    {
+                        var lastRefresh = $"Last refresh took {Math.Round(_lastRefreshTimeTaken.Value.TotalSeconds, 1)} second(s)";
+                        caption.Append(" / ");
+                        caption.Append(lastRefresh);
+                    }
+                }
+            }
+            
+            _captionBar.Text = caption.ToString();
             _captionBar.Show();
         }
 
@@ -106,7 +138,35 @@ namespace RxdSolutions.FusionLink
         {
             _context.Send(x => 
             {
+                if(_dataServer.Clients.Count == 0)
+                {
+                    if(_dataServer.IsRunning)
+                    {
+                        _dataServer.Stop();
+                        _lastRefreshTimeTaken = null;
+                    }
+                }
+                else
+                {
+                    if (!_dataServer.IsRunning)
+                    {
+                        _dataServer.Start();
+                    }
+                }
+
                 UpdateCaption();
+
+            }, null);
+        }
+
+        private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
+        {
+            _lastRefreshTimeTaken = e.TimeTaken;
+
+            _context.Send(x => {
+
+                UpdateCaption();
+
             }, null);
         }
 

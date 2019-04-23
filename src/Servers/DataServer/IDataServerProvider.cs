@@ -16,7 +16,11 @@ namespace RxdSolutions.FusionLink
 
         object GetPositionValue(int positionId, string column);
 
+        void GetPositionValues(IDictionary<(int positionId, string column), object> values);
+
         object GetPortfolioValue(int portfolioId, string column);
+
+        void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
 
         DateTime GetPortfolioDate();
 
