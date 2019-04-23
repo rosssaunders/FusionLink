@@ -32,10 +32,10 @@ namespace RxdSolutions.FusionLink
 
         public string DefaultMessage { get; set; } = "Getting data... please wait";
 
-        /// <summary>
-        /// In milliseconds
-        /// </summary>
-        public int ProviderPollingInterval { get; set; } = 2000;
+        /// <remarks>
+        /// In seconds
+        /// </remarks>
+        public int ProviderPollingInterval { get; set; } = 30;
 
         public bool IsRunning { get; private set; }
 
@@ -85,7 +85,7 @@ namespace RxdSolutions.FusionLink
                 if (IsRunning)
                     return;
 
-                _providerDataRefreshTimer = new System.Timers.Timer(ProviderPollingInterval);
+                _providerDataRefreshTimer = new System.Timers.Timer(TimeSpan.FromSeconds(ProviderPollingInterval).TotalMilliseconds);
                 _providerDataRefreshTimer.Elapsed += UpdateDataFromProvider;
                 _providerDataRefreshTimer.Start();
 

@@ -79,7 +79,7 @@ namespace RxdSolutions.FusionLink
 
             int refreshRate = 0;
             string defaultMessage = "";
-            CSMConfigurationFile.getEntryValue("FusionLink", "RefreshRate", ref refreshRate, 2000);
+            CSMConfigurationFile.getEntryValue("FusionLink", "RefreshRate", ref refreshRate, 30);
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, "Getting data... please wait");
 
             _dataServer.ProviderPollingInterval = refreshRate;
@@ -116,7 +116,7 @@ namespace RxdSolutions.FusionLink
                     caption.Append(clientsConnectedCaption);
 
                     //Config
-                    var refreshRate = $"Refreshing every {Math.Ceiling((double)_dataServer.ProviderPollingInterval / 1000)} second(s)";
+                    var refreshRate = $"Refreshing every {_dataServer.ProviderPollingInterval} second(s)";
                     caption.Append(" / ");
                     caption.Append(refreshRate);
 
