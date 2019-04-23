@@ -27,4 +27,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* DG Partners for generously letting RXD Solutions use their development environment.
+* DG Partners for generously letting [RXD Solutions](http://www.rxdsolutions.co.uk/) use their development environment.
