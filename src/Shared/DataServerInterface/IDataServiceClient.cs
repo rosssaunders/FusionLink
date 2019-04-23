@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.Interface
@@ -16,6 +17,6 @@ namespace RxdSolutions.FusionLink.Interface
         void SendPortfolioValue(int portfolioId, string column, object value);
 
         [OperationContract(IsOneWay = true)]
-        void SendPortfolioDate(DateTime date);
+        void SendSystemValue(SystemProperty property, object value);
     }
 }

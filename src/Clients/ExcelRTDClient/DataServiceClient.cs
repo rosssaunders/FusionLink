@@ -17,18 +17,19 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private readonly HashSet<(int Id, string Column)> _positionSubscriptions;
         private readonly HashSet<(int Id, string Column)> _portfolioSubscriptions;
-        
+        private readonly HashSet<SystemProperty> _systemSubscriptions;
+
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
-        public event EventHandler<PortfolioDateReceivedEventArgs> OnPortfolioDateReceived;
+        public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
 
         public DataServiceClient()
         {
             _positionSubscriptions = new HashSet<(int, string)>();
             _portfolioSubscriptions = new HashSet<(int, string)>();
+            _systemSubscriptions = new HashSet<SystemProperty>();
         }
-
 
         public CommunicationState State 
         {
@@ -53,7 +54,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
 
             _callback = new DataServiceClientCallback();
-            _callback.OnPortfolioDateReceived += CallBack_OnPortfolioDateReceived;
+            _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
             _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
             _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
 
@@ -69,6 +70,9 @@ namespace RxdSolutions.FusionLink.RTDClient
 
                 foreach (var ps in _portfolioSubscriptions)
                     _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
+
+                foreach (var ps in _systemSubscriptions)
+                    _server.SubscribeToSystemValue(ps);
 
                 Connection = address;
 
@@ -92,9 +96,9 @@ namespace RxdSolutions.FusionLink.RTDClient
             OnPositionValueReceived?.Invoke(sender, e);
         }
 
-        private void CallBack_OnPortfolioDateReceived(object sender, PortfolioDateReceivedEventArgs e)
+        private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
         {
-            OnPortfolioDateReceived?.Invoke(sender, e);
+            OnSystemValueReceived?.Invoke(sender, e);
         }
 
         public List<int> GetPositions(int portfolioId)
@@ -108,7 +112,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             {
                 try
                 {
-                    _callback.OnPortfolioDateReceived -= CallBack_OnPortfolioDateReceived;
+                    _callback.OnSystemValueReceived -= CallBack_OnSystemValueReceived;
                     _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
                     _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
                     _callback = null;
@@ -127,7 +131,17 @@ namespace RxdSolutions.FusionLink.RTDClient
 
                     if (State == CommunicationState.Opened)
                     {
-                        _server.UnRegister();
+                        _server.Unregister();
+
+                        //Subscribe to any topics in case this is a reconnection
+                        foreach (var ps in _positionSubscriptions)
+                            _server.UnsubscribeToPositionValue(ps.Id, ps.Column);
+
+                        foreach (var ps in _portfolioSubscriptions)
+                            _server.UnsubscribeToPortfolioValue(ps.Id, ps.Column);
+
+                        foreach (var ps in _systemSubscriptions)
+                            _server.UnsubscribeToSystemValue(ps);
                     }
 
                     try
@@ -173,10 +187,40 @@ namespace RxdSolutions.FusionLink.RTDClient
                 _server.SubscribeToPortfolioValue(folioId, column);
         }
 
-        public void SubscribeToPortfolioDate()
+        public void SubscribeToSystemValue(SystemProperty property)
         {
+            if (!_systemSubscriptions.Contains(property))
+                _systemSubscriptions.Add(property);
+            
             if (_server is object)
-                _server.SubscribeToPortfolioDate();
+                _server.SubscribeToSystemValue(property);
+        }
+
+        public void UnsubscribeToPositionValue(int positionId, string column)
+        {
+            if (!_positionSubscriptions.Contains((positionId, column)))
+                _positionSubscriptions.Remove((positionId, column));
+
+            if (_server is object)
+                _server.UnsubscribeToPositionValue(positionId, column);
+        }
+
+        public void UnsubscribeToPortfolioValue(int folioId, string column)
+        {
+            if (!_portfolioSubscriptions.Contains((folioId, column)))
+                _portfolioSubscriptions.Remove((folioId, column));
+
+            if (_server is object)
+                _server.UnsubscribeToPortfolioValue(folioId, column);
+        }
+
+        public void UnsubscribeToSystemValue(SystemProperty property)
+        {
+            if (!_systemSubscriptions.Contains(property))
+                _systemSubscriptions.Remove(property);
+
+            if (_server is object)
+                _server.UnsubscribeToSystemValue(property);
         }
 
         #region IDisposable Support

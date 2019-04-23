@@ -18,16 +18,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         [ExcelFunction(Name = "GETAVAILABLECONNECTIONS", Description = "Returns a comma seperated list of the available connections", Category = "FusionLink")]
         public static object GetAvailableConnections()
         {
-            AddIn.ConnectionMonitor.FindAvailableServices();
-
-            if(AddIn.ConnectionMonitor.AvailableEndpoints.Count == 0)
-            {
-                return "No connections available";
-            }
-            else
-            {
-                return string.Join(",", AddIn.ConnectionMonitor.AvailableEndpoints.Select(x => x.Uri.ToString()));
-            }
+            return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsStatusExcelObservable(AddIn.ConnectionMonitor));
         }
 
         [ExcelFunction(Name = "SETCONNECTION", Description = "Returns the status of the connection to FusionInvest", Category = "FusionLink")]

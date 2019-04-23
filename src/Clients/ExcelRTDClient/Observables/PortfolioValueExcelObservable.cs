@@ -43,6 +43,8 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         void CleanUp()
         {
+            _rtdClient.UnsubscribeToPortfolioValue(PortfolioId, Column);
+
             _rtdClient.OnPortfolioValueReceived -= OnPortfolioValueSent;
         }
     }

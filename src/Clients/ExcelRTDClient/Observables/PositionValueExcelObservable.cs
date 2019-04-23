@@ -43,7 +43,8 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         void CleanUp()
         {
-            // Somehow clean up the link we made / the registration we set up
+            _rtdClient.UnsubscribeToPositionValue(PositionId, Column);
+
             _rtdClient.OnPositionValueReceived -= OnDataReceived;
         }
     }

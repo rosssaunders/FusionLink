@@ -23,9 +23,6 @@ namespace RxdSolutions.FusionLink.RTDClient
 
             var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
             app.RTD.ThrottleInterval = 100;
-
-            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
-
             app.StatusBar = "Searching for available FusionLink servers. Please wait...";
 
             //Start the monitor
@@ -36,6 +33,8 @@ namespace RxdSolutions.FusionLink.RTDClient
             //Open the client connection
             Client = new DataServiceClient();
             ConnectionMonitor.RegisterClient(Client);
+
+            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
         }
 
         public void AutoClose()

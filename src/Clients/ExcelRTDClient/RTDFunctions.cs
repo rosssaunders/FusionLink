@@ -24,7 +24,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         [ExcelFunction(Name = "GETPORTFOLIODATE", Description = "Returns the Portfolio Date of FusionInvest", Category = "FusionLink")]
         public static object GetPortfolioDate()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new PortfolioDateExcelObservable(AddIn.Client));
+            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new SystemPropertyExcelObservable(Interface.SystemProperty.PortfolioDate, AddIn.Client));
         }
     }
 }

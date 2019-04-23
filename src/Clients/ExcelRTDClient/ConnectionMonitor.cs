@@ -30,6 +30,8 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private readonly object _monitorLock = new object();
 
+        public event EventHandler<EventArgs> AvailableEndpointsChanged;
+
         public ConnectionMonitor()
         {
             _clients = new List<DataServiceClient>();
@@ -56,6 +58,15 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
 
+        public Task FindAvailableServicesAsync()
+        {
+            return Task.Run(() => {
+
+                FindAvailableServices();
+
+            });
+        }
+        
         public void FindAvailableServices()
         {
             var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
@@ -79,6 +90,7 @@ namespace RxdSolutions.FusionLink.RTDClient
                     lock (_availableEndpoints)
                     {
                         _availableEndpoints.Add(endPoints.Address);
+                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                     }
                 }
             }
@@ -100,6 +112,7 @@ namespace RxdSolutions.FusionLink.RTDClient
                     lock (_availableEndpoints)
                     {
                         _availableEndpoints.Remove(knownEndpoint);
+                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                     }
                 }
             }
@@ -153,6 +166,7 @@ namespace RxdSolutions.FusionLink.RTDClient
                                             {
                                                 //Looks like the server is dead. Remove from the available list.
                                                 _availableEndpoints.Remove(connectionToAttempt);
+                                                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                                             }
                                             catch(Exception)
                                             {
@@ -209,11 +223,13 @@ namespace RxdSolutions.FusionLink.RTDClient
         private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
         {
             _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
+            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
         }
 
         private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
         {
             _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
+            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
         }
 
         private EndpointAddress FindEndpoint(Uri connection)

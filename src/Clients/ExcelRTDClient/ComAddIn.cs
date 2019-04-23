@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
+using ExcelDna.Integration.Extensibility;
 
 namespace RxdSolutions.FusionLink.RTDClient
 {
@@ -18,7 +19,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             this.monitor = monitor;
         }
 
-        public void OnDisconnection()
+        public override void OnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom)
         {
             client.Close();
             client.Dispose();

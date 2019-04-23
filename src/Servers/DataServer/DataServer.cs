@@ -55,7 +55,7 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients(c => {
 
-                c.SendPortfolioDate(_portfolioDate.Value);
+                c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
 
             });
         }
@@ -124,13 +124,13 @@ namespace RxdSolutions.FusionLink
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Connected, c));
         }
 
-        public void UnRegister()
+        public void Unregister()
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
-            UnRegister(c);
+            Unregister(c);
         }
 
-        private void UnRegister(IDataServiceClient c)
+        private void Unregister(IDataServiceClient c)
         {
             lock (_clients)
             {
@@ -163,21 +163,46 @@ namespace RxdSolutions.FusionLink
             });
         }
 
-        public void SubscribeToPortfolioDate()
+        public void SubscribeToSystemValue(SystemProperty property)
         {
-            if(_portfolioDate is null)
+            if(property == SystemProperty.PortfolioDate)
             {
-                _portfolioDate = new ObservableValue<DateTime>();
-                _portfolioDate.PropertyChanged += PortfolioDateChanged;
+                if (_portfolioDate is null)
+                {
+                    _portfolioDate = new ObservableValue<DateTime>();
+                    _portfolioDate.PropertyChanged += PortfolioDateChanged;
+                }
+
+                UpdatePortfolioDate();
+
+                SendMessageToAllClients(c => {
+
+                    c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
+
+                });
             }
-            
-            UpdatePortfolioDate();
+        }
 
-            SendMessageToAllClients(c => {
+        public void UnsubscribeToPositionValue(int positionId, string column)
+        {
+            _positionSubscriptions.Remove((positionId, column));
+        }
 
-                c.SendPortfolioDate(_portfolioDate.Value);
+        public void UnsubscribeToPortfolioValue(int portfolioId, string column)
+        {
+            _portfolioSubscriptions.Remove((portfolioId, column));
+        }
 
-            });
+        public void UnsubscribeToSystemValue(SystemProperty property)
+        {
+            if (property == SystemProperty.PortfolioDate)
+            {
+                if (_portfolioDate is object)
+                {
+                    _portfolioDate.PropertyChanged -= PortfolioDateChanged;
+                    _portfolioDate = null;
+                }
+            }
         }
 
         private void UpdatePositionSubscriptions()
@@ -275,7 +300,7 @@ namespace RxdSolutions.FusionLink
                 {
                     Debug.Print(ex.Message);
 
-                    UnRegister(c);
+                    Unregister(c);
                 }
             }
         }

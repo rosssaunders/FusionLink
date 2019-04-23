@@ -13,7 +13,7 @@ namespace RxdSolutions.FusionLink.Interface
         void Register();
 
         [OperationContract(IsOneWay = true)]
-        void UnRegister();
+        void Unregister();
 
         [OperationContract(IsOneWay = true)]
         void SubscribeToPositionValue(int positionId, string column);
@@ -22,7 +22,16 @@ namespace RxdSolutions.FusionLink.Interface
         void SubscribeToPortfolioValue(int folioId, string column);
 
         [OperationContract(IsOneWay = true)]
-        void SubscribeToPortfolioDate();
+        void SubscribeToSystemValue(SystemProperty systemValue);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeToPositionValue(int positionId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeToPortfolioValue(int folioId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeToSystemValue(SystemProperty systemValue);
 
         [OperationContract]
         List<int> GetPositions(int folioId);

@@ -10,7 +10,7 @@ namespace RxdSolutions.FusionLink.RTDClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
-        public event EventHandler<PortfolioDateReceivedEventArgs> OnPortfolioDateReceived;
+        public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
 
         public void SendPortfolioValue(int portfolioId, string column, object value)
         {
@@ -22,9 +22,9 @@ namespace RxdSolutions.FusionLink.RTDClient
             OnPositionValueReceived?.Invoke(this, new PositionValueReceivedEventArgs(positionId, column, value));
         }
 
-        public void SendPortfolioDate(DateTime portfolioDate)
+        public void SendSystemValue(SystemProperty property, object value)
         {
-            OnPortfolioDateReceived?.Invoke(this, new PortfolioDateReceivedEventArgs(portfolioDate));
+            OnSystemValueReceived?.Invoke(this, new SystemValueReceivedEventArgs(property, value));
         }
     }
 }
