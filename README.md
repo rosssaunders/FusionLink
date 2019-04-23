@@ -18,8 +18,8 @@ Clone this repo to your PC.
 
 ## Authors
 
-* **Ross Saunders** 
-* **Debra Saunders**
+* [Ross Saunders](https://github.com/rosssaunders) 
+* [Debra Saunders](https://github.com/debrasaunders)
 
 ## License
 
@@ -27,4 +27,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* DG Partners for generously letting RXD Solutions use their development environment.
+* [DG Partners](http://www.dgpartners.co.uk/) for generously letting RXD Solutions use their development environment.
+* [Philippe Bonneau](http://www.it-quants.com/Blogs.aspx) for the inspiration on using the MFC Caption Bar within Sophis.
