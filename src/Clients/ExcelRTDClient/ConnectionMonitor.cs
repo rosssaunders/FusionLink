@@ -5,14 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Discovery;
 using System.Threading;
 using System.Threading.Tasks;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.RTDClient
 {
-    public class ConnectionMonitor
+    public class ConnectionMonitor : IDisposable
     {
-        private readonly DataServiceClient _client;
+        private readonly List<DataServiceClient> _clients;
+
+        private HashSet<CommunicationState> _closedStates = new HashSet<CommunicationState>() { CommunicationState.Closed, CommunicationState.Faulted };
+
+        private Uri _connection;
+
+        private readonly AnnouncementService _announcementService;
+        private readonly List<EndpointAddress> _availableEndpoints;
+        private readonly ServiceHost _announcementServiceHost;
 
         private bool _running = false;
         private readonly ManualResetEvent _resetEvent;
@@ -20,15 +30,80 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private readonly object _monitorLock = new object();
 
-        public ConnectionMonitor(DataServiceClient client)
+        public ConnectionMonitor()
         {
-            _client = client;
+            _clients = new List<DataServiceClient>();
+
             _resetEvent = new ManualResetEvent(false);
+
+            _availableEndpoints = new List<EndpointAddress>();
+
+            // Subscribe the announcement events
+            _announcementService = new AnnouncementService();
+            _announcementService.OnlineAnnouncementReceived += OnOnlineEvent;
+            _announcementService.OfflineAnnouncementReceived += OnOfflineEvent;
+
+            // Create ServiceHost for the AnnouncementService
+            _announcementServiceHost = new ServiceHost(_announcementService);
+            _announcementServiceHost.AddServiceEndpoint(new UdpAnnouncementEndpoint());
+            _announcementServiceHost.Open();
         }
 
-        private HashSet<CommunicationState> _closedStates = new HashSet<CommunicationState>() { CommunicationState.Closed, CommunicationState.Faulted };
+        public void RegisterClient(DataServiceClient client)
+        {
+            _clients.Add(client);
+        }
 
-        private Uri _connection;
+        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
+
+        public void FindAvailableServices()
+        {
+            var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+            var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
+
+            foreach (var endPoints in findResponse.Endpoints)
+            {
+                var found = false;
+
+                foreach (var knownEndpoint in _availableEndpoints)
+                {
+                    if (knownEndpoint.Uri == endPoints.Address.Uri)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    lock (_availableEndpoints)
+                    {
+                        _availableEndpoints.Add(endPoints.Address);
+                    }
+                }
+            }
+
+            foreach (var knownEndpoint in _availableEndpoints.ToList())
+            {
+                var found = false;
+                foreach (var endPoints in findResponse.Endpoints)
+                {
+                    if (knownEndpoint.Uri == endPoints.Address.Uri)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    lock (_availableEndpoints)
+                    {
+                        _availableEndpoints.Remove(knownEndpoint);
+                    }
+                }
+            }
+        }
 
         public void Start()
         {
@@ -43,32 +118,53 @@ namespace RxdSolutions.FusionLink.RTDClient
 
                     while (_running)
                     {
-                        if (_closedStates.Contains(_client.State))
+                        foreach(var client in _clients)
                         {
-                            try
+                            if (_closedStates.Contains(client.State))
                             {
-                                if (_client.AvailableEndpoints.Count > 0)
+                                try
                                 {
-                                    if(_connection == null)
+                                    if (_availableEndpoints.Count > 0)
                                     {
-                                        _connection = _client.AvailableEndpoints.FirstOrDefault()?.Uri;
+                                        if (_connection == null)
+                                        {
+                                            _connection = _availableEndpoints.FirstOrDefault()?.Uri;
+                                        }
+
+                                        var connectionToAttempt = FindEndpoint(_connection);
+
+                                        if (connectionToAttempt is null)
+                                        {
+                                            //The connection doesn't exist.
+                                            _connection = null;
+                                        }
+
+                                        if (connectionToAttempt is object)
+                                        {
+                                            try
+                                            {
+                                                client.Open(connectionToAttempt);
+                                            }
+                                            catch(TimeoutException)
+                                            {
+                                                //Ignore and try again on the next pass
+                                            }
+                                            catch(CommunicationException)
+                                            {
+                                                //Looks like the server is dead. Remove from the available list.
+                                                _availableEndpoints.Remove(connectionToAttempt);
+                                            }
+                                            catch(Exception)
+                                            {
+                                                //Sink
+                                            }
+                                        }
                                     }
-
-                                    var connectionToAttempt = _client.FindEndpoint(_connection);
-
-                                    if(connectionToAttempt is null)
-                                    {
-                                        //The set connection doesn't exist anylonger. Clear it. 
-                                        _connection = null;
-                                    }
-
-                                    if (connectionToAttempt is object)
-                                        _client.Open(connectionToAttempt);
                                 }
-                            }
-                            catch
-                            {
-
+                                catch
+                                {
+                                    //Sink
+                                }
                             }
                         }
 
@@ -80,11 +176,20 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         public void Stop()
         {
-            _running = false;
-            _resetEvent.Set();
-            _monitor?.Wait();
+            lock(_monitorLock)
+            {
+                if(_running)
+                {
+                    _running = false;
+                    _resetEvent.Set();
+                    _monitor?.Wait();
 
-            _client.Close();
+                    foreach (var client in _clients)
+                    {
+                        client.Close();
+                    }
+                }
+            }
         }
 
         public void SetConnection(Uri connection)
@@ -100,5 +205,47 @@ namespace RxdSolutions.FusionLink.RTDClient
         {
             return _connection;
         }
+
+        private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
+        {
+            _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
+        }
+
+        private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
+        {
+            _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
+        }
+
+        private EndpointAddress FindEndpoint(Uri connection)
+        {
+            lock (_availableEndpoints)
+            {
+                return _availableEndpoints.SingleOrDefault(x => x.Uri == connection);
+            }
+        }
+
+        #region IDisposable Support
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _announcementServiceHost.Close();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }

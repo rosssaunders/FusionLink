@@ -22,7 +22,14 @@ namespace RxdSolutions.FusionLink.RTDClient
 
             _rtdClient.OnConnectionStatusChanged += OnConnectionStatusChanged;
 
-            _observer.OnNext(_rtdClient.Connection.Uri.ToString());
+            if(_rtdClient.Connection is object)
+            {
+                _observer.OnNext(_rtdClient.Connection.Uri.ToString());
+            }
+            else
+            {
+                _observer.OnNext("Not connected");
+            }
 
             return new ActionDisposable(CleanUp);
         }

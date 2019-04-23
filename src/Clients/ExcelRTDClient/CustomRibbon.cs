@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
 
 namespace RxdSolutions.FusionLink.RTDClient
@@ -44,7 +46,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         {
             XNamespace customUINS = "http://schemas.microsoft.com/office/2006/01/customui";
 
-            var connections = RTDAddIn.Client.AvailableEndpoints.Select(x => 
+            var connections = AddIn.ConnectionMonitor.AvailableEndpoints.Select(x => 
                 {
                     var id = x.Uri.ToString().Split('_')[1];
 
@@ -58,7 +60,7 @@ namespace RxdSolutions.FusionLink.RTDClient
                             new XAttribute("label", $"{id} - {title}"),
                             new XAttribute("tag", x.Uri.ToString()),
                             new XAttribute("onAction", "OnConnect"),
-                            new XAttribute("imageMso", "FileSave")));
+                            new XAttribute("imageMso", "ServerConnection")));
                 }
             )
             .OrderBy(x => x.Item1)
@@ -75,12 +77,15 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         public void OnConnect(IRibbonControl control)
         {
-            RTDAddIn.SetConnection(control.Tag);
+            AddIn.ConnectionMonitor.SetConnection(new Uri(control.Tag));
         }
 
         public void OnRefresh(IRibbonControl control)
         {
-            RTDAddIn.Client.FindAvailableServices();
+            var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
+            app.StatusBar = "Searching for available FusionLink servers. Please wait...";
+
+            AddIn.ConnectionMonitor.FindAvailableServices();
         }
     }
 }

@@ -17,9 +17,6 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private readonly HashSet<(int Id, string Column)> _positionSubscriptions;
         private readonly HashSet<(int Id, string Column)> _portfolioSubscriptions;
-        private readonly List<EndpointAddress> _availableEndpoints;
-        private readonly AnnouncementService _announcementService;
-        private readonly ServiceHost _announcementServiceHost;
         
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
@@ -30,29 +27,8 @@ namespace RxdSolutions.FusionLink.RTDClient
         {
             _positionSubscriptions = new HashSet<(int, string)>();
             _portfolioSubscriptions = new HashSet<(int, string)>();
-
-            _availableEndpoints = new List<EndpointAddress>();
-
-            // Subscribe the announcement events
-            _announcementService = new AnnouncementService();
-            _announcementService.OnlineAnnouncementReceived += OnOnlineEvent;
-            _announcementService.OfflineAnnouncementReceived += OnOfflineEvent;
-
-            // Create ServiceHost for the AnnouncementService
-            _announcementServiceHost = new ServiceHost(_announcementService);
-            _announcementServiceHost.AddServiceEndpoint(new UdpAnnouncementEndpoint());
-            _announcementServiceHost.Open();
         }
 
-        private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
-        {
-            _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
-        }
-
-        private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
-        {
-            _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
-        }
 
         public CommunicationState State 
         {
@@ -65,66 +41,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             }
         }
 
-        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
-
         public EndpointAddress Connection { get; private set; }
-
-        public EndpointAddress FindEndpoint(Uri connection)
-        {
-            lock(_availableEndpoints)
-            {
-                return _availableEndpoints.SingleOrDefault(x => x.Uri == connection);
-            }
-        }
-
-        public void FindAvailableServices()
-        {
-            var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-            var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
-
-            foreach(var endPoints in findResponse.Endpoints)
-            {
-                var found = false;
-
-                foreach (var knownEndpoint in _availableEndpoints)
-                {
-                    if(knownEndpoint.Uri == endPoints.Address.Uri)
-                    {
-                        found = true;
-                        break;
-                    }   
-                }
-
-                if (!found)
-                {
-                    lock (_availableEndpoints)
-                    {
-                        _availableEndpoints.Add(endPoints.Address);
-                    }
-                }
-            }
-
-            foreach(var knownEndpoint in _availableEndpoints.ToList())
-            {
-                var found = false;
-                foreach (var endPoints in findResponse.Endpoints)
-                {
-                    if (knownEndpoint.Uri == endPoints.Address.Uri)
-                    {
-                        found = true;
-                        break;
-                    }    
-                }
-
-                if (!found)
-                {
-                    lock (_availableEndpoints)
-                    {
-                        _availableEndpoints.Remove(knownEndpoint);
-                    }
-                }
-            }
-        }
 
         public void Open(EndpointAddress endpointAddress)
         {
@@ -154,21 +71,14 @@ namespace RxdSolutions.FusionLink.RTDClient
                     _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
 
                 Connection = address;
-            }
-            catch (TimeoutException)
-            {
-                //Do Nothing. Wait for the next update.
-            }
-            catch (Exception)
-            {
-                //The endpoint must be dead. Remove it.
-                _availableEndpoints.Remove(endpointAddress);
 
-                throw;
+                OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
             }
-            finally
+            catch
             {
                 OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
+
+                throw;
             }
         }
 
@@ -250,7 +160,8 @@ namespace RxdSolutions.FusionLink.RTDClient
             if(!_positionSubscriptions.Contains((positionId, column)))
                 _positionSubscriptions.Add((positionId, column));
 
-            _server.SubscribeToPositionValue(positionId, column);
+            if(_server is object)
+                _server.SubscribeToPositionValue(positionId, column);
         }
 
         public void SubscribeToPortfolioValue(int folioId, string column)
@@ -258,12 +169,14 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_portfolioSubscriptions.Contains((folioId, column)))
                 _portfolioSubscriptions.Add((folioId, column));
 
-            _server.SubscribeToPortfolioValue(folioId, column);
+            if (_server is object)
+                _server.SubscribeToPortfolioValue(folioId, column);
         }
 
         public void SubscribeToPortfolioDate()
         {
-            _server.SubscribeToPortfolioDate();
+            if (_server is object)
+                _server.SubscribeToPortfolioDate();
         }
 
         #region IDisposable Support
@@ -278,8 +191,6 @@ namespace RxdSolutions.FusionLink.RTDClient
                 {
                     _positionSubscriptions.Clear();
                     _portfolioSubscriptions.Clear();
-
-                    _announcementServiceHost.Close();
                 }
 
                 disposedValue = true;

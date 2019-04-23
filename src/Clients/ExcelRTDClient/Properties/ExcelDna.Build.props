@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="ExcelDnaProps">
+<Project DefaultTargets="ExcelDnaProps">
 <!--
   If you change properties in this file, they may not come into effect until you:
      * Rebuild the solution/project
@@ -12,7 +12,6 @@
      * Delete SolutionName.suo, if exists
      * Open your solution/project again in Visual Studio
   -->
-
   <!--
     Configuration properties for building .dna files
   -->
@@ -44,5 +43,6 @@
     -->
     <ExcelDnaPackXllSuffix Condition="'$(ExcelDnaPackXllSuffix)' == ''">-packed</ExcelDnaPackXllSuffix>
   </PropertyGroup>
+  
 </Project>
 
