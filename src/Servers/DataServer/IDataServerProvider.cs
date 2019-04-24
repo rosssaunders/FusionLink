@@ -22,7 +22,9 @@ namespace RxdSolutions.FusionLink
 
         void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
 
-        DateTime GetPortfolioDate();
+        object GetSystemValue(SystemProperty property);
+
+        void GetSystemValues(IDictionary<SystemProperty, object> values);
 
         List<int> GetPositions(int folioId);
     }

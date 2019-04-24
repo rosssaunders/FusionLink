@@ -2,15 +2,23 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using NSREnums;
 
-public class SSMCellStyle : IDisposable
+public class CSMApi : IDisposable
 {
-    public SSMCellStyle()
+    public void initFrameWork()
     {
+
     }
 
-    public eMDataType kind { get; set; }
+    public void Initialise()
+    {
+
+    }
+
+    public void DisposeApi()
+    {
+
+    }
 
     public void Dispose()
     {

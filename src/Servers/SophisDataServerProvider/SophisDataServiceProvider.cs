@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using RxdSolutions.FusionLink.Interface;
 using sophis.portfolio;
 using sophisTools;
 
@@ -69,24 +70,60 @@ namespace RxdSolutions.FusionLink
             return result;
         }
 
-        public DateTime GetPortfolioDate()
+        public object GetSystemValue(SystemProperty property)
         {
-            DateTime ? dt = null;
+            object result = "#N/A";
 
             _context.Send(state => {
 
-                var portfolioDate = CSMPortfolio.GetPortfolioDate();
-                using (var day = new CSMDay(portfolioDate))
+                try
                 {
-                    dt = new DateTime(day.fYear, day.fMonth, day.fDay);
+                    result = GetSystemValueUI(property);
+                }
+                catch (Exception ex)
+                {
+                    result = ex.Message;
                 }
 
             }, null);
 
-            if(dt.HasValue)
-                return dt.Value;
+            return result;
+        }
 
-            throw new ApplicationException("Unable to get the Portfolio date");
+        private object GetSystemValueUI(SystemProperty property)
+        {
+            switch (property)
+            {
+                case SystemProperty.PortfolioDate:
+
+                    var portfolioDate = CSMPortfolio.GetPortfolioDate();
+                    using (var day = new CSMDay(portfolioDate))
+                    {
+                        return new DateTime(day.fYear, day.fMonth, day.fDay);
+                    }
+
+            }
+
+            throw new ApplicationException($"Unknown property {property}");
+        }
+
+        public void GetSystemValues(IDictionary<SystemProperty, object> values)
+        {
+            _context.Send(state => {
+
+                foreach (var key in values.Keys.ToList())
+                {
+                    try
+                    {
+                        values[key] = GetSystemValueUI(key);
+                    }
+                    catch (Exception ex)
+                    {
+                        values[key] = ex.Message;
+                    }
+                }
+
+            }, null);
         }
 
         public List<int> GetPositions(int folioId)

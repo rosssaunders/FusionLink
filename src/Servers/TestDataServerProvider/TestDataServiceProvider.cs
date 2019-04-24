@@ -85,11 +85,6 @@ namespace RxdSolutions.FusionLink
             return RandomDouble();
         }
 
-        public DateTime GetPortfolioDate()
-        {
-            return DateTime.Today;
-        }
-
         public List<int> GetPositions(int folioId)
         {
             return new List<int>() { 1, 2, 3, 4, 5 };
@@ -101,6 +96,16 @@ namespace RxdSolutions.FusionLink
         }
 
         public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetSystemValue(SystemProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetSystemValues(IDictionary<SystemProperty, object> values)
         {
             throw new NotImplementedException();
         }

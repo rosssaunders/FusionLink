@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.ServiceModel;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using RxdSolutions.FusionLink.Interface;
@@ -18,12 +19,12 @@ namespace RxdSolutions.FusionLink
         private readonly List<IDataServiceClient> _clients;
         private readonly IDataServerProvider _dataServiceProvider;
 
-        internal Subscriptions<(int Id, string Column)> _positionSubscriptions;
-        internal Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private Subscriptions<(int Id, string Column)> _positionSubscriptions;
+        private Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private Subscriptions<SystemProperty> _systemSubscriptions;
 
-        private System.Timers.Timer _providerDataRefreshTimer;
-
-        private ObservableValue<DateTime> _portfolioDate;
+        private AutoResetEvent _runningResetEvent;
+        private Thread _refreshThread;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
@@ -49,13 +50,18 @@ namespace RxdSolutions.FusionLink
 
             _portfolioSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage }; 
             _portfolioSubscriptions.OnValueChanged += PortfolioDataPointChanged;
+
+            _systemSubscriptions = new Subscriptions<SystemProperty>() { DefaultMessage = DefaultMessage };
+            _systemSubscriptions.OnValueChanged += SystemDataPointChanged;
+
+            _runningResetEvent = new AutoResetEvent(false);
         }
 
-        private void PortfolioDateChanged(object sender, PropertyChangedEventArgs e)
+        private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
         {
             SendMessageToAllClients(c => {
 
-                c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
+                c.SendSystemValue(SystemProperty.PortfolioDate, e.DataPoint.Value);
 
             });
         }
@@ -85,10 +91,9 @@ namespace RxdSolutions.FusionLink
                 if (IsRunning)
                     return;
 
-                _providerDataRefreshTimer = new System.Timers.Timer(TimeSpan.FromSeconds(ProviderPollingInterval).TotalMilliseconds);
-                _providerDataRefreshTimer.Elapsed += UpdateDataFromProvider;
-                _providerDataRefreshTimer.Start();
-
+                _refreshThread = new Thread(new ThreadStart(UpdateDataFromProvider));
+                _refreshThread.Start();
+                
                 IsRunning = true;
             }
         }
@@ -100,14 +105,10 @@ namespace RxdSolutions.FusionLink
                 if (!IsRunning)
                     return;
 
-                if (_providerDataRefreshTimer is object)
-                {
-                    _providerDataRefreshTimer.Elapsed -= UpdateDataFromProvider;
-                    _providerDataRefreshTimer.Stop();
-                    _providerDataRefreshTimer.Dispose();
-                }
-
+                _runningResetEvent.Set();
                 IsRunning = false;
+
+                _refreshThread.Join();
             }
         }
 
@@ -167,17 +168,11 @@ namespace RxdSolutions.FusionLink
         {
             if(property == SystemProperty.PortfolioDate)
             {
-                if (_portfolioDate is null)
-                {
-                    _portfolioDate = new ObservableValue<DateTime>();
-                    _portfolioDate.PropertyChanged += PortfolioDateChanged;
-                }
-
-                UpdatePortfolioDate();
+                var dp = _systemSubscriptions.Add(SystemProperty.PortfolioDate);
 
                 SendMessageToAllClients(c => {
 
-                    c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
+                    c.SendSystemValue(dp.Key, dp.Value);
 
                 });
             }
@@ -195,14 +190,7 @@ namespace RxdSolutions.FusionLink
 
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
-            if (property == SystemProperty.PortfolioDate)
-            {
-                if (_portfolioDate is object)
-                {
-                    _portfolioDate.PropertyChanged -= PortfolioDateChanged;
-                    _portfolioDate = null;
-                }
-            }
+            _systemSubscriptions.Remove(SystemProperty.PortfolioDate);
         }
 
         private void UpdatePositionSubscriptions()
@@ -237,11 +225,15 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        private void UpdateDataFromProvider(object sender, ElapsedEventArgs e)
+        private void UpdateDataFromProvider()
         {
-            lock(_providerDataRefreshTimer)
+            var waitTime = (int)TimeSpan.FromSeconds(ProviderPollingInterval).TotalMilliseconds;
+
+            while (IsRunning)
             {
                 UpdateData();
+
+                _runningResetEvent.WaitOne(waitTime);
             }
         }
 
@@ -255,28 +247,35 @@ namespace RxdSolutions.FusionLink
                 //Avoid overloading the service provider
                 lock(_dataServiceProvider)
                 {
-                    Task.Run(() => {
+                    var timer = Stopwatch.StartNew();
 
-                        var timer = Stopwatch.StartNew();
+                    UpdatePositionSubscriptions();
 
-                        UpdatePositionSubscriptions();
+                    UpdatePortfolioSubscriptions();
 
-                        UpdatePortfolioSubscriptions();
+                    UpdateSystemPropertySubscriptions();
 
-                        UpdatePortfolioDate();
+                    timer.Stop();
 
-                        timer.Stop();
-
-                        OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(timer.Elapsed));
-                    });
+                    OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(timer.Elapsed));
                 }
             }
         }
 
-        private void UpdatePortfolioDate()
+        private void UpdateSystemPropertySubscriptions()
         {
-            if (_portfolioDate is object)
-                _portfolioDate.Value = _dataServiceProvider.GetPortfolioDate();
+            var keys = _systemSubscriptions.GetKeys();
+
+            var dict = new Dictionary<SystemProperty, object>();
+            foreach (var key in keys)
+                dict.Add(key, null);
+
+            _dataServiceProvider.GetSystemValues(dict);
+
+            foreach (var kvp in dict)
+            {
+                _systemSubscriptions.Get(kvp.Key).Value = kvp.Value;
+            }
         }
 
         private void SendMessageToAllClients(Action<IDataServiceClient> send)

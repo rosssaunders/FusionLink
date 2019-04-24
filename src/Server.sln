@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{48495E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataServiceInterface", "Shared\DataServerInterface\DataServiceInterface.csproj", "{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FusionLinkHost", "Servers\SophisOutOfProcessHost\FusionLinkHost.csproj", "{1BE300E4-6205-4C88-8079-53178A58CF9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_7_1_3_14|Any CPU = Debug_7_1_3_14|Any CPU
@@ -156,6 +158,30 @@ Global
 		{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}.Release|x64.Build.0 = Release|Any CPU
 		{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}.Release|x86.ActiveCfg = Release|Any CPU
 		{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}.Release|x86.Build.0 = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|Any CPU.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x64.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x64.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x86.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x86.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|Any CPU.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x64.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x64.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x86.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x86.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x64.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x86.Build.0 = Debug|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x64.ActiveCfg = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x64.Build.0 = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x86.ActiveCfg = Release|Any CPU
+		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
