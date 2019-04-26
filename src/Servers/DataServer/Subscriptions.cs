@@ -60,6 +60,16 @@ namespace RxdSolutions.FusionLink
             return null;
         }
 
+        public bool IsSubscribed(string subscriber, T key)
+        {
+            if (_subscriptions.TryGetValue(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
+            {
+                return value.subscribers.Contains(subscriber);
+            }
+
+            return false;
+        }
+
         public IEnumerable<T> GetKeys()
         {
             return _subscriptions.Keys.ToList();

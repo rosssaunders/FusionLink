@@ -195,7 +195,10 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var position = portfolio.GetNthTreeViewPosition(i))
                     {
-                        positions.Add(position.GetIdentifier());
+                        if(position.GetInstrumentCount() != 0)
+                        {
+                            positions.Add(position.GetIdentifier());
+                        }
                     }
                 }
 

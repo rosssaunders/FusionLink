@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.ServiceModel;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -16,7 +14,7 @@ namespace RxdSolutions.FusionLink
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class DataServer : IDataServiceServer
     {
-        private readonly List<IDataServiceClient> _clients;
+        private readonly Dictionary<string, IDataServiceClient> _clients;
         private readonly IDataServerProvider _dataServiceProvider;
 
         private Subscriptions<(int Id, string Column)> _positionSubscriptions;
@@ -30,7 +28,7 @@ namespace RxdSolutions.FusionLink
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
         public event EventHandler<EventArgs> OnSubscriptionChanged;
 
-        public IReadOnlyList<IDataServiceClient> Clients => _clients;
+        public IReadOnlyList<IDataServiceClient> Clients => _clients.Values.ToList();
 
         public string DefaultMessage { get; set; } = "Getting data... please wait";
 
@@ -43,7 +41,7 @@ namespace RxdSolutions.FusionLink
 
         public DataServer(IDataServerProvider dataService)
         {
-            _clients = new List<IDataServiceClient>();
+            _clients = new Dictionary<string, IDataServiceClient>();
             _dataServiceProvider = dataService;
 
             _positionSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage };
@@ -60,7 +58,7 @@ namespace RxdSolutions.FusionLink
 
         private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
                 c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
 
@@ -69,7 +67,7 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
                 c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
 
@@ -78,7 +76,7 @@ namespace RxdSolutions.FusionLink
 
         private void PositionDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
                 c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
 
@@ -122,8 +120,8 @@ namespace RxdSolutions.FusionLink
 
             lock(_clients)
             {
-                if (!_clients.Contains(c))
-                    _clients.Add(c);
+                if (!_clients.ContainsKey(OperationContext.Current.SessionId))
+                    _clients.Add(OperationContext.Current.SessionId, c);
             }
 
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Connected, c));
@@ -133,18 +131,27 @@ namespace RxdSolutions.FusionLink
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
-            Unregister(c);
+            Unregister(OperationContext.Current.SessionId, c);
         }
 
-        private void Unregister(IDataServiceClient c)
+        private void Unregister(string sessionId, IDataServiceClient c)
         {
             lock (_clients)
             {
-                if (_clients.Contains(c))
-                    _clients.Remove(c);
+                if (_clients.ContainsKey(sessionId))
+                    _clients.Remove(sessionId);
             }
 
-            OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, c));
+            foreach(var sub in _portfolioSubscriptions.GetKeys())
+                _portfolioSubscriptions.Remove(sessionId, (sub.Id, sub.Column));
+
+            foreach (var sub in _positionSubscriptions.GetKeys())
+                _positionSubscriptions.Remove(sessionId, (sub.Id, sub.Column));
+
+            foreach (var sub in _systemSubscriptions.GetKeys())
+                _systemSubscriptions.Remove(sessionId, sub);
+
+            OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, null));
         }
 
         public void SubscribeToPositionValue(int positionId, string column)
@@ -153,9 +160,12 @@ namespace RxdSolutions.FusionLink
 
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
-                c.SendPositionValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                if (_positionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
+                {
+                    c.SendPositionValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                }
 
             });
         }
@@ -166,9 +176,12 @@ namespace RxdSolutions.FusionLink
 
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
-                c.SendPortfolioValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                if (_portfolioSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
+                {
+                    c.SendPortfolioValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                }
 
             });
         }
@@ -179,9 +192,12 @@ namespace RxdSolutions.FusionLink
 
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
-                c.SendSystemValue(dp.Key, dp.Value);
+                if (_systemSubscriptions.IsSubscribed(OperationContext.Current.SessionId, dp.Key))
+                {
+                    c.SendSystemValue(dp.Key, dp.Value);
+                }
 
             });
         }
@@ -316,28 +332,25 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        private void SendMessageToAllClients(Action<IDataServiceClient> send)
+        private void SendMessageToAllClients(Action<string, IDataServiceClient> send)
         {
             if (_clients.Count == 0)
                 return;
 
             // send number to clients
-            int ix = 0;
-            while (ix < _clients.Count)
+            foreach(var key in _clients.Keys.ToList())
             {
                 // can't do foreach because we want to remove dead ones
-                var c = _clients[ix];
+                var c = _clients[key];
                 try
                 {
-                    send.Invoke(c);
-                    
-                    ix++;
+                    send.Invoke(key, c);
                 }
                 catch (Exception ex)
                 {
                     Debug.Print(ex.Message);
 
-                    Unregister(c);
+                    Unregister(key, c);
                 }
             }
         }
