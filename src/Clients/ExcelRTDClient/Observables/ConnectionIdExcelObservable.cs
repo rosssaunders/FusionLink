@@ -6,12 +6,12 @@ using ExcelDna.Integration;
 
 namespace RxdSolutions.FusionLink.RTDClient
 {
-    public class ConnectionStringExcelObservable : IExcelObservable
+    public class ConnectionIdExcelObservable : IExcelObservable
     {
         private readonly DataServiceClient _rtdClient;
         private IExcelObserver _observer;
 
-        public ConnectionStringExcelObservable(DataServiceClient rtdClient)
+        public ConnectionIdExcelObservable(DataServiceClient rtdClient)
         {
             _rtdClient = rtdClient;
         }
@@ -24,7 +24,7 @@ namespace RxdSolutions.FusionLink.RTDClient
 
             if(_rtdClient.Connection is object)
             {
-                _observer.OnNext(_rtdClient.Connection.Uri.ToString());
+                _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
             }
             else
             {
@@ -36,7 +36,7 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private void OnConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
         {
-            _observer.OnNext(_rtdClient.Connection.Uri.ToString());
+            _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
         }
 
         private void CleanUp()

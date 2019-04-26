@@ -7,11 +7,14 @@ namespace RxdSolutions.FusionLink
 {
     public class DataUpdatedFromProviderEventArgs : EventArgs
     {
-        public DataUpdatedFromProviderEventArgs(TimeSpan timeTaken)
+        public DataUpdatedFromProviderEventArgs(TimeSpan timeTaken, TimeSpan overallTime)
         {
-            TimeTaken = timeTaken;
+            UITimeTaken = timeTaken;
+            OverallTime = overallTime;
         }
 
-        public TimeSpan TimeTaken { get; }
+        public TimeSpan UITimeTaken { get; }
+
+        public TimeSpan OverallTime { get; }
     }
 }

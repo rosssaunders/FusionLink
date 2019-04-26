@@ -3,8 +3,8 @@
   <PropertyGroup>
     <ProjectGuid>{1D5FF3ED-123D-41FC-A6ED-C2C763A71168}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RxdSolutions</RootNamespace>
-    <AssemblyName>DataServer</AssemblyName>
+    <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
+    <AssemblyName>FusionLinkDataServer</AssemblyName>
     <TargetFramework>net452</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>AnyCPU;x64</Platforms>

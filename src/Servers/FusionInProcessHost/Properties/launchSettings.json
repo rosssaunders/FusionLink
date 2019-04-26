@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "SophisValue_v71314_x64": {
+      "commandName": "Executable",
+      "executablePath": "$(Sophis_v71314_x64)\\SophisValue.exe",
+      "workingDirectory": "$(Sophis_v71314_x64)",
+      "nativeDebugging": false
+    },
+    "SophisValue_v71319_x64": {
+      "commandName": "Executable",
+      "executablePath": "$(Sophis_v71319_x64)\\SophisValue.exe",
+      "workingDirectory": "$(Sophis_v71319_x64)",
+      "nativeDebugging": false
+    }
+  }
+}

@@ -14,6 +14,8 @@ namespace RxdSolutions.FusionLink
     {
         bool IsBusy { get; }
 
+        TimeSpan ElapsedTimeOfLastCall { get; }
+
         object GetPositionValue(int positionId, string column);
 
         void GetPositionValues(IDictionary<(int positionId, string column), object> values);

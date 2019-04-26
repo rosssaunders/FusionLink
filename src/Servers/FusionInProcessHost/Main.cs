@@ -21,7 +21,8 @@ namespace RxdSolutions.FusionLink
         private static DataServer _dataServer;
         private static CaptionBar _captionBar;
 
-        private TimeSpan ? _lastRefreshTimeTaken = null;
+        private TimeSpan? _lastRefreshTimeTakenInUI = null;
+        private TimeSpan? _lastRefreshTimeTakenOverall = null;
 
         public void EntryPoint()
         {
@@ -68,9 +69,22 @@ namespace RxdSolutions.FusionLink
                 _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
                 _dataServer.OnDataUpdatedFromProvider += OnDataUpdatedFromProvider;
 
-            }).ContinueWith(t => {
+#if DEBUG
+                _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
+#endif
+
+            }).ContinueWith (t => {
                 UpdateCaption();
             }, uiThreadScheduler);
+        }
+
+        private void OnSubscriptionChanged(object sender, EventArgs e)
+        {
+            _context.Send(x => {
+
+                UpdateCaption();
+
+            }, null);
         }
 
         private static void CreateDataServerFromConfig(SophisDataServiceProvider dataServiceProvider)
@@ -110,26 +124,35 @@ namespace RxdSolutions.FusionLink
                     clientsConnectedCaption = $" {clientCount} clients connected";
                 }
 
-                if (!string.IsNullOrWhiteSpace(clientsConnectedCaption))
+                caption.Append(" / ");
+                caption.Append(clientsConnectedCaption);
+
+                //Config
+                var refreshRate = $"Refreshing every {_dataServer.ProviderPollingInterval} second(s)";
+                caption.Append(" / ");
+                caption.Append(refreshRate);
+
+                //Perf
+                if (_lastRefreshTimeTakenInUI.HasValue)
                 {
+                    var lastRefresh = $"Last refresh took {Math.Round(_lastRefreshTimeTakenInUI.Value.TotalSeconds, 1)} second(s)";
                     caption.Append(" / ");
-                    caption.Append(clientsConnectedCaption);
+                    caption.Append(lastRefresh);
 
-                    //Config
-                    var refreshRate = $"Refreshing every {_dataServer.ProviderPollingInterval} second(s)";
+#if DEBUG
+                    var lastRefreshOverall = $"({Math.Round(_lastRefreshTimeTakenOverall.Value.TotalSeconds, 1)} overall)";
                     caption.Append(" / ");
-                    caption.Append(refreshRate);
-
-                    //Perf
-                    if (_lastRefreshTimeTaken.HasValue)
-                    {
-                        var lastRefresh = $"Last refresh took {Math.Round(_lastRefreshTimeTaken.Value.TotalSeconds, 1)} second(s)";
-                        caption.Append(" / ");
-                        caption.Append(lastRefresh);
-                    }
+                    caption.Append(lastRefreshOverall);
+#endif
                 }
             }
-            
+
+#if DEBUG
+            var subs = $"(Portfolio:{_dataServer.PortfolioSubscriptionCount},Position:{_dataServer.PositonSubscriptionCount},System:{_dataServer.SystemValueCount})";
+            caption.Append(" / ");
+            caption.Append(subs);
+#endif
+
             _captionBar.Text = caption.ToString();
             _captionBar.Show();
         }
@@ -143,7 +166,7 @@ namespace RxdSolutions.FusionLink
                     if(_dataServer.IsRunning)
                     {
                         _dataServer.Stop();
-                        _lastRefreshTimeTaken = null;
+                        _lastRefreshTimeTakenInUI = null;
                     }
                 }
                 else
@@ -161,7 +184,8 @@ namespace RxdSolutions.FusionLink
 
         private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
         {
-            _lastRefreshTimeTaken = e.TimeTaken;
+            _lastRefreshTimeTakenInUI = e.UITimeTaken;
+            _lastRefreshTimeTakenOverall = e.OverallTime;
 
             _context.Send(x => {
 

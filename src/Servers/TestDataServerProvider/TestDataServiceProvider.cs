@@ -36,6 +36,8 @@ namespace RxdSolutions.FusionLink
 
         public bool IsBusy => false;
 
+        public TimeSpan ElapsedTimeOfLastCall => throw new NotImplementedException();
+
         public TestDataServiceProvider()
         {
             stringColumns.Add("Reference", () => RandomString(23));

@@ -48,9 +48,9 @@ namespace RxdSolutions.FusionLink.RTDClient
 
             var connections = AddIn.ConnectionMonitor.AvailableEndpoints.Select(x => 
                 {
-                    var id = x.Uri.ToString().Split('_')[1];
+                    var id = ConnectionHelper.GetConnectionId(x.Uri);
 
-                    var process = Process.GetProcessById(int.Parse(id));
+                    var process = Process.GetProcessById(id);
                     var title = process.MainWindowTitle;
                     if (string.IsNullOrWhiteSpace(title))
                         title = x.Uri.ToString();

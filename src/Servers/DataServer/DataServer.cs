@@ -28,6 +28,7 @@ namespace RxdSolutions.FusionLink
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
+        public event EventHandler<EventArgs> OnSubscriptionChanged;
 
         public IReadOnlyList<IDataServiceClient> Clients => _clients;
 
@@ -61,7 +62,7 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients(c => {
 
-                c.SendSystemValue(SystemProperty.PortfolioDate, e.DataPoint.Value);
+                c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
 
             });
         }
@@ -91,10 +92,10 @@ namespace RxdSolutions.FusionLink
                 if (IsRunning)
                     return;
 
+                IsRunning = true;
+
                 _refreshThread = new Thread(new ThreadStart(UpdateDataFromProvider));
                 _refreshThread.Start();
-                
-                IsRunning = true;
             }
         }
 
@@ -105,10 +106,13 @@ namespace RxdSolutions.FusionLink
                 if (!IsRunning)
                     return;
 
-                _runningResetEvent.Set();
                 IsRunning = false;
-
-                _refreshThread.Join();
+                _runningResetEvent.Set();
+                
+                if(!_refreshThread.Join(TimeSpan.FromSeconds(5)))
+                {
+                    _refreshThread.Abort();
+                }
             }
         }
 
@@ -128,6 +132,7 @@ namespace RxdSolutions.FusionLink
         public void Unregister()
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
+
             Unregister(c);
         }
 
@@ -144,7 +149,9 @@ namespace RxdSolutions.FusionLink
 
         public void SubscribeToPositionValue(int positionId, string column)
         {
-            var dp = _positionSubscriptions.Add((positionId, column));
+            var dp = _positionSubscriptions.Add(OperationContext.Current.SessionId, (positionId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
             SendMessageToAllClients(c => {
 
@@ -155,7 +162,9 @@ namespace RxdSolutions.FusionLink
 
         public void SubscribeToPortfolioValue(int portfolioId, string column)
         {
-            var dp = _portfolioSubscriptions.Add((portfolioId, column));
+            var dp = _portfolioSubscriptions.Add(OperationContext.Current.SessionId, (portfolioId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
             SendMessageToAllClients(c => {
 
@@ -166,31 +175,48 @@ namespace RxdSolutions.FusionLink
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
-            if(property == SystemProperty.PortfolioDate)
-            {
-                var dp = _systemSubscriptions.Add(SystemProperty.PortfolioDate);
+            var dp = _systemSubscriptions.Add(OperationContext.Current.SessionId, property);
 
-                SendMessageToAllClients(c => {
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                    c.SendSystemValue(dp.Key, dp.Value);
+            SendMessageToAllClients(c => {
 
-                });
-            }
+                c.SendSystemValue(dp.Key, dp.Value);
+
+            });
         }
 
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
-            _positionSubscriptions.Remove((positionId, column));
+            _positionSubscriptions.Remove(OperationContext.Current.SessionId, (positionId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
 
         public void UnsubscribeToPortfolioValue(int portfolioId, string column)
         {
-            _portfolioSubscriptions.Remove((portfolioId, column));
+            _portfolioSubscriptions.Remove(OperationContext.Current.SessionId, (portfolioId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
-            _systemSubscriptions.Remove(SystemProperty.PortfolioDate);
+            _systemSubscriptions.Remove(OperationContext.Current.SessionId, property);
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+        }
+
+        public int PositonSubscriptionCount {
+            get => _positionSubscriptions.Count;
+        }
+
+        public int PortfolioSubscriptionCount {
+            get => _portfolioSubscriptions.Count;
+        }
+
+        public int SystemValueCount {
+            get => _systemSubscriptions.Count;
         }
 
         private void UpdatePositionSubscriptions()
@@ -205,7 +231,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var kvp in dict)
             {
-                _positionSubscriptions.Get(kvp.Key).Value = kvp.Value;
+                var dp = _positionSubscriptions.Get(kvp.Key);
+                if(dp is object)
+                    dp.Value = kvp.Value;
             }
         }
 
@@ -221,7 +249,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var kvp in dict)
             {
-                _portfolioSubscriptions.Get(kvp.Key).Value = kvp.Value;
+                var dp = _portfolioSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
             }
         }
 
@@ -247,17 +277,23 @@ namespace RxdSolutions.FusionLink
                 //Avoid overloading the service provider
                 lock(_dataServiceProvider)
                 {
-                    var timer = Stopwatch.StartNew();
+                    var overallTimer = Stopwatch.StartNew();
 
                     UpdatePositionSubscriptions();
 
+                    var elapsedUITime = _dataServiceProvider.ElapsedTimeOfLastCall;
+
                     UpdatePortfolioSubscriptions();
+
+                    elapsedUITime += _dataServiceProvider.ElapsedTimeOfLastCall;
 
                     UpdateSystemPropertySubscriptions();
 
-                    timer.Stop();
+                    elapsedUITime += _dataServiceProvider.ElapsedTimeOfLastCall;
 
-                    OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(timer.Elapsed));
+                    overallTimer.Stop();
+
+                    OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(elapsedUITime, overallTimer.Elapsed));
                 }
             }
         }
@@ -274,7 +310,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var kvp in dict)
             {
-                _systemSubscriptions.Get(kvp.Key).Value = kvp.Value;
+                var dp = _systemSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
             }
         }
 

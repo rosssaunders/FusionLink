@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using RxdSolutions.FusionLink.Interface;
+using sophis.market_data;
 using sophis.portfolio;
 using sophisTools;
 
@@ -14,17 +16,20 @@ namespace RxdSolutions.FusionLink
     public class SophisDataServiceProvider : IDataServerProvider
     {
         private readonly SynchronizationContext _context;
-
         private Queue<int> _portfoliosToLoad = new Queue<int>();
+        private TimeSpan _lastRefreshTimer;
 
         public SophisDataServiceProvider(SynchronizationContext context)
         {
             _context = context;
+            _lastRefreshTimer = default(TimeSpan);
         }
 
         public bool IsBusy { get; private set; }
 
         public bool LoadUnloadedPortfolios { get; set; } = false;
+
+        public TimeSpan ElapsedTimeOfLastCall => _lastRefreshTimer;
 
         public object GetPortfolioValue(int portfolioId, string column)
         {
@@ -90,38 +95,75 @@ namespace RxdSolutions.FusionLink
             return result;
         }
 
-        private object GetSystemValueUI(SystemProperty property)
-        {
-            switch (property)
-            {
-                case SystemProperty.PortfolioDate:
-
-                    var portfolioDate = CSMPortfolio.GetPortfolioDate();
-                    using (var day = new CSMDay(portfolioDate))
-                    {
-                        return new DateTime(day.fYear, day.fMonth, day.fDay);
-                    }
-
-            }
-
-            throw new ApplicationException($"Unknown property {property}");
-        }
-
         public void GetSystemValues(IDictionary<SystemProperty, object> values)
         {
             _context.Send(state => {
 
-                foreach (var key in values.Keys.ToList())
-                {
-                    try
+                TimeUpdate(() => {
+
+                    foreach (var key in values.Keys.ToList())
                     {
-                        values[key] = GetSystemValueUI(key);
+                        try
+                        {
+                            values[key] = GetSystemValueUI(key);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
                     }
-                    catch (Exception ex)
+
+                });
+
+            }, null);
+        }
+
+        public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
+        {
+            _context.Send(state => {
+
+                TimeUpdate(() => {
+
+                    LoadRequiredData();
+
+                    foreach (var key in values.Keys.ToList())
                     {
-                        values[key] = ex.Message;
+                        try
+                        {
+                            values[key] = GetPositionValueUI(key.positionId, key.column);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
                     }
-                }
+
+                });
+
+            }, null);
+        }
+
+        public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
+        {
+            _context.Send(state => {
+
+                TimeUpdate(() => {
+
+                    LoadRequiredData();
+
+                    foreach (var key in values.Keys.ToList())
+                    {
+                        try
+                        {
+                            values[key] = GetPortfolioValueUI(key.positionId, key.column);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
+                    }
+
+                });
 
             }, null);
         }
@@ -142,48 +184,6 @@ namespace RxdSolutions.FusionLink
             }, null);
 
             return results;
-        }
-
-        public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
-        {
-            _context.Send(state => {
-
-                LoadRequiredData();
-
-                foreach(var key in values.Keys.ToList())
-                {
-                    try
-                    {
-                        values[key] = GetPositionValueUI(key.positionId, key.column);
-                    }
-                    catch (Exception ex)
-                    {
-                        values[key] = ex.Message;
-                    }
-                }
-
-            }, null);
-        }
-
-        public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
-        {
-            _context.Send(state => {
-
-                LoadRequiredData();
-
-                foreach (var key in values.Keys.ToList())
-                {
-                    try
-                    {
-                        values[key] = GetPortfolioValueUI(key.positionId, key.column);
-                    }
-                    catch (Exception ex)
-                    {
-                        values[key] = ex.Message;
-                    }
-                }
-
-            }, null);
         }
 
         private void GetPositions(int folioId, List<int> positions)
@@ -209,6 +209,49 @@ namespace RxdSolutions.FusionLink
                     }
                 }
             }
+        }
+
+        private object GetSystemValueUI(SystemProperty property)
+        {
+            var sd = new SystemDates();
+            
+            sd.Instrument = CSMMarketData.GetInstrumentDate().GetDateTime();
+            sd.InstrumentCategory = CSMMarketData.GetInstrumentCategoryDate().GetDateTime();
+            sd.MarkPnLRuleSet = CSMMarketData.GetMarkPnLRuleSetDate().GetDateTime();
+            sd.SubscriptRedemptDate = CSMMarketData.GetSubscriptRedemptDate().GetDateTime();
+            sd.CreditRiskDate = CSMMarketData.GetCreditRiskDate().GetDateTime();
+            sd.RepoDate = CSMMarketData.GetRepoDate().GetDateTime();
+            sd.Volatility = CSMMarketData.GetVolatilityDate().GetDateTime();
+            sd.Correlation = CSMMarketData.GetCorrelationDate().GetDateTime();
+            sd.Dividend = CSMMarketData.GetDividendDate().GetDateTime();
+            sd.Forex = CSMMarketData.GetForexDate().GetDateTime();
+            sd.Spot = CSMMarketData.GetSpotDate().GetDateTime();
+            sd.MarketCategory = CSMMarketData.GetMarketCategoryDate().GetDateTime();
+            sd.TagMetaData = CSMMarketData.GetTagmetadataDate().GetDateTime();
+            sd.Position = CSMMarketData.GetPositionDate().GetDateTime();
+            sd.Rate = CSMMarketData.GetYieldCurveDate().GetDateTime();
+
+            switch (property)
+            {
+                case SystemProperty.PortfolioDate: return sd.Position;
+                case SystemProperty.InstrumentDate: return sd.Instrument;
+                case SystemProperty.InstrumentCategory: return sd.InstrumentCategory;
+                case SystemProperty.MarkPnLRuleSet: return sd.MarkPnLRuleSet;
+                case SystemProperty.SubscriptRedemptionDate: return sd.SubscriptRedemptDate;
+                case SystemProperty.CreditRiskDate: return sd.CreditRiskDate;
+                case SystemProperty.RepoDate: return sd.RepoDate;
+                case SystemProperty.Volatility: return sd.Volatility;
+                case SystemProperty.Correlation: return sd.Correlation;
+                case SystemProperty.Dividend: return sd.Dividend;
+                case SystemProperty.Forex: return sd.Forex;
+                case SystemProperty.Spot: return sd.Spot;
+                case SystemProperty.Rate: return sd.Rate;
+                case SystemProperty.MarketCategory: return sd.MarketCategory;
+                case SystemProperty.TagMetaData: return sd.TagMetaData;
+                case SystemProperty.Position: return sd.Position;
+            }
+
+            throw new ApplicationException($"Unknown property {property}");
         }
 
         private object GetPortfolioValueUI(int portfolioId, string column)
@@ -372,6 +415,17 @@ namespace RxdSolutions.FusionLink
 
                 IsBusy = false;
             }
+        }
+
+        private void TimeUpdate(Action action)
+        {
+            var timer = Stopwatch.StartNew();
+
+            action.Invoke();
+
+            timer.Stop();
+
+            _lastRefreshTimer = timer.Elapsed;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.RTDClient
 {
@@ -24,7 +25,18 @@ namespace RxdSolutions.FusionLink.RTDClient
         [ExcelFunction(Name = "GETPORTFOLIODATE", Description = "Returns the Portfolio Date of FusionInvest", Category = "FusionLink")]
         public static object GetPortfolioDate()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new SystemPropertyExcelObservable(Interface.SystemProperty.PortfolioDate, AddIn.Client));
+            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new SystemPropertyExcelObservable(SystemProperty.PortfolioDate, AddIn.Client));
+        }
+
+        [ExcelFunction(Name = "GETSYSTEMVALUE", Description = "Returns the requested System value from FusionInvest", Category = "FusionLink")]
+        public static object GetSystemValue(string property)
+        {
+            if (!Enum.TryParse(property, out SystemProperty enteredValue))
+            {
+                return ExcelError.ExcelErrorValue; // #VALUE
+            }
+
+            return ExcelAsyncUtil.Observe(nameof(GetSystemValue), new object[] { enteredValue }, () => new SystemPropertyExcelObservable(enteredValue, AddIn.Client));
         }
     }
 }

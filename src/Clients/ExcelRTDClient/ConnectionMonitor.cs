@@ -25,7 +25,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         private readonly ServiceHost _announcementServiceHost;
 
         private bool _running = false;
-        private readonly ManualResetEvent _resetEvent;
+        private readonly AutoResetEvent _resetEvent;
         private Task _monitor;
 
         private readonly object _monitorLock = new object();
@@ -36,7 +36,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         {
             _clients = new List<DataServiceClient>();
 
-            _resetEvent = new ManualResetEvent(false);
+            _resetEvent = new AutoResetEvent(false);
 
             _availableEndpoints = new List<EndpointAddress>();
 
