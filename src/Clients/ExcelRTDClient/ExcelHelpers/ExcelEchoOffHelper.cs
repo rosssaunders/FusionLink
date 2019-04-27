@@ -4,7 +4,7 @@
 using System;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     // RIIA-style helpers to deal with Excel selections    
     // Don't use if you agree with Eric Lippert here: http://stackoverflow.com/a/1757344/44264

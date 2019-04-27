@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class DataServiceClient : IDisposable
     {
@@ -99,9 +99,9 @@ namespace RxdSolutions.FusionLink.RTDClient
             OnSystemValueReceived?.Invoke(sender, e);
         }
 
-        public List<int> GetPositions(int portfolioId)
+        public List<int> GetPositions(int portfolioId, Positions positions)
         {
-            return _server.GetPositions(portfolioId);
+            return _server.GetPositions(portfolioId, positions);
         }
 
         public void Close()

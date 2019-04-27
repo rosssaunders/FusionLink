@@ -34,6 +34,6 @@ namespace RxdSolutions.FusionLink.Interface
         void UnsubscribeToSystemValue(SystemProperty systemValue);
 
         [OperationContract]
-        List<int> GetPositions(int folioId);
+        List<int> GetPositions(int folioId, Positions position);
     }
 }

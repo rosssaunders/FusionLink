@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class ConnectionMonitor : IDisposable
     {

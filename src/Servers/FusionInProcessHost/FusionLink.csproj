@@ -9,6 +9,11 @@
     <FileAlignment>512</FileAlignment>
     <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release;Debug_7_1_3_14;Debug_7_1_3_19</Configurations>
+    <Authors>RXD Solutions</Authors>
+    <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+    <Product>FusionLink</Product>
+    <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MFCCaptionBar">

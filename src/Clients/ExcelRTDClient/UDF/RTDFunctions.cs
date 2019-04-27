@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class RTDFunctions
     {

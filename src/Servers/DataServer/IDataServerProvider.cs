@@ -28,6 +28,6 @@ namespace RxdSolutions.FusionLink
 
         void GetSystemValues(IDictionary<SystemProperty, object> values);
 
-        List<int> GetPositions(int folioId);
+        List<int> GetPositions(int folioId, Positions positions);
     }
 }

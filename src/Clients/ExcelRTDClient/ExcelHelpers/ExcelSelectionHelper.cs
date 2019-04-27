@@ -4,7 +4,7 @@
 using System;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     // Select an ExcelReference (perhaps on another sheet) allowing changes to be made there.
     // On clean-up, resets all the selections and the active sheet.

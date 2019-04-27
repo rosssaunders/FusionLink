@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ECF9730E-606D-4EB8-8498-EFA73105DC16}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
+		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SophisMocks", "Servers\SophisMocks\SophisMocks.csproj", "{A386C006-93BE-42DA-9978-9CE1B1E844CD}"
@@ -21,8 +21,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FusionDataServerProvider", "Servers\FusionDataServerProvider\FusionDataServerProvider.csproj", "{A556116C-59FB-42D9-820A-CB8040CDF3E9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FusionLink", "Servers\FusionInProcessHost\FusionLink.csproj", "{17BF2445-0643-4CDF-B678-7F3472910D9B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FusionOutOfProcessHost", "Servers\FusionOutOfProcessHost\FusionOutOfProcessHost.csproj", "{1BE300E4-6205-4C88-8079-53178A58CF9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,22 +130,6 @@ Global
 		{17BF2445-0643-4CDF-B678-7F3472910D9B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17BF2445-0643-4CDF-B678-7F3472910D9B}.Release|x64.ActiveCfg = Release|x64
 		{17BF2445-0643-4CDF-B678-7F3472910D9B}.Release|x64.Build.0 = Release|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|Any CPU.ActiveCfg = Debug_7_1_3_14|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|Any CPU.Build.0 = Debug_7_1_3_14|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x64.ActiveCfg = Debug_7_1_3_14|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_14|x64.Build.0 = Debug_7_1_3_14|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|Any CPU.ActiveCfg = Debug_7_1_3_19|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|Any CPU.Build.0 = Debug_7_1_3_19|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x64.ActiveCfg = Debug_7_1_3_19|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug_7_1_3_19|x64.Build.0 = Debug_7_1_3_19|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x64.ActiveCfg = Debug|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Debug|x64.Build.0 = Debug|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x64.ActiveCfg = Release|x64
-		{1BE300E4-6205-4C88-8079-53178A58CF9B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

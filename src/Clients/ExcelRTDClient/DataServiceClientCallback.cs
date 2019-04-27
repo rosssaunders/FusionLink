@@ -4,13 +4,18 @@
 using System;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class DataServiceClientCallback : IDataServiceClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
+
+        public void Heartbeat()
+        {
+            //DoNothing
+        }
 
         public void SendPortfolioValue(int portfolioId, string column, object value)
         {

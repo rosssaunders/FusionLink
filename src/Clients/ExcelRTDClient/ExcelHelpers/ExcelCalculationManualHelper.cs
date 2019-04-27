@@ -4,7 +4,7 @@
 using System;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class ExcelCalculationManualHelper : XlCall, IDisposable
     {

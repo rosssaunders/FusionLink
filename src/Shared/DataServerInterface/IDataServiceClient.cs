@@ -18,5 +18,8 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract(IsOneWay = true)]
         void SendSystemValue(SystemProperty property, object value);
+
+        [OperationContract(IsOneWay = true)]
+        void Heartbeat();
     }
 }

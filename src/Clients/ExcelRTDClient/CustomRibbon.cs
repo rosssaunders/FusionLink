@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     [ComVisible(true)]
     public class CustomRibbon : ExcelRibbon

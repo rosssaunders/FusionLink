@@ -5,7 +5,7 @@ using System;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class SystemPropertyExcelObservable : IExcelObservable
     {

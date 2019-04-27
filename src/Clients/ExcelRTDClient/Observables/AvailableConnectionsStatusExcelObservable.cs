@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class AvailableConnectionsExcelObservable : IExcelObservable
     {

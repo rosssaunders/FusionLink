@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using ExcelDna.Integration.Extensibility;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class ComAddIn : ExcelComAddIn
     {

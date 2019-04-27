@@ -21,8 +21,12 @@ namespace RxdSolutions.FusionLink
         private Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
         private Subscriptions<SystemProperty> _systemSubscriptions;
 
-        private AutoResetEvent _runningResetEvent;
-        private Thread _refreshThread;
+        private AutoResetEvent _providerRefreshRunningResetEvent;
+        private Thread _providerRefreshThread;
+
+        private AutoResetEvent _clientMonitorResetEvent;
+        private Thread _clientMonitorThread;
+        private int _clientCheckInterval;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
@@ -53,7 +57,10 @@ namespace RxdSolutions.FusionLink
             _systemSubscriptions = new Subscriptions<SystemProperty>() { DefaultMessage = DefaultMessage };
             _systemSubscriptions.OnValueChanged += SystemDataPointChanged;
 
-            _runningResetEvent = new AutoResetEvent(false);
+            _providerRefreshRunningResetEvent = new AutoResetEvent(false);
+            _clientMonitorResetEvent = new AutoResetEvent(false);
+
+            _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
         }
 
         private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
@@ -85,31 +92,48 @@ namespace RxdSolutions.FusionLink
 
         public void Start()
         {
-            lock(this)
+            if (IsRunning)
+                return;
+
+            lock (this)
             {
                 if (IsRunning)
                     return;
 
                 IsRunning = true;
 
-                _refreshThread = new Thread(new ThreadStart(UpdateDataFromProvider));
-                _refreshThread.Start();
+                _providerRefreshThread = new Thread(new ThreadStart(UpdateDataFromProvider));
+                _providerRefreshThread.Start();
+               
+                _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
+                _clientMonitorThread.Start();
             }
         }
 
         public void Stop()
         {
-            lock(this)
+            if (!IsRunning)
+                return;
+
+            lock (this)
             {
                 if (!IsRunning)
                     return;
 
                 IsRunning = false;
-                _runningResetEvent.Set();
-                
-                if(!_refreshThread.Join(TimeSpan.FromSeconds(5)))
+
+                _providerRefreshRunningResetEvent.Set();
+
+                if (!_providerRefreshThread.Join(TimeSpan.FromSeconds(5)))
                 {
-                    _refreshThread.Abort();
+                    _providerRefreshThread.Abort();
+                }
+
+                _clientMonitorResetEvent.Set();
+
+                if (!_clientMonitorThread.Join(TimeSpan.FromSeconds(5)))
+                {
+                    _clientMonitorThread.Abort();
                 }
             }
         }
@@ -273,21 +297,31 @@ namespace RxdSolutions.FusionLink
 
         private void UpdateDataFromProvider()
         {
-            var waitTime = (int)TimeSpan.FromSeconds(ProviderPollingInterval).TotalMilliseconds;
+            var waitTime = ProviderPollingInterval * 1000;
 
             while (IsRunning)
             {
+                if (_clients.Count == 0)
+                    return;
+
                 UpdateData();
 
-                _runningResetEvent.WaitOne(waitTime);
+                _providerRefreshRunningResetEvent.WaitOne(waitTime);
+            }
+        }
+
+        private void CheckClientsAlive()
+        {
+            while (IsRunning)
+            {
+                SendMessageToAllClients((sessionId, client) => client.Heartbeat());
+
+                _clientMonitorResetEvent.WaitOne(_clientCheckInterval);
             }
         }
 
         private void UpdateData()
         {
-            if (_clients.Count == 0)
-                return;
-
             if (!_dataServiceProvider.IsBusy)
             {
                 //Avoid overloading the service provider
@@ -355,9 +389,9 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public List<int> GetPositions(int folioId)
+        public List<int> GetPositions(int folioId, Positions position)
         {
-            return _dataServiceProvider.GetPositions(folioId);
+            return _dataServiceProvider.GetPositions(folioId, position);
         }
     }
 }

@@ -168,7 +168,7 @@ namespace RxdSolutions.FusionLink
             }, null);
         }
 
-        public List<int> GetPositions(int folioId)
+        public List<int> GetPositions(int folioId, Positions positions)
         {
             var results = new List<int>();
 
@@ -178,7 +178,7 @@ namespace RxdSolutions.FusionLink
                 {
                     EnsurePortfolioLoaded(portfolio);
 
-                    GetPositions(folioId, results);
+                    GetPositions(folioId, positions, results);
                 }
 
             }, null);
@@ -186,7 +186,7 @@ namespace RxdSolutions.FusionLink
             return results;
         }
 
-        private void GetPositions(int folioId, List<int> positions)
+        private void GetPositions(int folioId, Positions positions, List<int> results)
         {
             using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
             {
@@ -195,9 +195,18 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var position = portfolio.GetNthTreeViewPosition(i))
                     {
-                        if(position.GetInstrumentCount() != 0)
+                        switch (positions)
                         {
-                            positions.Add(position.GetIdentifier());
+                            case Positions.All:
+                                results.Add(position.GetIdentifier());
+                                break;
+
+                            case Positions.Open:
+                                if (position.GetInstrumentCount() != 0)
+                                {
+                                    results.Add(position.GetIdentifier());
+                                }
+                                break;
                         }
                     }
                 }
@@ -208,7 +217,7 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var childPortfolio = portfolio.GetNthChild(i))
                     {
-                        GetPositions(childPortfolio.GetCode(), positions);
+                        GetPositions(childPortfolio.GetCode(), positions, results);
                     }
                 }
             }
@@ -236,7 +245,7 @@ namespace RxdSolutions.FusionLink
 
             switch (property)
             {
-                case SystemProperty.PortfolioDate: return sd.Position;
+                case SystemProperty.PortfolioDate: return CSMPortfolio.GetPortfolioDate().GetDateTime();
                 case SystemProperty.InstrumentDate: return sd.Instrument;
                 case SystemProperty.InstrumentCategory: return sd.InstrumentCategory;
                 case SystemProperty.MarkPnLRuleSet: return sd.MarkPnLRuleSet;

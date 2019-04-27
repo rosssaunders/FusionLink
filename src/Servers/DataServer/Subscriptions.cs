@@ -42,9 +42,9 @@ namespace RxdSolutions.FusionLink
 
                 if(_subscriptions[key].subscribers.Count == 0)
                 {
-                    if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T>, HashSet<string> subscribers) value))
+                    if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
                     {
-                        value.Item1.PropertyChanged -= DataPointPropertyChanged;
+                        value.dp.PropertyChanged -= DataPointPropertyChanged;
                     }
                 }
             }

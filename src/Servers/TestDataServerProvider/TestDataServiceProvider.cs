@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RxdSolutions;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -87,11 +86,6 @@ namespace RxdSolutions.FusionLink
             return RandomDouble();
         }
 
-        public List<int> GetPositions(int folioId)
-        {
-            return new List<int>() { 1, 2, 3, 4, 5 };
-        }
-
         public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
         {
             throw new NotImplementedException();
@@ -110,6 +104,11 @@ namespace RxdSolutions.FusionLink
         public void GetSystemValues(IDictionary<SystemProperty, object> values)
         {
             throw new NotImplementedException();
+        }
+
+        public List<int> GetPositions(int folioId, Positions positions)
+        {
+            return new List<int>() { 1, 2, 3, 4, 5 };
         }
     }
 }

@@ -4,7 +4,7 @@
 using System;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class SystemValueReceivedEventArgs : EventArgs
     {
