@@ -301,9 +301,6 @@ namespace RxdSolutions.FusionLink
 
             while (IsRunning)
             {
-                if (_clients.Count == 0)
-                    return;
-
                 UpdateData();
 
                 _providerRefreshRunningResetEvent.WaitOne(waitTime);
@@ -322,6 +319,9 @@ namespace RxdSolutions.FusionLink
 
         private void UpdateData()
         {
+            if (_clients.Count == 0)
+                return;
+
             if (!_dataServiceProvider.IsBusy)
             {
                 //Avoid overloading the service provider
