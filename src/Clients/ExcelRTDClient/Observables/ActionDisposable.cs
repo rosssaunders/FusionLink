@@ -3,7 +3,7 @@
 
 using System;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class ActionDisposable : IDisposable
     {

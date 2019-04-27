@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RxdSolutions;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -35,6 +34,8 @@ namespace RxdSolutions.FusionLink
         readonly Dictionary<string, Func<int>> intColumns = new Dictionary<string, Func<int>>();
 
         public bool IsBusy => false;
+
+        public TimeSpan ElapsedTimeOfLastCall => throw new NotImplementedException();
 
         public TestDataServiceProvider()
         {
@@ -85,16 +86,6 @@ namespace RxdSolutions.FusionLink
             return RandomDouble();
         }
 
-        public DateTime GetPortfolioDate()
-        {
-            return DateTime.Today;
-        }
-
-        public List<int> GetPositions(int folioId)
-        {
-            return new List<int>() { 1, 2, 3, 4, 5 };
-        }
-
         public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
         {
             throw new NotImplementedException();
@@ -103,6 +94,21 @@ namespace RxdSolutions.FusionLink
         public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
         {
             throw new NotImplementedException();
+        }
+
+        public object GetSystemValue(SystemProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetSystemValues(IDictionary<SystemProperty, object> values)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<int> GetPositions(int folioId, Positions positions)
+        {
+            return new List<int>() { 1, 2, 3, 4, 5 };
         }
     }
 }

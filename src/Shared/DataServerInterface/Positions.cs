@@ -6,9 +6,12 @@ using System.Runtime.Serialization;
 namespace RxdSolutions.FusionLink.Interface
 {
     [DataContract]
-    public enum SystemProperty
+    public enum Positions
     {
         [EnumMember]
-        PortfolioDate
+        All,
+
+        [EnumMember]
+        Open
     }
 }

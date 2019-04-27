@@ -12,5 +12,10 @@ namespace sophis.utils
         public void Dispose()
         {
         }
+
+        public string GetString()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

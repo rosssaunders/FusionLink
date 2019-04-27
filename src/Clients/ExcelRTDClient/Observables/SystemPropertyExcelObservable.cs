@@ -5,7 +5,7 @@ using System;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class SystemPropertyExcelObservable : IExcelObservable
     {
@@ -34,7 +34,7 @@ namespace RxdSolutions.FusionLink.RTDClient
 
         private void OnPortfolioDateReceived(object sender, SystemValueReceivedEventArgs args)
         {
-            if(args.Property == Interface.SystemProperty.PortfolioDate)
+            if(args.Property == SystemProperty)
                 _observer.OnNext(args.Value);
         }
 

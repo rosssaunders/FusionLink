@@ -1,5 +1,5 @@
-<DnaLibrary Name="RxdSolutions.RTDClient Add-In" RuntimeVersion="v4.0">
-  <ExternalLibrary Path="RxdSolutions.RTDClient.dll" ExplicitExports="false" LoadFromBytes="true" Pack="true" />
+<DnaLibrary Name="FusionLink Add-In" RuntimeVersion="v4.0">
+  <ExternalLibrary Path="FusionLinkXll.dll" ExplicitExports="false" LoadFromBytes="true" Pack="true" />
   
   <!-- 
        The RuntimeVersion attribute above allows two settings:

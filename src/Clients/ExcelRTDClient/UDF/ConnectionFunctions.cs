@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class ConnectionFunctions
     {
@@ -18,7 +18,7 @@ namespace RxdSolutions.FusionLink.RTDClient
         [ExcelFunction(Name = "GETAVAILABLECONNECTIONS", Description = "Returns a comma seperated list of the available connections", Category = "FusionLink")]
         public static object GetAvailableConnections()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsStatusExcelObservable(AddIn.ConnectionMonitor));
+            return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsExcelObservable(AddIn.ConnectionMonitor));
         }
 
         [ExcelFunction(Name = "SETCONNECTION", Description = "Returns the status of the connection to FusionInvest", Category = "FusionLink")]
@@ -33,7 +33,13 @@ namespace RxdSolutions.FusionLink.RTDClient
         [ExcelFunction(Name = "GETCONNECTION", Description = "Returns the connection string of the connection to FusionInvest", Category = "FusionLink")]
         public static object GetConnection()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionExcelObservable(AddIn.Client));
+            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionStringExcelObservable(AddIn.Client));
+        }
+
+        [ExcelFunction(Name = "GETCONNECTIONID", Description = "Returns the connection Id of the connection to FusionInvest", Category = "FusionLink")]
+        public static object GetConnectionId()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionIdExcelObservable(AddIn.Client));
         }
     }
 }

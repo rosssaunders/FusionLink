@@ -11,6 +11,11 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <Authors>RXD Solutions</Authors>
+    <Product>FusionLink</Product>
+    <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+    <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,5 +56,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
     <ProjectReference Include="..\DataServer\DataServer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

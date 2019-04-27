@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.ServiceModel.Discovery;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class DataServiceClient : IDisposable
     {
@@ -101,9 +99,9 @@ namespace RxdSolutions.FusionLink.RTDClient
             OnSystemValueReceived?.Invoke(sender, e);
         }
 
-        public List<int> GetPositions(int portfolioId)
+        public List<int> GetPositions(int portfolioId, Positions positions)
         {
-            return _server.GetPositions(portfolioId);
+            return _server.GetPositions(portfolioId, positions);
         }
 
         public void Close()
@@ -174,7 +172,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if(!_positionSubscriptions.Contains((positionId, column)))
                 _positionSubscriptions.Add((positionId, column));
 
-            if(_server is object)
+            if(_server is object && State == CommunicationState.Opened)
                 _server.SubscribeToPositionValue(positionId, column);
         }
 
@@ -183,7 +181,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_portfolioSubscriptions.Contains((folioId, column)))
                 _portfolioSubscriptions.Add((folioId, column));
 
-            if (_server is object)
+            if (_server is object && State == CommunicationState.Opened)
                 _server.SubscribeToPortfolioValue(folioId, column);
         }
 
@@ -192,7 +190,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_systemSubscriptions.Contains(property))
                 _systemSubscriptions.Add(property);
             
-            if (_server is object)
+            if (_server is object && State == CommunicationState.Opened)
                 _server.SubscribeToSystemValue(property);
         }
 
@@ -201,7 +199,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_positionSubscriptions.Contains((positionId, column)))
                 _positionSubscriptions.Remove((positionId, column));
 
-            if (_server is object)
+            if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToPositionValue(positionId, column);
         }
 
@@ -210,7 +208,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_portfolioSubscriptions.Contains((folioId, column)))
                 _portfolioSubscriptions.Remove((folioId, column));
 
-            if (_server is object)
+            if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToPortfolioValue(folioId, column);
         }
 
@@ -219,7 +217,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             if (!_systemSubscriptions.Contains(property))
                 _systemSubscriptions.Remove(property);
 
-            if (_server is object)
+            if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToSystemValue(property);
         }
 

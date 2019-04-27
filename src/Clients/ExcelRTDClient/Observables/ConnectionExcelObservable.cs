@@ -4,14 +4,14 @@
 using System;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class ConnectionExcelObservable : IExcelObservable
+    public class ConnectionStringExcelObservable : IExcelObservable
     {
         private readonly DataServiceClient _rtdClient;
         private IExcelObserver _observer;
 
-        public ConnectionExcelObservable(DataServiceClient rtdClient)
+        public ConnectionStringExcelObservable(DataServiceClient rtdClient)
         {
             _rtdClient = rtdClient;
         }

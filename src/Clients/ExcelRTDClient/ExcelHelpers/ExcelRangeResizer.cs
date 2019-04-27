@@ -4,7 +4,7 @@
 using ExcelDna.Integration;
 using static ExcelDna.Integration.XlCall;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class ExcelRangeResizer
     {

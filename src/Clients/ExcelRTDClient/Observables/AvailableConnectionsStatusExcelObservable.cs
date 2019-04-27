@@ -5,14 +5,14 @@ using System;
 using System.Linq;
 using ExcelDna.Integration;
 
-namespace RxdSolutions.FusionLink.RTDClient
+namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class AvailableConnectionsStatusExcelObservable : IExcelObservable
+    public class AvailableConnectionsExcelObservable : IExcelObservable
     {
         private readonly ConnectionMonitor _monitor;
         private IExcelObserver _observer;
 
-        public AvailableConnectionsStatusExcelObservable(ConnectionMonitor monitor)
+        public AvailableConnectionsExcelObservable(ConnectionMonitor monitor)
         {
             _monitor = monitor;
         }
@@ -41,7 +41,7 @@ namespace RxdSolutions.FusionLink.RTDClient
             }
             else
             {
-                var allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => x.Uri.ToString()));
+                var allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => ConnectionHelper.GetConnectionId(x.Uri)));
                 _observer.OnNext(allConnections);
             }
         }

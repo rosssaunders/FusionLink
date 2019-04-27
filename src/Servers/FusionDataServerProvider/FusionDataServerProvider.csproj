@@ -4,11 +4,16 @@
     <ProjectGuid>{A556116C-59FB-42D9-820A-CB8040CDF3E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
-    <AssemblyName>SophisDataServer</AssemblyName>
+    <AssemblyName>FusionDataServiceProvider</AssemblyName>
     <TargetFramework>net452</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release;Debug_7_1_3_14;Debug_7_1_3_19</Configurations>
+    <Authors>RXD Solutions</Authors>
+    <Product>FusionLink</Product>
+    <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+    <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MFCCaptionBar">
@@ -60,21 +65,27 @@
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\SophisDotNetToolkitGUI.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\Finastra\7.1.3.19\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -88,9 +99,9 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
-    <PostBuildEvent>xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71314_x64)\Toolkits&quot; /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71314_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
-    <PostBuildEvent>xcopy &quot;$(TargetDir)*.*&quot; &quot;$(Sophis_v71319_x64)\Toolkits&quot; /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

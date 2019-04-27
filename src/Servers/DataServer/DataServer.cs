@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.ServiceModel;
-using System.Threading.Tasks;
-using System.Timers;
+using System.Threading;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -15,20 +14,25 @@ namespace RxdSolutions.FusionLink
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class DataServer : IDataServiceServer
     {
-        private readonly List<IDataServiceClient> _clients;
+        private readonly Dictionary<string, IDataServiceClient> _clients;
         private readonly IDataServerProvider _dataServiceProvider;
 
-        internal Subscriptions<(int Id, string Column)> _positionSubscriptions;
-        internal Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private Subscriptions<(int Id, string Column)> _positionSubscriptions;
+        private Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private Subscriptions<SystemProperty> _systemSubscriptions;
 
-        private System.Timers.Timer _providerDataRefreshTimer;
+        private AutoResetEvent _providerRefreshRunningResetEvent;
+        private Thread _providerRefreshThread;
 
-        private ObservableValue<DateTime> _portfolioDate;
+        private AutoResetEvent _clientMonitorResetEvent;
+        private Thread _clientMonitorThread;
+        private int _clientCheckInterval;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
+        public event EventHandler<EventArgs> OnSubscriptionChanged;
 
-        public IReadOnlyList<IDataServiceClient> Clients => _clients;
+        public IReadOnlyList<IDataServiceClient> Clients => _clients.Values.ToList();
 
         public string DefaultMessage { get; set; } = "Getting data... please wait";
 
@@ -41,7 +45,7 @@ namespace RxdSolutions.FusionLink
 
         public DataServer(IDataServerProvider dataService)
         {
-            _clients = new List<IDataServiceClient>();
+            _clients = new Dictionary<string, IDataServiceClient>();
             _dataServiceProvider = dataService;
 
             _positionSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage };
@@ -49,20 +53,28 @@ namespace RxdSolutions.FusionLink
 
             _portfolioSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage }; 
             _portfolioSubscriptions.OnValueChanged += PortfolioDataPointChanged;
+
+            _systemSubscriptions = new Subscriptions<SystemProperty>() { DefaultMessage = DefaultMessage };
+            _systemSubscriptions.OnValueChanged += SystemDataPointChanged;
+
+            _providerRefreshRunningResetEvent = new AutoResetEvent(false);
+            _clientMonitorResetEvent = new AutoResetEvent(false);
+
+            _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
         }
 
-        private void PortfolioDateChanged(object sender, PropertyChangedEventArgs e)
+        private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
-                c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
+                c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
 
             });
         }
 
         private void PortfolioDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
                 c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
 
@@ -71,7 +83,7 @@ namespace RxdSolutions.FusionLink
 
         private void PositionDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients(c => {
+            SendMessageToAllClients((s, c) => {
 
                 c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
 
@@ -80,34 +92,49 @@ namespace RxdSolutions.FusionLink
 
         public void Start()
         {
-            lock(this)
+            if (IsRunning)
+                return;
+
+            lock (this)
             {
                 if (IsRunning)
                     return;
 
-                _providerDataRefreshTimer = new System.Timers.Timer(TimeSpan.FromSeconds(ProviderPollingInterval).TotalMilliseconds);
-                _providerDataRefreshTimer.Elapsed += UpdateDataFromProvider;
-                _providerDataRefreshTimer.Start();
-
                 IsRunning = true;
+
+                _providerRefreshThread = new Thread(new ThreadStart(UpdateDataFromProvider));
+                _providerRefreshThread.Start();
+               
+                _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
+                _clientMonitorThread.Start();
             }
         }
 
         public void Stop()
         {
-            lock(this)
+            if (!IsRunning)
+                return;
+
+            lock (this)
             {
                 if (!IsRunning)
                     return;
 
-                if (_providerDataRefreshTimer is object)
+                IsRunning = false;
+
+                _providerRefreshRunningResetEvent.Set();
+
+                if (!_providerRefreshThread.Join(TimeSpan.FromSeconds(5)))
                 {
-                    _providerDataRefreshTimer.Elapsed -= UpdateDataFromProvider;
-                    _providerDataRefreshTimer.Stop();
-                    _providerDataRefreshTimer.Dispose();
+                    _providerRefreshThread.Abort();
                 }
 
-                IsRunning = false;
+                _clientMonitorResetEvent.Set();
+
+                if (!_clientMonitorThread.Join(TimeSpan.FromSeconds(5)))
+                {
+                    _clientMonitorThread.Abort();
+                }
             }
         }
 
@@ -117,8 +144,8 @@ namespace RxdSolutions.FusionLink
 
             lock(_clients)
             {
-                if (!_clients.Contains(c))
-                    _clients.Add(c);
+                if (!_clients.ContainsKey(OperationContext.Current.SessionId))
+                    _clients.Add(OperationContext.Current.SessionId, c);
             }
 
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Connected, c));
@@ -127,82 +154,109 @@ namespace RxdSolutions.FusionLink
         public void Unregister()
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
-            Unregister(c);
+
+            Unregister(OperationContext.Current.SessionId, c);
         }
 
-        private void Unregister(IDataServiceClient c)
+        private void Unregister(string sessionId, IDataServiceClient c)
         {
             lock (_clients)
             {
-                if (_clients.Contains(c))
-                    _clients.Remove(c);
+                if (_clients.ContainsKey(sessionId))
+                    _clients.Remove(sessionId);
             }
 
-            OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, c));
+            foreach(var sub in _portfolioSubscriptions.GetKeys())
+                _portfolioSubscriptions.Remove(sessionId, (sub.Id, sub.Column));
+
+            foreach (var sub in _positionSubscriptions.GetKeys())
+                _positionSubscriptions.Remove(sessionId, (sub.Id, sub.Column));
+
+            foreach (var sub in _systemSubscriptions.GetKeys())
+                _systemSubscriptions.Remove(sessionId, sub);
+
+            OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, null));
         }
 
         public void SubscribeToPositionValue(int positionId, string column)
         {
-            var dp = _positionSubscriptions.Add((positionId, column));
+            var dp = _positionSubscriptions.Add(OperationContext.Current.SessionId, (positionId, column));
 
-            SendMessageToAllClients(c => {
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                c.SendPositionValue(dp.Key.Id, dp.Key.Column, dp.Value);
+            SendMessageToAllClients((s, c) => {
+
+                if (_positionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
+                {
+                    c.SendPositionValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                }
 
             });
         }
 
         public void SubscribeToPortfolioValue(int portfolioId, string column)
         {
-            var dp = _portfolioSubscriptions.Add((portfolioId, column));
+            var dp = _portfolioSubscriptions.Add(OperationContext.Current.SessionId, (portfolioId, column));
 
-            SendMessageToAllClients(c => {
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                c.SendPortfolioValue(dp.Key.Id, dp.Key.Column, dp.Value);
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
+                {
+                    c.SendPortfolioValue(dp.Key.Id, dp.Key.Column, dp.Value);
+                }
 
             });
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
-            if(property == SystemProperty.PortfolioDate)
-            {
-                if (_portfolioDate is null)
+            var dp = _systemSubscriptions.Add(OperationContext.Current.SessionId, property);
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+            SendMessageToAllClients((s, c) => {
+
+                if (_systemSubscriptions.IsSubscribed(OperationContext.Current.SessionId, dp.Key))
                 {
-                    _portfolioDate = new ObservableValue<DateTime>();
-                    _portfolioDate.PropertyChanged += PortfolioDateChanged;
+                    c.SendSystemValue(dp.Key, dp.Value);
                 }
 
-                UpdatePortfolioDate();
-
-                SendMessageToAllClients(c => {
-
-                    c.SendSystemValue(SystemProperty.PortfolioDate, _portfolioDate.Value);
-
-                });
-            }
+            });
         }
 
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
-            _positionSubscriptions.Remove((positionId, column));
+            _positionSubscriptions.Remove(OperationContext.Current.SessionId, (positionId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
 
         public void UnsubscribeToPortfolioValue(int portfolioId, string column)
         {
-            _portfolioSubscriptions.Remove((portfolioId, column));
+            _portfolioSubscriptions.Remove(OperationContext.Current.SessionId, (portfolioId, column));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
-            if (property == SystemProperty.PortfolioDate)
-            {
-                if (_portfolioDate is object)
-                {
-                    _portfolioDate.PropertyChanged -= PortfolioDateChanged;
-                    _portfolioDate = null;
-                }
-            }
+            _systemSubscriptions.Remove(OperationContext.Current.SessionId, property);
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+        }
+
+        public int PositonSubscriptionCount {
+            get => _positionSubscriptions.Count;
+        }
+
+        public int PortfolioSubscriptionCount {
+            get => _portfolioSubscriptions.Count;
+        }
+
+        public int SystemValueCount {
+            get => _systemSubscriptions.Count;
         }
 
         private void UpdatePositionSubscriptions()
@@ -217,7 +271,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var kvp in dict)
             {
-                _positionSubscriptions.Get(kvp.Key).Value = kvp.Value;
+                var dp = _positionSubscriptions.Get(kvp.Key);
+                if(dp is object)
+                    dp.Value = kvp.Value;
             }
         }
 
@@ -233,81 +289,109 @@ namespace RxdSolutions.FusionLink
 
             foreach (var kvp in dict)
             {
-                _portfolioSubscriptions.Get(kvp.Key).Value = kvp.Value;
+                var dp = _portfolioSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
             }
         }
 
-        private void UpdateDataFromProvider(object sender, ElapsedEventArgs e)
+        private void UpdateDataFromProvider()
         {
-            lock(_providerDataRefreshTimer)
+            var waitTime = ProviderPollingInterval * 1000;
+
+            while (IsRunning)
             {
+                if (_clients.Count == 0)
+                    return;
+
                 UpdateData();
+
+                _providerRefreshRunningResetEvent.WaitOne(waitTime);
+            }
+        }
+
+        private void CheckClientsAlive()
+        {
+            while (IsRunning)
+            {
+                SendMessageToAllClients((sessionId, client) => client.Heartbeat());
+
+                _clientMonitorResetEvent.WaitOne(_clientCheckInterval);
             }
         }
 
         private void UpdateData()
         {
-            if (_clients.Count == 0)
-                return;
-
             if (!_dataServiceProvider.IsBusy)
             {
                 //Avoid overloading the service provider
                 lock(_dataServiceProvider)
                 {
-                    Task.Run(() => {
+                    var overallTimer = Stopwatch.StartNew();
 
-                        var timer = Stopwatch.StartNew();
+                    UpdatePositionSubscriptions();
 
-                        UpdatePositionSubscriptions();
+                    var elapsedUITime = _dataServiceProvider.ElapsedTimeOfLastCall;
 
-                        UpdatePortfolioSubscriptions();
+                    UpdatePortfolioSubscriptions();
 
-                        UpdatePortfolioDate();
+                    elapsedUITime += _dataServiceProvider.ElapsedTimeOfLastCall;
 
-                        timer.Stop();
+                    UpdateSystemPropertySubscriptions();
 
-                        OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(timer.Elapsed));
-                    });
+                    elapsedUITime += _dataServiceProvider.ElapsedTimeOfLastCall;
+
+                    overallTimer.Stop();
+
+                    OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(elapsedUITime, overallTimer.Elapsed));
                 }
             }
         }
 
-        private void UpdatePortfolioDate()
+        private void UpdateSystemPropertySubscriptions()
         {
-            if (_portfolioDate is object)
-                _portfolioDate.Value = _dataServiceProvider.GetPortfolioDate();
+            var keys = _systemSubscriptions.GetKeys();
+
+            var dict = new Dictionary<SystemProperty, object>();
+            foreach (var key in keys)
+                dict.Add(key, null);
+
+            _dataServiceProvider.GetSystemValues(dict);
+
+            foreach (var kvp in dict)
+            {
+                var dp = _systemSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
         }
 
-        private void SendMessageToAllClients(Action<IDataServiceClient> send)
+        private void SendMessageToAllClients(Action<string, IDataServiceClient> send)
         {
             if (_clients.Count == 0)
                 return;
 
             // send number to clients
-            int ix = 0;
-            while (ix < _clients.Count)
+            foreach(var key in _clients.Keys.ToList())
             {
                 // can't do foreach because we want to remove dead ones
-                var c = _clients[ix];
+                var c = _clients[key];
                 try
                 {
-                    send.Invoke(c);
-                    
-                    ix++;
+                    send.Invoke(key, c);
                 }
                 catch (Exception ex)
                 {
                     Debug.Print(ex.Message);
 
-                    Unregister(c);
+                    Unregister(key, c);
                 }
             }
         }
 
-        public List<int> GetPositions(int folioId)
+        public List<int> GetPositions(int folioId, Positions position)
         {
-            return _dataServiceProvider.GetPositions(folioId);
+            return _dataServiceProvider.GetPositions(folioId, position);
         }
     }
 }

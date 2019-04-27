@@ -6,57 +6,78 @@ using System.Linq;
 
 namespace RxdSolutions.FusionLink
 {
-
     public class Subscriptions<T>
     {
-        private readonly ConcurrentDictionary<T, ObservableDataPoint<T>> _subscriptions;
+        private readonly ConcurrentDictionary<T, (ObservableDataPoint<T> dataPoint, HashSet<string> subscribers)> _subscriptions;
         public event EventHandler<DataPointChangedEventArgs<T>> OnValueChanged;
 
         public string DefaultMessage { get; set; } = "Getting data... please wait";
 
         public Subscriptions()
         {
-            _subscriptions = new ConcurrentDictionary<T, ObservableDataPoint<T>>();
+            _subscriptions = new ConcurrentDictionary<T, (ObservableDataPoint<T>, HashSet<string> subscribers)>();
         }
 
-        public ObservableDataPoint<T> Add(T key)
+        public ObservableDataPoint<T> Add(string subscriber, T key)
         {
             if (!_subscriptions.ContainsKey(key))
             {
                 var dp = new ObservableDataPoint<T>(key, DefaultMessage);
-                if (_subscriptions.TryAdd(dp.Key, dp))
+                if (_subscriptions.TryAdd(dp.Key, (dp, new HashSet<string>())))
                 {
                     dp.PropertyChanged += DataPointPropertyChanged;
                 }
             }
 
+            _subscriptions[key].subscribers.Add(subscriber);
+
             return Get(key);
         }
 
-        public void Remove(T key)
+        public void Remove(string subscriber, T key)
         {
-            if (!_subscriptions.ContainsKey(key))
-                if(_subscriptions.TryRemove(key, out ObservableDataPoint<T> value))
+            if (_subscriptions.ContainsKey(key))
+            {
+                _subscriptions[key].subscribers.Remove(subscriber);
+
+                if(_subscriptions[key].subscribers.Count == 0)
                 {
-                    value.PropertyChanged -= DataPointPropertyChanged;
+                    if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
+                    {
+                        value.dp.PropertyChanged -= DataPointPropertyChanged;
+                    }
                 }
+            }
         }
 
         public ObservableDataPoint<T> Get(T key)
         {
-            if(_subscriptions.TryGetValue(key, out ObservableDataPoint<T> value))
+            if(_subscriptions.TryGetValue(key, out (ObservableDataPoint<T> dp, HashSet<string> _) value))
             {
-                return value;
+                return value.dp;
             }
-            else
+
+            return null;
+        }
+
+        public bool IsSubscribed(string subscriber, T key)
+        {
+            if (_subscriptions.TryGetValue(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
             {
-                throw new KeyNotFoundException();
+                return value.subscribers.Contains(subscriber);
             }
+
+            return false;
         }
 
         public IEnumerable<T> GetKeys()
         {
             return _subscriptions.Keys.ToList();
+        }
+
+        public int Count 
+        {
+            get => _subscriptions.Count;
         }
 
         private void DataPointPropertyChanged(object sender, PropertyChangedEventArgs e)

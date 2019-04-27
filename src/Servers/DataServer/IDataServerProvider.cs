@@ -14,6 +14,8 @@ namespace RxdSolutions.FusionLink
     {
         bool IsBusy { get; }
 
+        TimeSpan ElapsedTimeOfLastCall { get; }
+
         object GetPositionValue(int positionId, string column);
 
         void GetPositionValues(IDictionary<(int positionId, string column), object> values);
@@ -22,8 +24,10 @@ namespace RxdSolutions.FusionLink
 
         void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
 
-        DateTime GetPortfolioDate();
+        object GetSystemValue(SystemProperty property);
 
-        List<int> GetPositions(int folioId);
+        void GetSystemValues(IDictionary<SystemProperty, object> values);
+
+        List<int> GetPositions(int folioId, Positions positions);
     }
 }

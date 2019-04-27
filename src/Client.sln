@@ -5,12 +5,12 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ECF9730E-606D-4EB8-8498-EFA73105DC16}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
+		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{35108278-FBD5-4F4B-A1CA-3C0646607064}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTDClient", "Clients\ExcelRTDClient\RTDClient.csproj", "{2BFA543A-F8F0-4AB6-825F-00EE726BE364}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelClient", "Clients\ExcelRTDClient\ExcelClient.csproj", "{2BFA543A-F8F0-4AB6-825F-00EE726BE364}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataServiceInterface", "Shared\DataServerInterface\DataServiceInterface.csproj", "{DA859D73-3D82-4EE1-BC66-1D47D16E5AC4}"
 EndProject

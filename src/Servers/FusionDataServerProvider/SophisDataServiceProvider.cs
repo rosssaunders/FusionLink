@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using RxdSolutions.FusionLink.Interface;
+using sophis.market_data;
 using sophis.portfolio;
 using sophisTools;
 
@@ -13,17 +16,20 @@ namespace RxdSolutions.FusionLink
     public class SophisDataServiceProvider : IDataServerProvider
     {
         private readonly SynchronizationContext _context;
-
         private Queue<int> _portfoliosToLoad = new Queue<int>();
+        private TimeSpan _lastRefreshTimer;
 
         public SophisDataServiceProvider(SynchronizationContext context)
         {
             _context = context;
+            _lastRefreshTimer = default(TimeSpan);
         }
 
         public bool IsBusy { get; private set; }
 
         public bool LoadUnloadedPortfolios { get; set; } = false;
+
+        public TimeSpan ElapsedTimeOfLastCall => _lastRefreshTimer;
 
         public object GetPortfolioValue(int portfolioId, string column)
         {
@@ -69,27 +75,100 @@ namespace RxdSolutions.FusionLink
             return result;
         }
 
-        public DateTime GetPortfolioDate()
+        public object GetSystemValue(SystemProperty property)
         {
-            DateTime ? dt = null;
+            object result = "#N/A";
 
             _context.Send(state => {
 
-                var portfolioDate = CSMPortfolio.GetPortfolioDate();
-                using (var day = new CSMDay(portfolioDate))
+                try
                 {
-                    dt = new DateTime(day.fYear, day.fMonth, day.fDay);
+                    result = GetSystemValueUI(property);
+                }
+                catch (Exception ex)
+                {
+                    result = ex.Message;
                 }
 
             }, null);
 
-            if(dt.HasValue)
-                return dt.Value;
-
-            throw new ApplicationException("Unable to get the Portfolio date");
+            return result;
         }
 
-        public List<int> GetPositions(int folioId)
+        public void GetSystemValues(IDictionary<SystemProperty, object> values)
+        {
+            _context.Send(state => {
+
+                TimeUpdate(() => {
+
+                    foreach (var key in values.Keys.ToList())
+                    {
+                        try
+                        {
+                            values[key] = GetSystemValueUI(key);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
+                    }
+
+                });
+
+            }, null);
+        }
+
+        public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
+        {
+            _context.Send(state => {
+
+                TimeUpdate(() => {
+
+                    LoadRequiredData();
+
+                    foreach (var key in values.Keys.ToList())
+                    {
+                        try
+                        {
+                            values[key] = GetPositionValueUI(key.positionId, key.column);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
+                    }
+
+                });
+
+            }, null);
+        }
+
+        public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
+        {
+            _context.Send(state => {
+
+                TimeUpdate(() => {
+
+                    LoadRequiredData();
+
+                    foreach (var key in values.Keys.ToList())
+                    {
+                        try
+                        {
+                            values[key] = GetPortfolioValueUI(key.positionId, key.column);
+                        }
+                        catch (Exception ex)
+                        {
+                            values[key] = ex.Message;
+                        }
+                    }
+
+                });
+
+            }, null);
+        }
+
+        public List<int> GetPositions(int folioId, Positions positions)
         {
             var results = new List<int>();
 
@@ -99,7 +178,7 @@ namespace RxdSolutions.FusionLink
                 {
                     EnsurePortfolioLoaded(portfolio);
 
-                    GetPositions(folioId, results);
+                    GetPositions(folioId, positions, results);
                 }
 
             }, null);
@@ -107,49 +186,7 @@ namespace RxdSolutions.FusionLink
             return results;
         }
 
-        public void GetPositionValues(IDictionary<(int positionId, string column), object> values)
-        {
-            _context.Send(state => {
-
-                LoadRequiredData();
-
-                foreach(var key in values.Keys.ToList())
-                {
-                    try
-                    {
-                        values[key] = GetPositionValueUI(key.positionId, key.column);
-                    }
-                    catch (Exception ex)
-                    {
-                        values[key] = ex.Message;
-                    }
-                }
-
-            }, null);
-        }
-
-        public void GetPortfolioValues(IDictionary<(int positionId, string column), object> values)
-        {
-            _context.Send(state => {
-
-                LoadRequiredData();
-
-                foreach (var key in values.Keys.ToList())
-                {
-                    try
-                    {
-                        values[key] = GetPortfolioValueUI(key.positionId, key.column);
-                    }
-                    catch (Exception ex)
-                    {
-                        values[key] = ex.Message;
-                    }
-                }
-
-            }, null);
-        }
-
-        private void GetPositions(int folioId, List<int> positions)
+        private void GetPositions(int folioId, Positions positions, List<int> results)
         {
             using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
             {
@@ -158,7 +195,19 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var position = portfolio.GetNthTreeViewPosition(i))
                     {
-                        positions.Add(position.GetIdentifier());
+                        switch (positions)
+                        {
+                            case Positions.All:
+                                results.Add(position.GetIdentifier());
+                                break;
+
+                            case Positions.Open:
+                                if (position.GetInstrumentCount() != 0)
+                                {
+                                    results.Add(position.GetIdentifier());
+                                }
+                                break;
+                        }
                     }
                 }
 
@@ -168,10 +217,53 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var childPortfolio = portfolio.GetNthChild(i))
                     {
-                        GetPositions(childPortfolio.GetCode(), positions);
+                        GetPositions(childPortfolio.GetCode(), positions, results);
                     }
                 }
             }
+        }
+
+        private object GetSystemValueUI(SystemProperty property)
+        {
+            var sd = new SystemDates();
+            
+            sd.Instrument = CSMMarketData.GetInstrumentDate().GetDateTime();
+            sd.InstrumentCategory = CSMMarketData.GetInstrumentCategoryDate().GetDateTime();
+            sd.MarkPnLRuleSet = CSMMarketData.GetMarkPnLRuleSetDate().GetDateTime();
+            sd.SubscriptRedemptDate = CSMMarketData.GetSubscriptRedemptDate().GetDateTime();
+            sd.CreditRiskDate = CSMMarketData.GetCreditRiskDate().GetDateTime();
+            sd.RepoDate = CSMMarketData.GetRepoDate().GetDateTime();
+            sd.Volatility = CSMMarketData.GetVolatilityDate().GetDateTime();
+            sd.Correlation = CSMMarketData.GetCorrelationDate().GetDateTime();
+            sd.Dividend = CSMMarketData.GetDividendDate().GetDateTime();
+            sd.Forex = CSMMarketData.GetForexDate().GetDateTime();
+            sd.Spot = CSMMarketData.GetSpotDate().GetDateTime();
+            sd.MarketCategory = CSMMarketData.GetMarketCategoryDate().GetDateTime();
+            sd.TagMetaData = CSMMarketData.GetTagmetadataDate().GetDateTime();
+            sd.Position = CSMMarketData.GetPositionDate().GetDateTime();
+            sd.Rate = CSMMarketData.GetYieldCurveDate().GetDateTime();
+
+            switch (property)
+            {
+                case SystemProperty.PortfolioDate: return CSMPortfolio.GetPortfolioDate().GetDateTime();
+                case SystemProperty.InstrumentDate: return sd.Instrument;
+                case SystemProperty.InstrumentCategory: return sd.InstrumentCategory;
+                case SystemProperty.MarkPnLRuleSet: return sd.MarkPnLRuleSet;
+                case SystemProperty.SubscriptRedemptionDate: return sd.SubscriptRedemptDate;
+                case SystemProperty.CreditRiskDate: return sd.CreditRiskDate;
+                case SystemProperty.RepoDate: return sd.RepoDate;
+                case SystemProperty.Volatility: return sd.Volatility;
+                case SystemProperty.Correlation: return sd.Correlation;
+                case SystemProperty.Dividend: return sd.Dividend;
+                case SystemProperty.Forex: return sd.Forex;
+                case SystemProperty.Spot: return sd.Spot;
+                case SystemProperty.Rate: return sd.Rate;
+                case SystemProperty.MarketCategory: return sd.MarketCategory;
+                case SystemProperty.TagMetaData: return sd.TagMetaData;
+                case SystemProperty.Position: return sd.Position;
+            }
+
+            throw new ApplicationException($"Unknown property {property}");
         }
 
         private object GetPortfolioValueUI(int portfolioId, string column)
@@ -335,6 +427,17 @@ namespace RxdSolutions.FusionLink
 
                 IsBusy = false;
             }
+        }
+
+        private void TimeUpdate(Action action)
+        {
+            var timer = Stopwatch.StartNew();
+
+            action.Invoke();
+
+            timer.Stop();
+
+            _lastRefreshTimer = timer.Elapsed;
         }
     }
 }
