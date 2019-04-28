@@ -11,6 +11,12 @@
       "executablePath": "$(Sophis_v71319_x64)\\SophisValue.exe",
       "workingDirectory": "$(Sophis_v71319_x64)",
       "nativeDebugging": false
+    },
+    "SophisValue_v726_x64": {
+      "commandName": "Executable",
+      "executablePath": "E:\\DEV_SOPHIS\\CLIENT\\\\SophisValue.exe",
+      "workingDirectory": "E:\\DEV_SOPHIS\\CLIENT",
+      "nativeDebugging": false
     }
   }
 }

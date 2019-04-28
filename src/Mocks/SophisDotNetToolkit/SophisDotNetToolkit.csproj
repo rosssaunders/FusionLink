@@ -5,9 +5,9 @@
     <OutputType>Library</OutputType>
     <RootNamespace>sophis</RootNamespace>
     <AssemblyName>SophisDotNetToolkit</AssemblyName>
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>net452;net462</TargetFrameworks>
     <Deterministic>true</Deterministic>
-    <Configurations>Debug;Release;Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6</Configurations>
+    <Configurations>Debug;Release;Debug_7_1;Debug_7_2</Configurations>
     <Authors>RXD Solutions</Authors>
     <Company>RXD Solutions</Company>
     <Product>FusionLink</Product>
@@ -15,13 +15,8 @@
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug_7_1_3_19|net452|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug_7_2_6|net452|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <DefineConstants>TRACE;V72</DefineConstants>
-    <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

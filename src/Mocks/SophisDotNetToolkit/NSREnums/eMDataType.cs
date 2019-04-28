@@ -26,7 +26,11 @@ namespace NSREnums
         M_dDouble = 5,
         M_dDate = 4,
         M_dLong = 3,
+
+#if !V72
         M_dPascalString = 2,
+#endif
+
         M_dNullTerminatedString = 1,
         M_dSmallIcon = 0
     }

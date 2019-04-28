@@ -80,7 +80,7 @@ namespace RxdSolutions.FusionLink
 
         private void OnSubscriptionChanged(object sender, EventArgs e)
         {
-            _context.Send(x => {
+            _context.Post(x => {
 
                 UpdateCaption();
 
@@ -159,24 +159,24 @@ namespace RxdSolutions.FusionLink
 
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
-            _context.Send(x => 
+            if (_dataServer.Clients.Count == 0)
             {
-                if(_dataServer.Clients.Count == 0)
+                if (_dataServer.IsRunning)
                 {
-                    if(_dataServer.IsRunning)
-                    {
-                        _dataServer.Stop();
-                        _lastRefreshTimeTakenInUI = null;
-                    }
+                    _dataServer.Stop();
+                    _lastRefreshTimeTakenInUI = null;
                 }
-                else
+            }
+            else
+            {
+                if (!_dataServer.IsRunning)
                 {
-                    if (!_dataServer.IsRunning)
-                    {
-                        _dataServer.Start();
-                    }
+                    _dataServer.Start();
                 }
+            }
 
+            _context.Post(x => 
+            {
                 UpdateCaption();
 
             }, null);
@@ -187,7 +187,7 @@ namespace RxdSolutions.FusionLink
             _lastRefreshTimeTakenInUI = e.UITimeTaken;
             _lastRefreshTimeTakenOverall = e.OverallTime;
 
-            _context.Send(x => {
+            _context.Post(x => {
 
                 UpdateCaption();
 
