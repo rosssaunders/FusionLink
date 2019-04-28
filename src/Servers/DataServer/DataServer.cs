@@ -63,33 +63,6 @@ namespace RxdSolutions.FusionLink
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
         }
 
-        private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
-        {
-            SendMessageToAllClients((s, c) => {
-
-                c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
-
-            });
-        }
-
-        private void PortfolioDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
-        {
-            SendMessageToAllClients((s, c) => {
-
-                c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
-
-            });
-        }
-
-        private void PositionDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
-        {
-            SendMessageToAllClients((s, c) => {
-
-                c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
-
-            });
-        }
-
         public void Start()
         {
             if (IsRunning)
@@ -247,6 +220,11 @@ namespace RxdSolutions.FusionLink
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
 
+        public List<int> GetPositions(int folioId, Positions position)
+        {
+            return _dataServiceProvider.GetPositions(folioId, position);
+        }
+
         public int PositonSubscriptionCount {
             get => _positionSubscriptions.Count;
         }
@@ -389,9 +367,34 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public List<int> GetPositions(int folioId, Positions position)
+        private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
         {
-            return _dataServiceProvider.GetPositions(folioId, position);
+            SendMessageToAllClients((s, c) => {
+
+                if (_systemSubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
+
+            });
+        }
+
+        private void PortfolioDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
+        {
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioSubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
+
+            });
+        }
+
+        private void PositionDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
+        {
+            SendMessageToAllClients((s, c) => {
+
+                if (_positionSubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
+
+            });
         }
     }
 }

@@ -140,15 +140,14 @@ namespace RxdSolutions.FusionLink
                     caption.Append(lastRefresh);
 
 #if DEBUG
-                    var lastRefreshOverall = $"({Math.Round(_lastRefreshTimeTakenOverall.Value.TotalSeconds, 1)} overall)";
-                    caption.Append(" / ");
+                    var lastRefreshOverall = $" ({Math.Round(_lastRefreshTimeTakenOverall.Value.TotalSeconds, 1)} overall)";
                     caption.Append(lastRefreshOverall);
 #endif
                 }
             }
 
 #if DEBUG
-            var subs = $"(Portfolio:{_dataServer.PortfolioSubscriptionCount},Position:{_dataServer.PositonSubscriptionCount},System:{_dataServer.SystemValueCount})";
+            var subs = $"(Subscriptions = Portfolio:{_dataServer.PortfolioSubscriptionCount},Position:{_dataServer.PositonSubscriptionCount},System:{_dataServer.SystemValueCount})";
             caption.Append(" / ");
             caption.Append(subs);
 #endif
