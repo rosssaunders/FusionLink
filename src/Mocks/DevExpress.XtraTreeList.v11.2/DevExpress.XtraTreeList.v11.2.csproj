@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{A386C006-93BE-42DA-9978-9CE1B1E844CD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>DevExpress</RootNamespace>
+    <AssemblyName>DevExpress.XtraTreeList.v11.2</AssemblyName>
+    <TargetFramework>net40</TargetFramework>
+    <Deterministic>true</Deterministic>
+    <Configurations>Debug;Release</Configurations>
+    <Authors>RXD Solutions</Authors>
+    <Company>RXD Solutions</Company>
+    <Product>FusionLink</Product>
+    <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
+    <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
+    <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug_7_1_3_19|net452|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+</Project>

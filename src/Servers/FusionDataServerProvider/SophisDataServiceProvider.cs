@@ -16,13 +16,13 @@ namespace RxdSolutions.FusionLink
     public class SophisDataServiceProvider : IDataServerProvider
     {
         private readonly SynchronizationContext _context;
-        private Queue<int> _portfoliosToLoad = new Queue<int>();
+        private readonly Queue<int> _portfoliosToLoad = new Queue<int>();
         private TimeSpan _lastRefreshTimer;
 
         public SophisDataServiceProvider(SynchronizationContext context)
         {
             _context = context;
-            _lastRefreshTimer = default(TimeSpan);
+            _lastRefreshTimer = default;
         }
 
         public bool IsBusy { get; private set; }
@@ -190,8 +190,8 @@ namespace RxdSolutions.FusionLink
         {
             using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
             {
-                var positionCount = portfolio.GetTreeViewPositionCount();
-                for (var i = 0; i < positionCount; i++)
+                int positionCount = portfolio.GetTreeViewPositionCount();
+                for (int i = 0; i < positionCount; i++)
                 {
                     using (var position = portfolio.GetNthTreeViewPosition(i))
                     {
@@ -211,9 +211,9 @@ namespace RxdSolutions.FusionLink
                     }
                 }
 
-                var childPortfolioCount = portfolio.GetChildCount();
+                int childPortfolioCount = portfolio.GetChildCount();
 
-                for (var i = 0; i < childPortfolioCount; i++)
+                for (int i = 0; i < childPortfolioCount; i++)
                 {
                     using (var childPortfolio = portfolio.GetNthChild(i))
                     {
@@ -225,42 +225,9 @@ namespace RxdSolutions.FusionLink
 
         private object GetSystemValueUI(SystemProperty property)
         {
-            var sd = new SystemDates();
-            
-            sd.Instrument = CSMMarketData.GetInstrumentDate().GetDateTime();
-            sd.InstrumentCategory = CSMMarketData.GetInstrumentCategoryDate().GetDateTime();
-            sd.MarkPnLRuleSet = CSMMarketData.GetMarkPnLRuleSetDate().GetDateTime();
-            sd.SubscriptRedemptDate = CSMMarketData.GetSubscriptRedemptDate().GetDateTime();
-            sd.CreditRiskDate = CSMMarketData.GetCreditRiskDate().GetDateTime();
-            sd.RepoDate = CSMMarketData.GetRepoDate().GetDateTime();
-            sd.Volatility = CSMMarketData.GetVolatilityDate().GetDateTime();
-            sd.Correlation = CSMMarketData.GetCorrelationDate().GetDateTime();
-            sd.Dividend = CSMMarketData.GetDividendDate().GetDateTime();
-            sd.Forex = CSMMarketData.GetForexDate().GetDateTime();
-            sd.Spot = CSMMarketData.GetSpotDate().GetDateTime();
-            sd.MarketCategory = CSMMarketData.GetMarketCategoryDate().GetDateTime();
-            sd.TagMetaData = CSMMarketData.GetTagmetadataDate().GetDateTime();
-            sd.Position = CSMMarketData.GetPositionDate().GetDateTime();
-            sd.Rate = CSMMarketData.GetYieldCurveDate().GetDateTime();
-
             switch (property)
             {
                 case SystemProperty.PortfolioDate: return CSMPortfolio.GetPortfolioDate().GetDateTime();
-                case SystemProperty.InstrumentDate: return sd.Instrument;
-                case SystemProperty.InstrumentCategory: return sd.InstrumentCategory;
-                case SystemProperty.MarkPnLRuleSet: return sd.MarkPnLRuleSet;
-                case SystemProperty.SubscriptRedemptionDate: return sd.SubscriptRedemptDate;
-                case SystemProperty.CreditRiskDate: return sd.CreditRiskDate;
-                case SystemProperty.RepoDate: return sd.RepoDate;
-                case SystemProperty.Volatility: return sd.Volatility;
-                case SystemProperty.Correlation: return sd.Correlation;
-                case SystemProperty.Dividend: return sd.Dividend;
-                case SystemProperty.Forex: return sd.Forex;
-                case SystemProperty.Spot: return sd.Spot;
-                case SystemProperty.Rate: return sd.Rate;
-                case SystemProperty.MarketCategory: return sd.MarketCategory;
-                case SystemProperty.TagMetaData: return sd.TagMetaData;
-                case SystemProperty.Position: return sd.Position;
             }
 
             throw new ApplicationException($"Unknown property {property}");
@@ -361,7 +328,9 @@ namespace RxdSolutions.FusionLink
                 case NSREnums.eMDataType.M_dInt:
                     return (long)cv.integerValue;
 
+#if !V72
                 case NSREnums.eMDataType.M_dPascalString:
+#endif
                 case NSREnums.eMDataType.M_dUnicodeString:
                 case NSREnums.eMDataType.M_dNullTerminatedString:
                     return cv.GetString();
@@ -406,7 +375,7 @@ namespace RxdSolutions.FusionLink
                 {
                     while (_portfoliosToLoad.Count > 0)
                     {
-                        var portfolioId = _portfoliosToLoad.Dequeue();
+                        int portfolioId = _portfoliosToLoad.Dequeue();
                         using (var portfolio = CSMPortfolio.GetCSRPortfolio(portfolioId))
                         {
                             EnsurePortfolioLoaded(portfolio);

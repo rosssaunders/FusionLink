@@ -9,54 +9,6 @@ namespace RxdSolutions.FusionLink.Interface
     public enum SystemProperty
     {
         [EnumMember]
-        PortfolioDate,
-
-        [EnumMember]
-        InstrumentDate,
-
-        [EnumMember]
-        InstrumentCategory,
-
-        [EnumMember]
-        MarkPnLRuleSet,
-
-        [EnumMember]
-        SubscriptRedemptionDate,
-
-        [EnumMember]
-        CreditRiskDate,
-
-        [EnumMember]
-        Rate,
-
-        [EnumMember]
-        RepoDate,
-
-        [EnumMember]
-        Volatility,
-
-        [EnumMember]
-        Correlation,
-
-        [EnumMember]
-        Dividend,
-
-        [EnumMember]
-        Forex,
-
-        [EnumMember]
-        Spot,
-
-        [EnumMember]
-        MarketCategory,
-
-        [EnumMember]
-        TagMetaData,
-
-        [EnumMember]
-        Position,
-
-        [EnumMember]
-        Calculation
+        PortfolioDate
     }
 }

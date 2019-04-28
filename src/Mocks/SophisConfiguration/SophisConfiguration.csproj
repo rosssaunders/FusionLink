@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{2D9D536E-C22D-481D-914C-9E3B434ED0F3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Sophis</RootNamespace>
+    <AssemblyName>SophisConfiguration</AssemblyName>
+    <TargetFrameworks>net452;net462</TargetFrameworks>
+    <Deterministic>true</Deterministic>
+    <Configurations>Debug;Release;Debug_7_1;Debug_7_2</Configurations>
+    <Authors>RXD Solutions</Authors>
+    <Company>RXD Solutions</Company>
+    <Product>FusionLink</Product>
+    <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
+    <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
+    <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
+    <DefineConstants>TRACE;V72</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+</Project>

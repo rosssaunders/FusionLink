@@ -5,7 +5,9 @@ $RequiredFiles = @(
     "SophisDotNetToolkit.dll"
     "SophisDotNetToolkitGUI.dll"
     "SophisDotNetTools.dll"
-    "SophisPortfoliosGUI.dll"
+    "SophisPortfoliosGUI.dll",
+    "Sophis.API.Configuration.dll"
+    "SophisConfiguration.dll"
 )
 
 foreach ($file in $RequiredFiles) {
