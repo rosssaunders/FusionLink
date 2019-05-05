@@ -39,7 +39,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         [ExcelFunction(Name = "GETCONNECTIONID", Description = "Returns the connection Id of the connection to FusionInvest", Category = "FusionLink")]
         public static object GetConnectionId()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionIdExcelObservable(AddIn.Client));
+            return ExcelAsyncUtil.Observe(nameof(GetConnectionId), null, () => new ConnectionIdExcelObservable(AddIn.Client));
         }
     }
 }
