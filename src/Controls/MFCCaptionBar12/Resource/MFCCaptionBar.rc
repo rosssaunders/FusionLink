@@ -113,8 +113,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "MFCCaptionBarVersion.rc2"
-
+#include "MFCCaptionBarVersion.rc2"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

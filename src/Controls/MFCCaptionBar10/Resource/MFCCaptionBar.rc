@@ -103,6 +103,18 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_CAPTION_BUTTON      "Options"
+    IDS_CAPTION_BUTTON_TIP  "Click here to change options"
+END
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -113,8 +125,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "MFCCaptionBarVersion.rc2"
-
+#include "MFCCaptionBarVersion.rc2"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

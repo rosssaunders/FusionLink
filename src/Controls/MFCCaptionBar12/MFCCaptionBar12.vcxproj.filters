@@ -27,11 +27,11 @@
     <ClInclude Include="Resource\resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="CaptionBar.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Version\Version.h">
       <Filter>Version Files</Filter>
     </ClInclude>
+    <ClInclude Include="CaptionBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource\MFCCaptionBar.rc">
