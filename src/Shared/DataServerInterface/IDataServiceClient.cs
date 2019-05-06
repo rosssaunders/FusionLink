@@ -11,6 +11,9 @@ namespace RxdSolutions.FusionLink.Interface
     public interface IDataServiceClient
     {
         [OperationContract(IsOneWay = true)]
+        void SendServiceStaus(ServiceStatus status);
+
+        [OperationContract(IsOneWay = true)]
         void SendPositionValue(int positionId, string column, object value);
 
         [OperationContract(IsOneWay = true)]

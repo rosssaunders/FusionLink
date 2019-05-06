@@ -47,6 +47,8 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BEB4B5DA-20F4-4028-9109-AB666C027F69}</ProjectGuid>

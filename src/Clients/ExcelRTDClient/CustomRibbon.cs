@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -82,10 +83,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void OnRefresh(IRibbonControl control)
         {
-            var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
-            app.StatusBar = "Searching for available FusionLink servers. Please wait...";
-
-            AddIn.ConnectionMonitor.FindAvailableServices();
+            using (var sb = new ExcelStatusBarHelper(Resources.SearchingForServersMessage))
+            {
+                AddIn.ConnectionMonitor.FindAvailableServices();
+            }
         }
     }
 }

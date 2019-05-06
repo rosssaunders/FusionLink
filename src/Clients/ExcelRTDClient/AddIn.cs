@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using ExcelDna.Integration;
-
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -23,12 +23,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
             app.RTD.ThrottleInterval = 100;
-            app.StatusBar = "Searching for available FusionLink servers. Please wait...";
 
-            //Start the monitor
-            ConnectionMonitor = new ConnectionMonitor();
-            ConnectionMonitor.FindAvailableServices();
-            ConnectionMonitor.Start();
+            using (var sb = new ExcelStatusBarHelper(Resources.SearchingForServersMessage))
+            {
+                //Start the monitor
+                ConnectionMonitor = new ConnectionMonitor();
+                ConnectionMonitor.FindAvailableServices();
+                ConnectionMonitor.Start();
+            }
 
             //Open the client connection
             Client = new DataServiceClient();

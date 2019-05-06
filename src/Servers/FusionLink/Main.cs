@@ -9,17 +9,19 @@ using System.Threading.Tasks;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
+using sophis.scenario;
 using sophis.utils;
 
 namespace RxdSolutions.FusionLink
 {
+
     public class Main : IMain
     {
         public static ServiceHost _host;
         public static SynchronizationContext _context;
 
-        private static DataServer _dataServer;
-        private static CaptionBar _captionBar;
+        public static DataServer DataServer;
+        public static CaptionBar CaptionBar;
 
         private TimeSpan? _lastRefreshTimeTakenInUI = null;
         private TimeSpan? _lastRefreshTimeTakenOverall = null;
@@ -33,11 +35,33 @@ namespace RxdSolutions.FusionLink
 
         private void RegisterUI()
         {
-            CSMPositionCtxMenu.Register("Copy Cell as Excel Reference", new CopyRTDCellToClipboard());
+            CSMScenario.Register("Display FusionLink", new ShowFusionLinkScenario());
 
+            CSMPositionCtxMenu.Register("Copy Cell as Excel Reference", new CopyRTDCellToClipboard());
             CSMPositionCtxMenu.Register("Copy Table as Excel References", new CopyRTDTableToClipboard());
 
-            _captionBar = new CaptionBar();
+            CaptionBar = new CaptionBar();
+            CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
+            CaptionBar.DisplayButton = true;
+            CaptionBar.ButtonText = "Stop";
+            CaptionBar.ButtonToolTip = "Click here to Start / Stop FusionLink";
+            CaptionBar.Image = Properties.Resources.InfoIcon;
+            CaptionBar.Show();
+        }
+
+        private void OnCaptionBarButtonClicked(object sender, EventArgs e)
+        {
+            if (DataServer == null)
+                return;
+
+            if (DataServer.IsRunning)
+                DataServer.Stop();
+            else
+                DataServer.Start();
+
+            CaptionBar.ButtonText = DataServer.IsRunning ? "Stop" : "Start";
+
+            UpdateCaption();
         }
 
         private void RegisterServer()
@@ -53,7 +77,7 @@ namespace RxdSolutions.FusionLink
 
                 try
                 {
-                    _host = DataServerHostFactory.Create(_dataServer);
+                    _host = DataServerHostFactory.Create(DataServer);
                 }
                 catch (AddressAlreadyInUseException)
                 {
@@ -63,14 +87,14 @@ namespace RxdSolutions.FusionLink
                     _host = null;
                 }
 
-                _dataServer = _host.SingletonInstance as DataServer;
+                DataServer = _host.SingletonInstance as DataServer;
 
-                _dataServer.Start();
-                _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
-                _dataServer.OnDataUpdatedFromProvider += OnDataUpdatedFromProvider;
+                DataServer.Start();
+                DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
+                DataServer.OnDataUpdatedFromProvider += OnDataUpdatedFromProvider;
 
 #if DEBUG
-                _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
+                DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
 #endif
 
             }).ContinueWith (t => {
@@ -89,15 +113,15 @@ namespace RxdSolutions.FusionLink
 
         private static void CreateDataServerFromConfig(SophisDataServiceProvider dataServiceProvider)
         {
-            _dataServer = new DataServer(dataServiceProvider);
+            DataServer = new DataServer(dataServiceProvider);
 
             int refreshRate = 0;
             string defaultMessage = "";
             CSMConfigurationFile.getEntryValue("FusionLink", "RefreshRate", ref refreshRate, 30);
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, "Getting data... please wait");
 
-            _dataServer.ProviderPollingInterval = refreshRate;
-            _dataServer.DefaultMessage = defaultMessage;
+            DataServer.ProviderPollingInterval = refreshRate;
+            DataServer.DefaultMessage = defaultMessage;
         }
 
         private void UpdateCaption()
@@ -110,9 +134,9 @@ namespace RxdSolutions.FusionLink
             caption.Append(dataServiceIdentifierCaption);
 
             //Clients
-            int clientCount = _dataServer.Clients.Count;
+            int clientCount = DataServer.Clients.Count;
 
-            if(clientCount > 0)
+            if (clientCount > 0)
             {
                 string clientsConnectedCaption = "";
                 if (clientCount == 1)
@@ -126,9 +150,12 @@ namespace RxdSolutions.FusionLink
 
                 caption.Append(" / ");
                 caption.Append(clientsConnectedCaption);
+            }
 
+            if (DataServer.IsRunning)
+            {
                 //Config
-                string refreshRate = $"Refreshing every {_dataServer.ProviderPollingInterval} second(s)";
+                string refreshRate = $"Refreshing every {DataServer.ProviderPollingInterval} second(s)";
                 caption.Append(" / ");
                 caption.Append(refreshRate);
 
@@ -145,35 +172,31 @@ namespace RxdSolutions.FusionLink
 #endif
                 }
             }
-
+            else
+            {
+                caption.Append(" / ");
+                caption.Append($"FusionLink stopped");
+            }
+                
 #if DEBUG
-            var subs = $"(Subscriptions = Portfolio:{_dataServer.PortfolioSubscriptionCount},Position:{_dataServer.PositonSubscriptionCount},System:{_dataServer.SystemValueCount})";
+            var subs = $"(Subscriptions = Portfolio:{DataServer.PortfolioSubscriptionCount},Position:{DataServer.PositonSubscriptionCount},System:{DataServer.SystemValueCount})";
             caption.Append(" / ");
             caption.Append(subs);
 #endif
 
-            _captionBar.Text = caption.ToString();
-            _captionBar.Show();
+            CaptionBar.Text = caption.ToString();
         }
 
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
-            if (_dataServer.Clients.Count == 0)
+            if (DataServer.Clients.Count > 0)
             {
-                if (_dataServer.IsRunning)
+                if (!DataServer.IsRunning)
                 {
-                    _dataServer.Stop();
-                    _lastRefreshTimeTakenInUI = null;
+                    DataServer.Start();
                 }
             }
-            else
-            {
-                if (!_dataServer.IsRunning)
-                {
-                    _dataServer.Start();
-                }
-            }
-
+            
             _context.Post(x => 
             {
                 UpdateCaption();
@@ -195,8 +218,8 @@ namespace RxdSolutions.FusionLink
 
         public void Close()
         {
-            _dataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-            _dataServer.Stop();
+            DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
+            DataServer.Stop();
             _host?.Close();
         }
     }

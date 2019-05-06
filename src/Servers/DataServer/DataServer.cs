@@ -81,6 +81,8 @@ namespace RxdSolutions.FusionLink
                 _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
                 _clientMonitorThread.Start();
             }
+
+            SendServiceStatus();
         }
 
         public void Stop()
@@ -96,32 +98,42 @@ namespace RxdSolutions.FusionLink
                 IsRunning = false;
 
                 _providerRefreshRunningResetEvent.Set();
-
-                if (!_providerRefreshThread.Join(TimeSpan.FromSeconds(5)))
-                {
-                    _providerRefreshThread.Abort();
-                }
-
                 _clientMonitorResetEvent.Set();
 
-                if (!_clientMonitorThread.Join(TimeSpan.FromSeconds(5)))
-                {
-                    _clientMonitorThread.Abort();
-                }
+                _clientMonitorThread.Join();
+
+                //We potentially have a deadlock here. If the Sophis data service is attempting to get 
+                //onto the UI thread to refresh the data and we are blocking, this will hang. We just Abort the 
+                //thread to work around this.
+                if(_providerRefreshThread.IsAlive)
+                    _providerRefreshThread.Abort();   
             }
+
+            SendServiceStatus();
         }
 
         public void Register()
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
-            lock(_clients)
+            lock (_clients)
             {
                 if (!_clients.ContainsKey(OperationContext.Current.SessionId))
                     _clients.Add(OperationContext.Current.SessionId, c);
             }
 
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Connected, c));
+
+            SendServiceStatus();
+        }
+
+        private void SendServiceStatus()
+        {
+            SendMessageToAllClients((id, client) => {
+
+                client.SendServiceStaus(GetServiceStatus());
+
+            });
         }
 
         public void Unregister()
@@ -129,6 +141,11 @@ namespace RxdSolutions.FusionLink
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
             Unregister(OperationContext.Current.SessionId, c);
+        }
+
+        public ServiceStatus GetServiceStatus()
+        {
+            return this.IsRunning ? ServiceStatus.Started : ServiceStatus.Stopped;
         }
 
         private void Unregister(string sessionId, IDataServiceClient c)
@@ -307,13 +324,22 @@ namespace RxdSolutions.FusionLink
                 {
                     var overallTimer = Stopwatch.StartNew();
 
+                    if (!IsRunning)
+                        return;
+
                     UpdatePositionSubscriptions();
 
                     var elapsedUITime = _dataServiceProvider.ElapsedTimeOfLastCall;
 
+                    if (!IsRunning)
+                        return;
+
                     UpdatePortfolioSubscriptions();
 
                     elapsedUITime += _dataServiceProvider.ElapsedTimeOfLastCall;
+
+                    if (!IsRunning)
+                        return;
 
                     UpdateSystemPropertySubscriptions();
 
@@ -321,7 +347,8 @@ namespace RxdSolutions.FusionLink
 
                     overallTimer.Stop();
 
-                    OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(elapsedUITime, overallTimer.Elapsed));
+                    if(IsRunning)
+                        OnDataUpdatedFromProvider?.Invoke(this, new DataUpdatedFromProviderEventArgs(elapsedUITime, overallTimer.Elapsed));
                 }
             }
         }

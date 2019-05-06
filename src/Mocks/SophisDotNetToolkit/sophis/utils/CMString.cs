@@ -17,5 +17,10 @@ namespace sophis.utils
         {
             throw new NotImplementedException();
         }
+
+        public static implicit operator CMString(string d)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

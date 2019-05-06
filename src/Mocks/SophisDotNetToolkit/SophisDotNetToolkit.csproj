@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <DefineConstants>TRACE;V72</DefineConstants>

@@ -6,18 +6,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using sophis.utils;
 
 namespace sophisTools
 {
     public class CSMDay : IDisposable
     {
-        public int fYear;
+        public unsafe short fYear { get; set; }
 
-        public int fMonth;
+        public unsafe short fMonth { get; set; }
 
-        public int fDay;
+        public unsafe short fDay { get; set; }
 
-        public CSMDay(object portfolioDate)
+        public unsafe CSMDay()
+        {
+        }
+
+        public unsafe CSMDay(CMString yyyymmdd)
+        {
+        }
+
+        public unsafe CSMDay(int day, int month, int year)
+        {
+        }
+
+        public unsafe CSMDay(int day)
         {
         }
 
