@@ -7,8 +7,8 @@
     <AssemblyName>FusionDataServiceProvider</AssemblyName>
     <TargetFramework>net462</TargetFramework>
     <FileAlignment>512</FileAlignment>
-    <Platforms>AnyCPU;x64</Platforms>
-    <Configurations>Debug;Release;Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6;Mock_7_1_3_14;Mock_7_1_3_19;Mock_7_2_6</Configurations>
+    <Platforms>x64</Platforms>
+    <Configurations>Release_7_1_3_14;Release_7_1_3_19;Release_7_2_6;Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6</Configurations>
     <Authors>RXD Solutions</Authors>
     <Product>FusionLink</Product>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
@@ -18,8 +18,15 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
     <DefineConstants>TRACE;V72</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Mock_7_2_6'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release_7_1_3_14'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release_7_1_3_19'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release_7_2_6'">
     <DefineConstants>TRACE;V72</DefineConstants>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -39,46 +46,41 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Mock_7_1_3_14'">
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Mock_7_1_3_19'">
+  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
       <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Mock_7_2_6'">
+  <ItemGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+  <ItemGroup Condition="'$(Configuration)'=='Release_7_1_3_14'">
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\Finastra\7.1.3.14\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
+  <ItemGroup Condition="'$(Configuration)'=='Release_7_1_3_19'">
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\Finastra\7.1.3.19\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
+  <ItemGroup Condition="'$(Configuration)'=='Release_7_2_6'">
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\Finastra\7.2.6\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
