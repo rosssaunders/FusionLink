@@ -11,6 +11,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
+        public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
 
         public void Heartbeat()
         {
@@ -25,6 +26,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public void SendPositionValue(int positionId, string column, object value)
         {
             OnPositionValueReceived?.Invoke(this, new PositionValueReceivedEventArgs(positionId, column, value));
+        }
+
+        public void SendServiceStaus(ServiceStatus status)
+        {
+            OnServiceStatusReceived?.Invoke(this, new ServiceStatusReceivedEventArgs(status));
         }
 
         public void SendSystemValue(SystemProperty property, object value)

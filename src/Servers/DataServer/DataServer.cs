@@ -81,6 +81,8 @@ namespace RxdSolutions.FusionLink
                 _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
                 _clientMonitorThread.Start();
             }
+
+            SendServiceStatus();
         }
 
         public void Stop()
@@ -106,19 +108,32 @@ namespace RxdSolutions.FusionLink
                 if(_providerRefreshThread.IsAlive)
                     _providerRefreshThread.Abort();   
             }
+
+            SendServiceStatus();
         }
 
         public void Register()
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
-            lock(_clients)
+            lock (_clients)
             {
                 if (!_clients.ContainsKey(OperationContext.Current.SessionId))
                     _clients.Add(OperationContext.Current.SessionId, c);
             }
 
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Connected, c));
+
+            SendServiceStatus();
+        }
+
+        private void SendServiceStatus()
+        {
+            SendMessageToAllClients((id, client) => {
+
+                client.SendServiceStaus(GetServiceStatus());
+
+            });
         }
 
         public void Unregister()
@@ -126,6 +141,11 @@ namespace RxdSolutions.FusionLink
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
             Unregister(OperationContext.Current.SessionId, c);
+        }
+
+        public ServiceStatus GetServiceStatus()
+        {
+            return this.IsRunning ? ServiceStatus.Started : ServiceStatus.Stopped;
         }
 
         private void Unregister(string sessionId, IDataServiceClient c)

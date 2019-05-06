@@ -17,12 +17,15 @@ namespace RxdSolutions.FusionLink
     {
         private readonly SynchronizationContext _context;
         private readonly Queue<int> _portfoliosToLoad = new Queue<int>();
+        private readonly Dictionary<string, CSMPortfolioColumn> _columnCache;
+
         private TimeSpan _lastRefreshTimer;
 
         public SophisDataServiceProvider(SynchronizationContext context)
         {
             _context = context;
             _lastRefreshTimer = default;
+            _columnCache = new Dictionary<string, CSMPortfolioColumn>();
         }
 
         public bool IsBusy { get; private set; }
@@ -233,18 +236,29 @@ namespace RxdSolutions.FusionLink
             throw new ApplicationException($"Unknown property {property}");
         }
 
+        private CSMPortfolioColumn GetPortfolioColumn(string column)
+        {
+            if(!_columnCache.ContainsKey(column))
+            {
+                _columnCache.Add(column, CSMPortfolioColumn.GetCSRPortfolioColumn(column));
+            }
+
+            return _columnCache[column];
+        }
+
         private object GetPortfolioValueUI(int portfolioId, string column)
         {
             var cv = new SSMCellValue();
 
             using (var portfolio = CSMPortfolio.GetCSRPortfolio(portfolioId))
-            using (var portfolioColumn = CSMPortfolioColumn.GetCSRPortfolioColumn(column))
             using (var cs = new SSMCellStyle())
             {
                 if (portfolio is null)
                 {
                     return $"The requested Portfolio '{portfolioId}' cannot be found";
                 }
+
+                var portfolioColumn = GetPortfolioColumn(column);
 
                 if (portfolioColumn is null)
                 {
@@ -277,7 +291,6 @@ namespace RxdSolutions.FusionLink
             var cv = new SSMCellValue();
 
             using (var position = CSMPosition.GetCSRPosition(positionId))
-            using (var portfolioColumn = CSMPortfolioColumn.GetCSRPortfolioColumn(column))
             using (var cs = new SSMCellStyle())
             {
                 if (position is null)
@@ -285,6 +298,7 @@ namespace RxdSolutions.FusionLink
                     return $"The requested position '{positionId}' is either not loaded or does not exist. Please load the positions portfolio in Sophis.";
                 }
 
+                var portfolioColumn = GetPortfolioColumn(column);
                 if (portfolioColumn is null)
                 {
                     return $"The requested Portfolio Column '{column}' cannot be found";

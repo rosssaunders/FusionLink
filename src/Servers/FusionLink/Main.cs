@@ -189,22 +189,14 @@ namespace RxdSolutions.FusionLink
 
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
-            if (DataServer.Clients.Count == 0)
-            {
-                if (DataServer.IsRunning)
-                {
-                    DataServer.Stop();
-                    _lastRefreshTimeTakenInUI = null;
-                }
-            }
-            else
+            if (DataServer.Clients.Count > 0)
             {
                 if (!DataServer.IsRunning)
                 {
                     DataServer.Start();
                 }
             }
-
+            
             _context.Post(x => 
             {
                 UpdateCaption();

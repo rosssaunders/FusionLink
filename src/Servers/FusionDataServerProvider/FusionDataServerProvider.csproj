@@ -55,6 +55,7 @@
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Mock_7_2_6'">

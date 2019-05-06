@@ -41,5 +41,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             return ExcelAsyncUtil.Observe(nameof(GetConnectionId), null, () => new ConnectionIdExcelObservable(AddIn.Client));
         }
+
+        [ExcelFunction(Name = "GETSERVICESTATUS", Description = "Returns the status of the Service", Category = "FusionLink")]
+        public static object GetServiceStatus()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetServiceStatus), null, () => new ServiceStatusExcelObservable(AddIn.Client));
+        }
     }
 }

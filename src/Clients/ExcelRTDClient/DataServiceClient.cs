@@ -21,6 +21,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
+        public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
 
         public DataServiceClient()
         {
@@ -55,6 +56,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
             _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
             _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
+            _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
 
             _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
             
@@ -82,26 +84,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                 throw;
             }
-        }
-
-        private void CallBack_OnPortfolioValueReceived(object sender, PortfolioValueReceivedEventArgs e)
-        {
-            OnPortfolioValueReceived?.Invoke(sender, e);
-        }
-
-        private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
-        {
-            OnPositionValueReceived?.Invoke(sender, e);
-        }
-
-        private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
-        {
-            OnSystemValueReceived?.Invoke(sender, e);
-        }
-
-        public List<int> GetPositions(int portfolioId, Positions positions)
-        {
-            return _server.GetPositions(portfolioId, positions);
         }
 
         public void Close()
@@ -167,6 +149,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
+        public ServiceStatus GetServiceStatus()
+        {
+            return _server.GetServiceStatus();
+        }
+
         public void SubscribeToPositionValue(int positionId, string column)
         {
             if(!_positionSubscriptions.Contains((positionId, column)))
@@ -219,6 +206,31 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToSystemValue(property);
+        }
+
+        private void Callback_OnServiceStatusReceived(object sender, ServiceStatusReceivedEventArgs e)
+        {
+            OnServiceStatusReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPortfolioValueReceived(object sender, PortfolioValueReceivedEventArgs e)
+        {
+            OnPortfolioValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
+        {
+            OnPositionValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
+        {
+            OnSystemValueReceived?.Invoke(sender, e);
+        }
+
+        public List<int> GetPositions(int portfolioId, Positions positions)
+        {
+            return _server.GetPositions(portfolioId, positions);
         }
 
         #region IDisposable Support

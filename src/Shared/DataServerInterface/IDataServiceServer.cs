@@ -15,6 +15,9 @@ namespace RxdSolutions.FusionLink.Interface
         [OperationContract(IsOneWay = true)]
         void Unregister();
 
+        [OperationContract]
+        ServiceStatus GetServiceStatus();
+
         [OperationContract(IsOneWay = true)]
         void SubscribeToPositionValue(int positionId, string column);
 
