@@ -43,7 +43,7 @@ namespace sophis.portfolio
             throw new NotImplementedException();
         }
 
-        public int GetInstrumentCount()
+        public unsafe double GetInstrumentCount()
         {
             throw new NotImplementedException();
         }
