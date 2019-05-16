@@ -9,7 +9,12 @@ namespace RxdSolutions.FusionLink
     public class Subscriptions<T>
     {
         private readonly ConcurrentDictionary<T, (ObservableDataPoint<T> dataPoint, HashSet<string> subscribers)> _subscriptions;
+
         public event EventHandler<DataPointChangedEventArgs<T>> OnValueChanged;
+
+        public event EventHandler<SubscriptionChangedEventArgs<T>> SubscriptionAdded;
+
+        public event EventHandler<SubscriptionChangedEventArgs<T>> SubscriptionRemoved;
 
         public string DefaultMessage { get; set; } = "Getting data... please wait";
 
@@ -26,6 +31,8 @@ namespace RxdSolutions.FusionLink
                 if (_subscriptions.TryAdd(dp.Key, (dp, new HashSet<string>())))
                 {
                     dp.PropertyChanged += DataPointPropertyChanged;
+
+                    SubscriptionAdded?.Invoke(this, new SubscriptionChangedEventArgs<T>(key));
                 }
             }
 
@@ -45,6 +52,8 @@ namespace RxdSolutions.FusionLink
                     if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
                     {
                         value.dp.PropertyChanged -= DataPointPropertyChanged;
+
+                        SubscriptionRemoved?.Invoke(this, new SubscriptionChangedEventArgs<T>(key));
                     }
                 }
             }

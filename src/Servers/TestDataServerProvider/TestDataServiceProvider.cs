@@ -33,6 +33,8 @@ namespace RxdSolutions.FusionLink
         readonly Dictionary<string, Func<double>> doubleColumns = new Dictionary<string, Func<double>>();
         readonly Dictionary<string, Func<int>> intColumns = new Dictionary<string, Func<int>>();
 
+        public event EventHandler<DataAvailableEventArgs> DataAvailable;
+
         public bool IsBusy => false;
 
         public TimeSpan ElapsedTimeOfLastCall => throw new NotImplementedException();
@@ -109,6 +111,36 @@ namespace RxdSolutions.FusionLink
         public List<int> GetPositions(int folioId, Positions positions)
         {
             return new List<int>() { 1, 2, 3, 4, 5 };
+        }
+
+        public void SubscribeToPortfolio(int portfolioId, string column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SubscribeToPosition(int positionId, string column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SubscribeToSystemValue(SystemProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeToPortfolio(int portfolioId, string column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeToPosition(int positionId, string column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeToSystemValue(SystemProperty property)
+        {
+            throw new NotImplementedException();
         }
     }
 }

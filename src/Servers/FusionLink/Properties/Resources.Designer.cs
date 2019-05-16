@@ -61,12 +61,147 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested Portfolio Column &apos;{0}&apos; cannot be found.
+        /// </summary>
+        internal static string ColumnNotFoundMessage {
+            get {
+                return ResourceManager.GetString("ColumnNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLink Connection Id is {0}.
+        /// </summary>
+        internal static string ConnectionIdMessage {
+            get {
+                return ResourceManager.GetString("ConnectionIdMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Cell as Excel Reference.
+        /// </summary>
+        internal static string CopyCellAsExcelReference {
+            get {
+                return ResourceManager.GetString("CopyCellAsExcelReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Table as Excel References.
+        /// </summary>
+        internal static string CopyTableAsExcelReference {
+            get {
+                return ResourceManager.GetString("CopyTableAsExcelReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Getting data... please wait.
+        /// </summary>
+        internal static string DefaultDataLoadingMessage {
+            get {
+                return ResourceManager.GetString("DefaultDataLoadingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap InfoIcon {
             get {
                 object obj = ResourceManager.GetObject("InfoIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading FusionLink....
+        /// </summary>
+        internal static string LoadingMessage {
+            get {
+                return ResourceManager.GetString("LoadingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} clients connected.
+        /// </summary>
+        internal static string MultipleClientsConnectedMessage {
+            get {
+                return ResourceManager.GetString("MultipleClientsConnectedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested portfolio &apos;{0}&apos; is not loaded. Please load in the FusionInvest client..
+        /// </summary>
+        internal static string PortfolioNotLoadedMessage {
+            get {
+                return ResourceManager.GetString("PortfolioNotLoadedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested position &apos;{0}&apos; is either not loaded or does not exist. Please load the positions portfolio in FusionInvest.
+        /// </summary>
+        internal static string PositionNotLoadedOrMissingMessage {
+            get {
+                return ResourceManager.GetString("PositionNotLoadedOrMissingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display FusionLink.
+        /// </summary>
+        internal static string ScenarioShowCaptionBarMessage {
+            get {
+                return ResourceManager.GetString("ScenarioShowCaptionBarMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display FusionLink.
+        /// </summary>
+        internal static string ShowFusionLinkScenarioName {
+            get {
+                return ResourceManager.GetString("ShowFusionLinkScenarioName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} client connected.
+        /// </summary>
+        internal static string SingleClientConnectedMessage {
+            get {
+                return ResourceManager.GetString("SingleClientConnectedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        internal static string StartButtonText {
+            get {
+                return ResourceManager.GetString("StartButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click here to Start / Stop FusionLink.
+        /// </summary>
+        internal static string StartStopButtonTooltip {
+            get {
+                return ResourceManager.GetString("StartStopButtonTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        internal static string StopButtonText {
+            get {
+                return ResourceManager.GetString("StopButtonText", resourceCulture);
             }
         }
     }

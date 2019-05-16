@@ -10,19 +10,36 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
+
     public interface IDataServerProvider
     {
-        bool IsBusy { get; }
+        event EventHandler<DataAvailableEventArgs> DataAvailable;
 
-        TimeSpan ElapsedTimeOfLastCall { get; }
+        //bool IsBusy { get; }
 
-        object GetPositionValue(int positionId, string column);
+        //TimeSpan ElapsedTimeOfLastCall { get; }
 
-        void GetPositionValues(IDictionary<(int positionId, string column), object> values);
+        void SubscribeToPortfolio(int portfolioId, string column);
 
-        object GetPortfolioValue(int portfolioId, string column);
+        void SubscribeToPosition(int positionId, string column);
 
-        void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
+        void SubscribeToSystemValue(SystemProperty property);
+
+        void UnsubscribeToPortfolio(int portfolioId, string column);
+
+        void UnsubscribeToPosition(int positionId, string column);
+
+        void UnsubscribeToSystemValue(SystemProperty property);
+
+
+
+        //object GetPositionValue(int positionId, string column);
+
+        //void GetPositionValues(IDictionary<(int positionId, string column), object> values);
+
+        //object GetPortfolioValue(int portfolioId, string column);
+
+        //void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
 
         object GetSystemValue(SystemProperty property);
 

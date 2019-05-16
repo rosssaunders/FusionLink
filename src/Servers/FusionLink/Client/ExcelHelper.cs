@@ -9,12 +9,12 @@ namespace RxdSolutions.FusionLink
     {
         public static string GetPositionFormula(long id, string column)
         {
-            return $"=GetPositionValue({id}, \"{column}\")";
+            return $"=GETPOSITIONVALUE({id}, \"{column}\")";
         }
 
         public static string GetPortfolioFormula(long id, string column)
         {
-            return $"=GetPortfolioValue({id}, \"{column}\")";
+            return $"=GETPORTFOLIOVALUE({id}, \"{column}\")";
         }
     }
 }
