@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Text;
@@ -18,8 +19,7 @@ namespace RxdSolutions.FusionLink
 {
     public class Main : IMain
     {
-        public static GlobalFunctions _globalFunctions;
-        public static GCHandle _globalFunctionsHandle;
+        public static CSMGlobalFunctions _globalFunctions;
         public static SophisLoadedScenario _sophisLoadedScenario;
 
         public static ServiceHost _host;
@@ -28,14 +28,10 @@ namespace RxdSolutions.FusionLink
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
-        private TimeSpan? _lastRefreshTimeTakenInUI = null;
-        private TimeSpan? _lastRefreshTimeTakenOverall = null;
-
         public void EntryPoint()
         {
-            //_globalFunctions = new GlobalFunctions();
-            //_globalFunctionsHandle = GCHandle.Alloc(_globalFunctions, GCHandleType.Pinned);
-            //CSMGlobalFunctions.Register(_globalFunctions);
+            _globalFunctions = new FusionInvestGlobalFunctions();
+            CSMGlobalFunctions.Register(_globalFunctions);
 
             _sophisLoadedScenario = new SophisLoadedScenario();
             CSMScenario.Register("SophisLoadedScenario", _sophisLoadedScenario);
@@ -86,7 +82,7 @@ namespace RxdSolutions.FusionLink
             _context = SynchronizationContext.Current;
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
-            var dataServiceProvider = new SophisDataServiceProvider(_context, _globalFunctions);
+            var dataServiceProvider = new FusionDataServiceProvider(_context, _globalFunctions as IGlobalFunctions);
 
             CreateDataServerFromConfig(dataServiceProvider);
 
@@ -128,13 +124,12 @@ namespace RxdSolutions.FusionLink
             }, null);
         }
 
-        private static void CreateDataServerFromConfig(SophisDataServiceProvider dataServiceProvider)
+        private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
         {
             DataServer = new DataServer(dataServiceProvider);
 
             int refreshRate = 0;
             string defaultMessage = "";
-            CSMConfigurationFile.getEntryValue("FusionLink", "RefreshRate", ref refreshRate, 30);
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
             DataServer.ProviderPollingInterval = refreshRate;
@@ -146,7 +141,7 @@ namespace RxdSolutions.FusionLink
             var caption = new StringBuilder();
 
             //Listening
-            int processId = System.Diagnostics.Process.GetCurrentProcess().Id;
+            int processId = Process.GetCurrentProcess().Id;
             string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
 
@@ -223,9 +218,6 @@ namespace RxdSolutions.FusionLink
 
         private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
         {
-            _lastRefreshTimeTakenInUI = e.UITimeTaken;
-            _lastRefreshTimeTakenOverall = e.OverallTime;
-
             _context.Post(x => {
 
                 UpdateCaption();
@@ -238,8 +230,6 @@ namespace RxdSolutions.FusionLink
             DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
             DataServer.Stop();
             _host?.Close();
-
-            _globalFunctionsHandle.Free();
         }
     }
 }

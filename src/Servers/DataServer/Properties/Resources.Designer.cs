@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RxdSolutions.FusionLink.ExcelClient.Properties {
+namespace RxdSolutions.FusionLink.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RxdSolutions.FusionLink.ExcelClient.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RxdSolutions.FusionLink.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,20 +61,11 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
+        ///   Looks up a localized string similar to Getting data... please wait.
         /// </summary>
-        internal static string PortfolioNotLoadedMessage {
+        internal static string DefaultGettingDataMessage {
             get {
-                return ResourceManager.GetString("PortfolioNotLoadedMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Searching for available FusionLink servers. Please wait....
-        /// </summary>
-        internal static string SearchingForServersMessage {
-            get {
-                return ResourceManager.GetString("SearchingForServersMessage", resourceCulture);
+                return ResourceManager.GetString("DefaultGettingDataMessage", resourceCulture);
             }
         }
     }

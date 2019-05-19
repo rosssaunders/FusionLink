@@ -15,9 +15,11 @@ namespace RxdSolutions.FusionLink
     {
         event EventHandler<DataAvailableEventArgs> DataAvailable;
 
-        //bool IsBusy { get; }
+        void Start();
 
-        //TimeSpan ElapsedTimeOfLastCall { get; }
+        void Stop();
+
+        bool IsRunning { get; }
 
         void SubscribeToPortfolio(int portfolioId, string column);
 
@@ -31,20 +33,6 @@ namespace RxdSolutions.FusionLink
 
         void UnsubscribeToSystemValue(SystemProperty property);
 
-
-
-        //object GetPositionValue(int positionId, string column);
-
-        //void GetPositionValues(IDictionary<(int positionId, string column), object> values);
-
-        //object GetPortfolioValue(int portfolioId, string column);
-
-        //void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
-
-        object GetSystemValue(SystemProperty property);
-
-        void GetSystemValues(IDictionary<SystemProperty, object> values);
-
-        List<int> GetPositions(int folioId, Positions positions);
+        bool TryGetPositions(int folioId, PositionsToRequest positions, out List<int> results);
     }
 }

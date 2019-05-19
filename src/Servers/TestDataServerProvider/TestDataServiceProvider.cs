@@ -108,7 +108,7 @@ namespace RxdSolutions.FusionLink
             throw new NotImplementedException();
         }
 
-        public List<int> GetPositions(int folioId, Positions positions)
+        public List<int> GetPositions(int folioId, PositionsToRequest positions)
         {
             return new List<int>() { 1, 2, 3, 4, 5 };
         }

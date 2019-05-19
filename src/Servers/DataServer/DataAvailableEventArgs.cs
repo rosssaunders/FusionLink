@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
@@ -12,10 +13,13 @@ namespace RxdSolutions.FusionLink
         {
             PortfolioValues = new Dictionary<(int, string), object>();
             PositionValues = new Dictionary<(int, string), object>();
+            SystemValues = new Dictionary<SystemProperty, object>();
         }
 
         public IDictionary<(int folioId, string column), object> PortfolioValues { get; }
 
         public IDictionary<(int positionId, string column), object> PositionValues { get; }
+
+        public IDictionary<SystemProperty, object> SystemValues { get; }
     }
 }

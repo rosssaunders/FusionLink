@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "RTDClient": {
+    "ExcelClient": {
       "commandName": "Executable",
       "executablePath": "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\EXCEL.EXE",
       "commandLineArgs": "\"E:\\Code\\GitHub\\RXDSolutions\\FusionLink\\src\\Clients\\ExcelRTDClient\\bin\\Debug\\net472\\FusionLink-AddIn.xll\""

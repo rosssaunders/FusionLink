@@ -228,9 +228,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             OnSystemValueReceived?.Invoke(sender, e);
         }
 
-        public List<int> GetPositions(int portfolioId, Positions positions)
+        public List<int> GetPositions(int portfolioId, PositionsToRequest positions)
         {
-            return _server.GetPositions(portfolioId, positions);
+            try
+            {
+                return _server.GetPositions(portfolioId, positions);
+            }
+            catch (FaultException<PortfolioNotLoadedFaultContract>)
+            {
+                throw new PortfolioNotLoadedException();
+            }
         }
 
         #region IDisposable Support

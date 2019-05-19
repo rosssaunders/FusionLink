@@ -45,9 +45,12 @@ namespace RxdSolutions.FusionLink
         {
             if (_subscriptions.ContainsKey(key))
             {
-                _subscriptions[key].subscribers.Remove(subscriber);
+                if(_subscriptions[key].subscribers.Contains(subscriber))
+                {
+                    _subscriptions[key].subscribers.Remove(subscriber);
+                }
 
-                if(_subscriptions[key].subscribers.Count == 0)
+                if (_subscriptions[key].subscribers.Count == 0)
                 {
                     if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
                     {
