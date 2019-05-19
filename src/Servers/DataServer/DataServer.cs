@@ -264,7 +264,7 @@ namespace RxdSolutions.FusionLink
 
         private void CheckClientsAlive()
         {
-            while (IsRunning)
+            while (!_isClosed)
             {
                 SendMessageToAllClients((sessionId, client) => client.Heartbeat());
 

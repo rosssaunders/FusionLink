@@ -39,6 +39,8 @@ namespace RxdSolutions.FusionLink
 
         public TimeSpan ElapsedTimeOfLastCall => throw new NotImplementedException();
 
+        public bool IsRunning => throw new NotImplementedException();
+
         public TestDataServiceProvider()
         {
             stringColumns.Add("Reference", () => RandomString(23));
@@ -139,6 +141,21 @@ namespace RxdSolutions.FusionLink
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetPositions(int folioId, PositionsToRequest positions, out List<int> results)
         {
             throw new NotImplementedException();
         }

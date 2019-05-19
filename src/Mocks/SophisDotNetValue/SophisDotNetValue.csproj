@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{00AAF735-F560-4629-8E7C-2F352F1CB9F9}</ProjectGuid>
+    <ProjectGuid>{4901F790-BAA5-42DC-864D-36742E00F78B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Sophis</RootNamespace>
-    <AssemblyName>Sophis.Windows.Widgets.Core</AssemblyName>
+    <RootNamespace>sophis</RootNamespace>
+    <AssemblyName>SophisDotNetValue</AssemblyName>
     <TargetFrameworks>net452;net462</TargetFrameworks>
     <Deterministic>true</Deterministic>
     <Configurations>Debug;Release;Debug_7_1;Debug_7_2</Configurations>
@@ -18,11 +18,8 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <DefineConstants>TRACE;V72</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1'">
-    <ProjectReference Include="..\DevExpress.XtraTreeList.v11.2\DevExpress.XtraTreeList.v11.2.csproj" />
-  </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)'=='Debug_7_2'">
-    <ProjectReference Include="..\DevExpress.XtraTreeList.v18.1\DevExpress.XtraTreeList.v18.1.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\SophisDotNetToolkit\SophisDotNetToolkit.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

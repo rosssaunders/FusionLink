@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophis.Windows.Widgets.Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophis.DotNetCore", "Sophis.DotNetCore\Sophis.DotNetCore.csproj", "{F81908E8-6BE0-4E02-951C-1F04AEA802DE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SophisDotNetValue", "SophisDotNetValue\SophisDotNetValue.csproj", "{4901F790-BAA5-42DC-864D-36742E00F78B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_7_1|Any CPU = Debug_7_1|Any CPU
@@ -111,6 +113,14 @@ Global
 		{F81908E8-6BE0-4E02-951C-1F04AEA802DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F81908E8-6BE0-4E02-951C-1F04AEA802DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F81908E8-6BE0-4E02-951C-1F04AEA802DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug_7_1|Any CPU.ActiveCfg = Debug_7_1|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug_7_1|Any CPU.Build.0 = Debug_7_1|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug_7_2|Any CPU.ActiveCfg = Debug_7_2|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug_7_2|Any CPU.Build.0 = Debug_7_2|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4901F790-BAA5-42DC-864D-36742E00F78B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
