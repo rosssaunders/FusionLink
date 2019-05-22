@@ -19,6 +19,11 @@ namespace sophis.portfolio
             throw new NotImplementedException();
         }
 
+        public unsafe static int GetRefreshVersion()
+        {
+            throw new NotImplementedException();
+        }
+
         public unsafe virtual void GetPositionCell(int activePortfolioCode, int portfolioCode, CSMExtraction extraction, int underlyingCode, int instrumentCode, eMPositionType positionType, int positionIdentifier, ref SSMCellValue cellValue, SSMCellStyle cellStyle, bool onlyTheValue)
         {
             throw new NotImplementedException();

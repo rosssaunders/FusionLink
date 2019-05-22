@@ -3,9 +3,14 @@
 
 namespace Sophis.Data.Utils
 {
-#if V72
-    public interface ITreeView
+    public interface IEmbeddableComponent
     {
+        void OnActivated();
+
+        void OnDeactivated();
+
+        void OnLoaded();
+
+        void OnUnloaded();
     }
-#endif
 }

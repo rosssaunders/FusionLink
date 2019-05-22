@@ -37,9 +37,6 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DevExpress.XtraEditors.v11.2">
-      <HintPath>..\..\..\..\..\..\..\UAT_SOPHIS\CLIENT\DevExpress.XtraEditors.v11.2.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
@@ -82,6 +79,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
@@ -114,6 +115,10 @@
     </Reference>
     <Reference Include="SophisDotNetTools">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
@@ -154,6 +159,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
@@ -184,6 +193,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
@@ -204,6 +217,10 @@
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\\DevExpress.XtraEditors.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
@@ -258,6 +275,10 @@
     </Reference>
     <Reference Include="SophisDotNetTools">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
