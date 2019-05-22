@@ -8,6 +8,15 @@ namespace sophis.misc
 {
     public class CSMGlobalFunctions : IDisposable
     {
+        public enum eMPortfolioCalculationType
+        {
+            M_pcJustSumming = 2,
+            M_pcFullCalculation = 1,
+            M_pcNotInPortfolio = 0
+        }
+
+        public unsafe eMPortfolioCalculationType fInPortfolioCalculation { get; set; }
+
         public unsafe static void Register(CSMGlobalFunctions ptr)
         {
         }
@@ -23,6 +32,11 @@ namespace sophis.misc
 
         public unsafe virtual void EndPortfolioCalculation()
         {
+        }
+
+        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
+        {
+
         }
     }
 }

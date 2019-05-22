@@ -208,6 +208,48 @@
       <Private>true</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitGUI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetTools">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Common">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Develop'">
+    <Reference Include="MFCCaptionBar">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkit">
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>

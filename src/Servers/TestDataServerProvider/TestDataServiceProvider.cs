@@ -159,5 +159,10 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public void ComputePortfolios(int skipPortfolio)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

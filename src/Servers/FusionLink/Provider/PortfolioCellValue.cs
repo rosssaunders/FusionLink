@@ -32,8 +32,6 @@ namespace RxdSolutions.FusionLink
                 return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
             }
 
-            var dt = DateTime.Today.AddMilliseconds(Portfolio.GetLastComputingTime());
-
             Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), null, ref CellValue, CellStyle, true);
 
             return CellValue.ExtractValueFromSophisCell(CellStyle);
