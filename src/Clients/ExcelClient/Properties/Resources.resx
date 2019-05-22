@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="PortfolioNotLoadedMessage" xml:space="preserve">
+    <value>The requested positions cannot be found as the portfolio is not loaded.</value>
+  </data>
   <data name="SearchingForServersMessage" xml:space="preserve">
     <value>Searching for available FusionLink servers. Please wait...</value>
   </data>

@@ -61,6 +61,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
+        /// </summary>
+        internal static string PortfolioNotLoadedMessage {
+            get {
+                return ResourceManager.GetString("PortfolioNotLoadedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Searching for available FusionLink servers. Please wait....
         /// </summary>
         internal static string SearchingForServersMessage {

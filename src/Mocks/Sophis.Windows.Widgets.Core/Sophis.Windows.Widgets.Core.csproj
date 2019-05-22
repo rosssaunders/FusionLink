@@ -18,7 +18,10 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <DefineConstants>TRACE;V72</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1'">
+    <ProjectReference Include="..\DevExpress.XtraTreeList.v11.2\DevExpress.XtraTreeList.v11.2.csproj" />
+  </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <ProjectReference Include="..\DevExpress.XtraTreeList.v18.1\DevExpress.XtraTreeList.v18.1.csproj" />
   </ItemGroup>
   <ItemGroup>

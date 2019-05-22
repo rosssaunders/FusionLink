@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace RxdSolutions.FusionLink.Interface
 {
     [DataContract]
-    public enum Positions
+    public enum PositionsToRequest
     {
         [EnumMember]
         All,

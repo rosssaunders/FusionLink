@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using static ExcelDna.Integration.XlCall;
 using RxdSolutions.FusionLink.Interface;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -14,8 +15,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
         [ExcelFunction(Name = "GETPOSITIONS", Description = "Returns a list of position ids of the given portfolio", Category = "FusionLink")]
         public static object GetPositions(int portfolioId, bool includeAll)
         {
-            var positionIds = AddIn.Client.GetPositions(portfolioId, includeAll ? Positions.All : Positions.Open);
-
+            List<int> positionIds = null;
+            try
+            {
+                positionIds = AddIn.Client.GetPositions(portfolioId, includeAll ? PositionsToRequest.All : PositionsToRequest.Open);
+            }
+            catch(PortfolioNotLoadedException)
+            {
+                return Resources.PortfolioNotLoadedMessage;
+            }
+            
             double[,] array = new double[positionIds.Count, 1];
             for (var i = 0; i < positionIds.Count; i++)
             {

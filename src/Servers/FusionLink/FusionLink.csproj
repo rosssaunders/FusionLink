@@ -79,6 +79,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
@@ -101,12 +105,20 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
@@ -147,6 +159,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
@@ -177,6 +193,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
@@ -199,6 +219,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
@@ -207,8 +231,58 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Common">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Develop'">
+    <Reference Include="MFCCaptionBar">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkit">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitGUI">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\\DevExpress.XtraEditors.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetTools">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Common">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -245,6 +319,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
@@ -256,7 +334,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
     <ProjectReference Include="..\DataServer\DataServer.csproj" />
-    <ProjectReference Include="..\FusionDataServerProvider\FusionDataServerProvider.csproj" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

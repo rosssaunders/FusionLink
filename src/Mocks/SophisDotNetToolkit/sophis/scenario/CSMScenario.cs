@@ -19,6 +19,16 @@ namespace sophis.scenario
             return eMProcessingType.M_pUserPreference;
         }
 
+        public virtual bool AvailableForScenarioList()
+        {
+            return false;
+        }
+
+        public virtual bool AvailableForReport()
+        {
+            return false;
+        }
+
         public virtual CMString GetName()
         {
             throw new NotImplementedException();

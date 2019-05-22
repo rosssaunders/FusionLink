@@ -3,7 +3,9 @@
 
 namespace Sophis.Data.Utils
 {
+#if V72
     public interface ITreeView
     {
     }
+#endif
 }

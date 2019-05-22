@@ -103,7 +103,11 @@ System::String^ CaptionBar::Text::get()
 void CaptionBar::Text::set(System::String^ value)
 {
 	_messageText = value;
-	Update();
+
+	if (_isCreated)
+	{
+		m_wndCaptionBar.SetText(this->Text, CMFCCaptionBar::ALIGN_LEFT);
+	}
 }
 
 System::String^ CaptionBar::ButtonText::get()
@@ -114,6 +118,11 @@ System::String^ CaptionBar::ButtonText::get()
 void CaptionBar::ButtonText::set(System::String^ value)
 {
 	_buttonText = value;
+
+	if (_isCreated)
+	{
+		m_wndCaptionBar.SetText(this->Text, CMFCCaptionBar::ALIGN_LEFT);
+	}
 }
 
 System::String^ CaptionBar::ButtonToolTip::get()
@@ -124,6 +133,16 @@ System::String^ CaptionBar::ButtonToolTip::get()
 void CaptionBar::ButtonToolTip::set(System::String^ value)
 {
 	_buttonToolTip = value;
+
+	if (_isCreated && DisplayButton)
+	{
+		marshal_context context;
+		LPCTSTR cstrT = context.marshal_as<const TCHAR*>(this->ButtonText);
+		LPCTSTR cstrTT = context.marshal_as<const TCHAR*>(this->ButtonToolTip);
+
+		m_wndCaptionBar.SetButton(cstrT, ID_TOOLS_OPTIONS, CMFCCaptionBar::ALIGN_LEFT, FALSE);
+		m_wndCaptionBar.SetButtonToolTip(cstrTT);
+	}
 }
 
 System::Boolean^ CaptionBar::DisplayButton::get()
@@ -134,4 +153,14 @@ System::Boolean^ CaptionBar::DisplayButton::get()
 void CaptionBar::DisplayButton::set(System::Boolean^ value)
 {
 	_displayButton = value;
+
+	if (_isCreated && DisplayButton)
+	{
+		marshal_context context;
+		LPCTSTR cstrT = context.marshal_as<const TCHAR*>(this->ButtonText);
+		LPCTSTR cstrTT = context.marshal_as<const TCHAR*>(this->ButtonToolTip);
+
+		m_wndCaptionBar.SetButton(cstrT, ID_TOOLS_OPTIONS, CMFCCaptionBar::ALIGN_LEFT, FALSE);
+		m_wndCaptionBar.SetButtonToolTip(cstrTT);
+	}
 }

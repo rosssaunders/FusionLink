@@ -18,6 +18,11 @@ namespace sophis.portfolio
             throw new NotImplementedException();
         }
 
+        public int GetParentCode()
+        {
+            throw new NotImplementedException();
+        }
+
         public static CSMPortfolio GetCSRPortfolio(int portfolioId)
         {
             throw new NotImplementedException();

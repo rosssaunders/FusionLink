@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using RxdSolutions.FusionLink.Properties;
 using sophis.scenario;
 using sophis.utils;
 
@@ -15,7 +16,7 @@ namespace RxdSolutions.FusionLink
 
         public override CMString GetName()
         {
-            return "Display FusionLink";
+            return Resources.ShowFusionLinkScenarioName;
         }
 
         public override void Run()

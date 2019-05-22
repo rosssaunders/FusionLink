@@ -2,10 +2,13 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RxdSolutions.FusionLink.Properties;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
@@ -14,39 +17,49 @@ using sophis.utils;
 
 namespace RxdSolutions.FusionLink
 {
-
     public class Main : IMain
     {
+        public static CSMGlobalFunctions _globalFunctions;
+        public static SophisLoadedScenario _sophisLoadedScenario;
+
         public static ServiceHost _host;
         public static SynchronizationContext _context;
 
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
-        private TimeSpan? _lastRefreshTimeTakenInUI = null;
-        private TimeSpan? _lastRefreshTimeTakenOverall = null;
-
         public void EntryPoint()
         {
-            RegisterServer();
+            _globalFunctions = new FusionInvestGlobalFunctions();
+            CSMGlobalFunctions.Register(_globalFunctions);
 
-            RegisterUI();
+            _sophisLoadedScenario = new SophisLoadedScenario();
+            CSMScenario.Register("SophisLoadedScenario", _sophisLoadedScenario);
+
+            SophisLoadedScenario.OnAfterAllInitialisation += (s, e) => {
+
+                RegisterServer();
+
+                RegisterUI();
+
+            };
         }
 
         private void RegisterUI()
         {
-            CSMScenario.Register("Display FusionLink", new ShowFusionLinkScenario());
-
-            CSMPositionCtxMenu.Register("Copy Cell as Excel Reference", new CopyRTDCellToClipboard());
-            CSMPositionCtxMenu.Register("Copy Table as Excel References", new CopyRTDTableToClipboard());
+            CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
+            CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyRTDCellToClipboard());
+            CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRTDTableToClipboard());
 
             CaptionBar = new CaptionBar();
             CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
             CaptionBar.DisplayButton = true;
-            CaptionBar.ButtonText = "Stop";
-            CaptionBar.ButtonToolTip = "Click here to Start / Stop FusionLink";
-            CaptionBar.Image = Properties.Resources.InfoIcon;
+            CaptionBar.ButtonText = Resources.StopButtonText;
+            CaptionBar.ButtonToolTip = Resources.StartStopButtonTooltip;
+            CaptionBar.Image = Resources.InfoIcon;
             CaptionBar.Show();
+
+            CaptionBar.Text = Resources.LoadingMessage;
         }
 
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
@@ -59,7 +72,7 @@ namespace RxdSolutions.FusionLink
             else
                 DataServer.Start();
 
-            CaptionBar.ButtonText = DataServer.IsRunning ? "Stop" : "Start";
+            CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
 
             UpdateCaption();
         }
@@ -69,7 +82,7 @@ namespace RxdSolutions.FusionLink
             _context = SynchronizationContext.Current;
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
-            var dataServiceProvider = new SophisDataServiceProvider(_context);
+            var dataServiceProvider = new FusionDataServiceProvider(_context, _globalFunctions as IGlobalFunctions);
 
             CreateDataServerFromConfig(dataServiceProvider);
 
@@ -111,14 +124,13 @@ namespace RxdSolutions.FusionLink
             }, null);
         }
 
-        private static void CreateDataServerFromConfig(SophisDataServiceProvider dataServiceProvider)
+        private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
         {
             DataServer = new DataServer(dataServiceProvider);
 
             int refreshRate = 0;
             string defaultMessage = "";
-            CSMConfigurationFile.getEntryValue("FusionLink", "RefreshRate", ref refreshRate, 30);
-            CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, "Getting data... please wait");
+            CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
             DataServer.ProviderPollingInterval = refreshRate;
             DataServer.DefaultMessage = defaultMessage;
@@ -129,8 +141,8 @@ namespace RxdSolutions.FusionLink
             var caption = new StringBuilder();
 
             //Listening
-            int processId = System.Diagnostics.Process.GetCurrentProcess().Id;
-            string dataServiceIdentifierCaption = $"FusionLink Connection Id is {processId}";
+            int processId = Process.GetCurrentProcess().Id;
+            string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
 
             //Clients
@@ -141,43 +153,17 @@ namespace RxdSolutions.FusionLink
                 string clientsConnectedCaption = "";
                 if (clientCount == 1)
                 {
-                    clientsConnectedCaption = $" {clientCount} client connected";
+                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, clientCount);
                 }
                 else if (clientCount > 1)
                 {
-                    clientsConnectedCaption = $" {clientCount} clients connected";
+                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, clientCount);
                 }
 
                 caption.Append(" / ");
                 caption.Append(clientsConnectedCaption);
             }
-
-            if (DataServer.IsRunning)
-            {
-                //Config
-                string refreshRate = $"Refreshing every {DataServer.ProviderPollingInterval} second(s)";
-                caption.Append(" / ");
-                caption.Append(refreshRate);
-
-                //Perf
-                if (_lastRefreshTimeTakenInUI.HasValue)
-                {
-                    string lastRefresh = $"Last refresh took {Math.Round(_lastRefreshTimeTakenInUI.Value.TotalSeconds, 1)} second(s)";
-                    caption.Append(" / ");
-                    caption.Append(lastRefresh);
-
-#if DEBUG
-                    var lastRefreshOverall = $" ({Math.Round(_lastRefreshTimeTakenOverall.Value.TotalSeconds, 1)} overall)";
-                    caption.Append(lastRefreshOverall);
-#endif
-                }
-            }
-            else
-            {
-                caption.Append(" / ");
-                caption.Append($"FusionLink stopped");
-            }
-                
+ 
 #if DEBUG
             var subs = $"(Subscriptions = Portfolio:{DataServer.PortfolioSubscriptionCount},Position:{DataServer.PositonSubscriptionCount},System:{DataServer.SystemValueCount})";
             caption.Append(" / ");
@@ -206,9 +192,6 @@ namespace RxdSolutions.FusionLink
 
         private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
         {
-            _lastRefreshTimeTakenInUI = e.UITimeTaken;
-            _lastRefreshTimeTakenOverall = e.OverallTime;
-
             _context.Post(x => {
 
                 UpdateCaption();
@@ -219,7 +202,7 @@ namespace RxdSolutions.FusionLink
         public void Close()
         {
             DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-            DataServer.Stop();
+            DataServer.Close();
             _host?.Close();
         }
     }

@@ -10,24 +10,31 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
+
     public interface IDataServerProvider
     {
-        bool IsBusy { get; }
+        event EventHandler<DataAvailableEventArgs> DataAvailable;
 
-        TimeSpan ElapsedTimeOfLastCall { get; }
+        void Start();
 
-        object GetPositionValue(int positionId, string column);
+        void Stop();
 
-        void GetPositionValues(IDictionary<(int positionId, string column), object> values);
+        bool IsRunning { get; }
 
-        object GetPortfolioValue(int portfolioId, string column);
+        void ComputePortfolios(int skipPortfolio);
 
-        void GetPortfolioValues(IDictionary<(int positionId, string column), object> values);
+        void SubscribeToPortfolio(int portfolioId, string column);
 
-        object GetSystemValue(SystemProperty property);
+        void SubscribeToPosition(int positionId, string column);
 
-        void GetSystemValues(IDictionary<SystemProperty, object> values);
+        void SubscribeToSystemValue(SystemProperty property);
 
-        List<int> GetPositions(int folioId, Positions positions);
+        void UnsubscribeToPortfolio(int portfolioId, string column);
+
+        void UnsubscribeToPosition(int positionId, string column);
+
+        void UnsubscribeToSystemValue(SystemProperty property);
+
+        bool TryGetPositions(int folioId, PositionsToRequest positions, out List<int> results);
     }
 }
