@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 using RxdSolutions.FusionLink.Interface;
 using sophis.portfolio;
 
@@ -182,10 +184,24 @@ namespace RxdSolutions.FusionLink
             }, null);
         }
 
-        private void GlobalFunctions_PortfolioCalculationEnded(object sender, EventArgs e)
+        private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
             if(IsRunning)
             {
+                if(e.InPortfolioCalculation == sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation)
+                {
+                    //It was us that caused the CalculationEnded event to be fired
+                    if (_isComputing)
+                        return;
+
+                    //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
+                    _context.Post(d => {
+
+                        ComputePortfolios(e.FolioId);
+
+                    }, null);
+                }
+
                 //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
                 _context.Post(d => {
 
@@ -193,7 +209,78 @@ namespace RxdSolutions.FusionLink
 
                 }, null);
             }
+        }
+
+        //Avoid infinite loops
+        private bool _isComputing;
+
+        public void ComputePortfolios(int skipPortfolio)
+        {
+            if (_isComputing)
+                return;
+
+            _isComputing = true;
+
+            var portfolios = new HashSet<int>();
+
+            foreach (var c in _portfolioSubscriptions.GetCells().Select(x => x.FolioId))
+                portfolios.Add(c);
+
+            foreach (var c in _positionSubscriptions.GetCells().Select(x => x.PositionId))
+            {
+                using (var pos = CSMPosition.GetCSRPosition(c))
+                {
+                    if(pos is object)
+                    {
+                        portfolios.Add(pos.GetPortfolioCode());
+                    }
+                }
+            }
+
+            int FindRootLoadedPortfolio(CSMPortfolio portfolio)
+            {
+                var parentCode = portfolio.GetParentCode();
                 
+                using (var parentPortfolio = CSMPortfolio.GetCSRPortfolio(parentCode))
+                {
+                    if(parentPortfolio.IsLoaded())
+                    {
+                        return FindRootLoadedPortfolio(parentPortfolio);
+                    }
+                    else
+                    {
+                        return portfolio.GetCode();
+                    }
+                }
+            }
+
+            var rootPortfolios = new HashSet<int>();
+            foreach(var id in portfolios)
+            {
+                using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
+                {
+                    if (portfolio.IsLoaded())
+                    {
+                        rootPortfolios.Add(FindRootLoadedPortfolio(portfolio));
+                    }
+                }
+            }
+
+            foreach (var id in rootPortfolios)
+            {
+                if (id == skipPortfolio)
+                    continue;
+
+                using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
+                {
+                    portfolio.Compute();
+
+                    //This is required to allow Sophis to invoke the EndCalculation global function before we finish all our calculations.
+                    Application.DoEvents();
+                }
+            }
+
+            _isComputing = false;
         }
 
         private void RefreshData()

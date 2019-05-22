@@ -13,11 +13,11 @@ namespace RxdSolutions.FusionLink
 
         public event EventHandler<PortfolioAdditionEndedEventArgs> PortfolioAdditionEnded;
 
-        public override void EndPortfolioCalculation()
+        public override void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
         {
-            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(CSMPortfolioColumn.GetRefreshVersion()));
+            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), this.fInPortfolioCalculation));
 
-            base.EndPortfolioCalculation();
+            base.EndPortfolioCalculation(extraction, folioId);
         }
 
         public override void EndPortfolioAddition(CSMExtraction extraction, int folioId)

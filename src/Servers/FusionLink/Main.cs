@@ -163,33 +163,7 @@ namespace RxdSolutions.FusionLink
                 caption.Append(" / ");
                 caption.Append(clientsConnectedCaption);
             }
-
-//            if (DataServer.IsRunning)
-//            {
-//                //Config
-//                string refreshRate = $"Refreshing every {DataServer.ProviderPollingInterval} second(s)";
-//                caption.Append(" / ");
-//                caption.Append(refreshRate);
-
-//                //Perf
-//                if (_lastRefreshTimeTakenInUI.HasValue)
-//                {
-//                    string lastRefresh = $"Last refresh took {Math.Round(_lastRefreshTimeTakenInUI.Value.TotalSeconds, 1)} second(s)";
-//                    caption.Append(" / ");
-//                    caption.Append(lastRefresh);
-
-//#if DEBUG
-//                    var lastRefreshOverall = $" ({Math.Round(_lastRefreshTimeTakenOverall.Value.TotalSeconds, 1)} overall)";
-//                    caption.Append(lastRefreshOverall);
-//#endif
-//                }
-//            }
-//            else
-//            {
-//                caption.Append(" / ");
-//                caption.Append($"FusionLink stopped");
-//            }
-                
+ 
 #if DEBUG
             var subs = $"(Subscriptions = Portfolio:{DataServer.PortfolioSubscriptionCount},Position:{DataServer.PositonSubscriptionCount},System:{DataServer.SystemValueCount})";
             caption.Append(" / ");
@@ -228,7 +202,7 @@ namespace RxdSolutions.FusionLink
         public void Close()
         {
             DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-            DataServer.Stop();
+            DataServer.Close();
             _host?.Close();
         }
     }

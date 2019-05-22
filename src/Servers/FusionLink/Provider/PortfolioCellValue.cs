@@ -1,8 +1,10 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
+using sophisTools;
 
 namespace RxdSolutions.FusionLink
 {
@@ -29,6 +31,8 @@ namespace RxdSolutions.FusionLink
             {
                 return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
             }
+
+            var dt = DateTime.Today.AddMilliseconds(Portfolio.GetLastComputingTime());
 
             Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), null, ref CellValue, CellStyle, true);
 
