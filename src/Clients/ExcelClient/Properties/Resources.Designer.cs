@@ -61,6 +61,24 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://github.com/RXDSolutions/FusionLink/wiki/.
+        /// </summary>
+        internal static string DocumentationBaseAddress {
+            get {
+                return ResourceManager.GetString("DocumentationBaseAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLink.
+        /// </summary>
+        internal static string ExcelHelpCategory {
+            get {
+                return ResourceManager.GetString("ExcelHelpCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
         /// </summary>
         internal static string PortfolioNotLoadedMessage {

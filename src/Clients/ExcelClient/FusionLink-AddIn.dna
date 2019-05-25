@@ -1,5 +1,5 @@
 <DnaLibrary Name="FusionLink Add-In" RuntimeVersion="v4.0">
-  <ExternalLibrary Path="FusionLinkXll.dll" ExplicitExports="false" LoadFromBytes="true" Pack="true" />
+  <ExternalLibrary Path="FusionLinkXll.dll" ExplicitExports="false" ExplicitRegistration="true" LoadFromBytes="true" Pack="true" />
   
   <!-- 
        The RuntimeVersion attribute above allows two settings:
@@ -16,5 +16,4 @@
        Excel-DNA also allows the xml for ribbon UI extensions to be specified in the .dna file.
        See the main Excel-DNA site at http://excel-dna.net for downloads of the full distribution.
   -->
-
 </DnaLibrary>

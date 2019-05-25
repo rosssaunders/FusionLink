@@ -41,7 +41,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
             else
             {
-                var allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => ConnectionHelper.GetConnectionId(x.Uri)));
+                string allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => ConnectionHelper.GetConnectionId(x.Uri)));
                 _observer.OnNext(allConnections);
             }
         }

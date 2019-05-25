@@ -2,10 +2,9 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using ExcelDna.Integration;
+using ExcelDna.Registration;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
@@ -16,8 +15,15 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public static DataServiceClient Client; 
         public static ConnectionMonitor ConnectionMonitor;
 
+        static AddIn()
+        {
+            Client = new DataServiceClient();
+        }
+
         public void AutoOpen()
         {
+            RegisterFunctions();
+
             // setup error handler
             ExcelIntegration.RegisterUnhandledExceptionHandler(ex => ex.ToString());
 
@@ -33,9 +39,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
 
             //Open the client connection
-            Client = new DataServiceClient();
             ConnectionMonitor.RegisterClient(Client);
-
             ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
         }
 
@@ -44,6 +48,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
             ConnectionMonitor.Stop();
 
             Client?.Close();
+        }
+
+        public void RegisterFunctions()
+        {
+            ExcelRegistration.GetExcelFunctions()
+                             .Select(UpdateHelpTopic)
+                             .RegisterFunctions();
+        }
+
+        public ExcelFunctionRegistration UpdateHelpTopic(ExcelFunctionRegistration funcReg)
+        {
+            funcReg.FunctionAttribute.Category = Resources.ExcelHelpCategory;
+            funcReg.FunctionAttribute.HelpTopic = new Uri(new Uri(Resources.DocumentationBaseAddress), funcReg.FunctionAttribute.HelpTopic).ToString();
+
+            return funcReg;
         }
     }
 }

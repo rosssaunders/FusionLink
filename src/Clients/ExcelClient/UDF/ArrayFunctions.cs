@@ -12,8 +12,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class ArrayFunctions
     {
-        [ExcelFunction(Name = "GETPOSITIONS", Description = "Returns a list of position ids of the given portfolio", Category = "FusionLink")]
-        public static object GetPositions(int portfolioId, bool includeAll)
+        [ExcelFunction(Name = "GETPOSITIONS", 
+                       Description = "Returns a list of position ids of the given portfolio. By default only includes open positions.", 
+                       HelpTopic = "Get-Positions")]
+        public static object GetPositions([ExcelArgument(Name = "portfolio_id", Description = "The Portfolio Id")]int portfolioId,
+                                          [ExcelArgument(Name = "include_all_positions", Description = "Include all positions")] bool includeAll = false)
         {
             List<int> positionIds = null;
             try
@@ -26,7 +29,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
             
             double[,] array = new double[positionIds.Count, 1];
-            for (var i = 0; i < positionIds.Count; i++)
+            for (int i = 0; i < positionIds.Count; i++)
             {
                 array[i, 0] = positionIds[i];
             }
@@ -48,8 +51,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 return array;
             }
 
-            var rowLast = caller.RowFirst + rows - 1;
-            var columnLast = caller.ColumnFirst + columns - 1;
+            int rowLast = caller.RowFirst + rows - 1;
+            int columnLast = caller.ColumnFirst + columns - 1;
 
             // Check for the sheet limits
             if (rowLast > ExcelDnaUtil.ExcelLimits.MaxRows - 1 ||
