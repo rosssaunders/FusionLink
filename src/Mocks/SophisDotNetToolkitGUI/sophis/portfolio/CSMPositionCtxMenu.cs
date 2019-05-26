@@ -13,9 +13,48 @@ namespace sophis.portfolio
 {
     public class CSMPositionCtxMenu : IDisposable
     {
-        public virtual bool IsFolioAuthorized(ArrayList folioVector)
+        public CSMPositionCtxMenu()
+        {
+        }
+
+        public static object CreateFromFactory(string key)
         {
             throw new NotImplementedException();
+        }
+
+        protected virtual void Register(string key)
+        {
+        }
+
+        public static void Register(string key, CSMPositionCtxMenu instance)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void UnRegister()
+        {
+        }
+
+        public virtual void Action(ArrayList positionList)
+        {
+        }
+
+        public virtual void Action(ArrayList positionList, CMString ActionName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual CSMPositionCtxMenu Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void FolioAction(ArrayList folioVector)
+        {
+        }
+
+        public virtual void FolioAction(ArrayList folioVector, CMString ActionName)
+        {
         }
 
         public virtual int GetContextMenuGroup()
@@ -23,12 +62,17 @@ namespace sophis.portfolio
             throw new NotImplementedException();
         }
 
-        public virtual void FolioAction(ArrayList folioVector, CMString ActionName)
+        public CSMPositionCtxMenu GetNthElement(int nIndex)
         {
             throw new NotImplementedException();
         }
 
-        public static void Register(string v, CSMPositionCtxMenu instance)
+        public virtual bool HasFolioSubMenu(ArrayList folioVector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool HasSubMenu(ArrayList positionList)
         {
             throw new NotImplementedException();
         }
@@ -38,16 +82,11 @@ namespace sophis.portfolio
             throw new NotImplementedException();
         }
 
-        public virtual void FolioAction(ArrayList folioVector)
+        public virtual bool IsFolioAuthorized(ArrayList folioVector)
         {
             throw new NotImplementedException();
         }
 
-        public virtual void Action(ArrayList positionList, CMString ActionName)
-        {
-            throw new NotImplementedException();
-        }
-        
         public void Dispose()
         {
         }
