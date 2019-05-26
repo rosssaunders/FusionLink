@@ -127,7 +127,7 @@
     <value>Copy Cell as Excel Reference</value>
   </data>
   <data name="CopyTableAsExcelReference" xml:space="preserve">
-    <value>Copy Table as Excel References</value>
+    <value>Copy Row as Excel Table References</value>
   </data>
   <data name="DefaultDataLoadingMessage" xml:space="preserve">
     <value>Getting data... please wait</value>

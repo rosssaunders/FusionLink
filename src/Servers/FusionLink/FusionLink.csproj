@@ -219,10 +219,6 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="DevExpress.XtraEditors.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
@@ -233,10 +229,6 @@
     </Reference>
     <Reference Include="SophisDotNetValue">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Common">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Common.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
