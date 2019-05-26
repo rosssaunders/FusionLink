@@ -15,6 +15,7 @@ Clone this repo to your PC.
 ## Built With
 
 * [ExcelDNA](https://excel-dna.net/)
+* [FusionInvest](https://www.finastra.com/solutions/treasury-and-capital-markets/investment-management/fusion-invest)
 
 ## Authors
 
