@@ -16,13 +16,19 @@ namespace RxdSolutions.FusionLink
         private readonly SynchronizationContext _context;
         private readonly IGlobalFunctions _globalFunctions;
 
-        public event EventHandler<DataAvailableEventArgs> DataAvailable;
-
         private readonly CellSubscriptions<PortfolioCellValue> _portfolioSubscriptions;
         private readonly CellSubscriptions<PositionCellValue> _positionSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
+        //Avoid infinite loops
+        private bool _isComputing;
+
+        //Optimize the data refreshing
+        private int _dataRefreshRequests = 0;
+
         public bool IsRunning { get; private set; }
+
+        public event EventHandler<DataAvailableEventArgs> DataAvailable;
 
         public FusionDataServiceProvider(SynchronizationContext context, IGlobalFunctions globalFunctions)
         {
@@ -188,31 +194,35 @@ namespace RxdSolutions.FusionLink
         {
             if(IsRunning)
             {
-                if(e.InPortfolioCalculation == sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation)
+                _dataRefreshRequests++;
+
+                switch (e.InPortfolioCalculation)
                 {
-                    //It was us that caused the CalculationEnded event to be fired
-                    if (_isComputing)
-                        return;
+                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
 
-                    //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
-                    _context.Post(d => {
+                        if (_isComputing)
+                            return;
 
-                        ComputePortfolios(e.FolioId);
+                        //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
+                        _context.Post(d => {
 
-                    }, null);
+                            ComputePortfolios(e.FolioId);
+
+                            RefreshData();
+
+                        }, null);
+
+                        break;
+
+                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcJustSumming:
+                        //Do Nothing for now.
+                        break;
+
+                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcNotInPortfolio:
+                        break;
                 }
-
-                //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
-                _context.Post(d => {
-
-                    RefreshData();
-
-                }, null);
             }
         }
-
-        //Avoid infinite loops
-        private bool _isComputing;
 
         public void ComputePortfolios(int skipPortfolio)
         {
@@ -285,6 +295,13 @@ namespace RxdSolutions.FusionLink
 
         private void RefreshData()
         {
+            Application.DoEvents();
+
+            if (_dataRefreshRequests == 0)
+                return;
+
+            _dataRefreshRequests = 0;
+
             var args = new DataAvailableEventArgs();
 
             void RefreshPortfolioCells()

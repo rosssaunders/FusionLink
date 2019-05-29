@@ -8,7 +8,7 @@
     <TargetFramework>net462</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>x64</Platforms>
-    <Configurations>Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6;Release_7_1_3_14;Release_7_1_3_19;Release_7_2_6</Configurations>
+    <Configurations>Develop;Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6;Release_7_1_3_14;Release_7_1_3_19;Release_7_2_6</Configurations>
     <Authors>RXD Solutions</Authors>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
     <Product>FusionLink</Product>
@@ -253,10 +253,6 @@
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="DevExpress.XtraEditors.v11.2">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\\DevExpress.XtraEditors.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
@@ -267,10 +263,6 @@
     </Reference>
     <Reference Include="SophisDotNetValue">
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Common">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Common.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
@@ -343,6 +335,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Develop'">
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71314_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
