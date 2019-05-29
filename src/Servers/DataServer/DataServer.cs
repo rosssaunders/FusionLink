@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
+using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Interface;
 using RxdSolutions.FusionLink.Properties;
 
@@ -356,26 +357,30 @@ namespace RxdSolutions.FusionLink
 
         private void DataService_DataAvailable(object sender, DataAvailableEventArgs e)
         {
-            foreach (var kvp in e.PortfolioValues)
-            {
-                var dp = _portfolioSubscriptions.Get(kvp.Key);
-                if (dp is object)
-                    dp.Value = kvp.Value;
-            }
+            _ = Task.Run(() => {
 
-            foreach (var kvp in e.PositionValues)
-            {
-                var dp = _positionSubscriptions.Get(kvp.Key);
-                if (dp is object)
-                    dp.Value = kvp.Value;
-            }
+                foreach (var kvp in e.PortfolioValues)
+                {
+                    var dp = _portfolioSubscriptions.Get(kvp.Key);
+                    if (dp is object)
+                        dp.Value = kvp.Value;
+                }
 
-            foreach(var kvp in e.SystemValues)
-            {
-                var dp = _systemSubscriptions.Get(kvp.Key);
-                if (dp is object)
-                    dp.Value = kvp.Value;
-            }
+                foreach (var kvp in e.PositionValues)
+                {
+                    var dp = _positionSubscriptions.Get(kvp.Key);
+                    if (dp is object)
+                        dp.Value = kvp.Value;
+                }
+
+                foreach (var kvp in e.SystemValues)
+                {
+                    var dp = _systemSubscriptions.Get(kvp.Key);
+                    if (dp is object)
+                        dp.Value = kvp.Value;
+                }
+
+            });
         }
     }
 }

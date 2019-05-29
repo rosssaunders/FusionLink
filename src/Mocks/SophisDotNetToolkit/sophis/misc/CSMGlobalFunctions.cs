@@ -8,6 +8,18 @@ namespace sophis.misc
 {
     public class CSMGlobalFunctions : IDisposable
     {
+        public unsafe CSMGlobalFunctions()
+        {
+        }
+
+        protected unsafe CSMGlobalFunctions(void* A_1, void* A_2)
+        {
+        }
+
+        public unsafe bool fLoadingPortfolio {
+            get; set;
+        }
+
         public enum eMPortfolioCalculationType
         {
             M_pcJustSumming = 2,
@@ -15,7 +27,12 @@ namespace sophis.misc
             M_pcNotInPortfolio = 0
         }
 
-        public unsafe eMPortfolioCalculationType fInPortfolioCalculation { get; set; }
+        public unsafe CSMGlobalFunctions.eMPortfolioCalculationType fInPortfolioCalculation { get; set; }
+
+        public unsafe CSMGlobalFunctions.eMPortfolioCalculationType IsInPortfolioCalculation()
+        {
+            throw new NotImplementedException();
+        }
 
         public unsafe static void Register(CSMGlobalFunctions ptr)
         {
@@ -30,13 +47,13 @@ namespace sophis.misc
         {
         }
 
-        public unsafe virtual void EndPortfolioCalculation()
+        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folio_id)
         {
         }
 
-        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
+        public unsafe static CSMGlobalFunctions GetCurrentGlobalFunctions()
         {
-
+            throw new NotImplementedException();
         }
     }
 }
