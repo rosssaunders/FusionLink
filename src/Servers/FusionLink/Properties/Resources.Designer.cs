@@ -88,7 +88,7 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy Table as Excel References.
+        ///   Looks up a localized string similar to Copy Row as Excel Table References.
         /// </summary>
         internal static string CopyTableAsExcelReference {
             get {

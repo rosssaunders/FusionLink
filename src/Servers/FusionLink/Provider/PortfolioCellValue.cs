@@ -36,5 +36,22 @@ namespace RxdSolutions.FusionLink
 
             return CellValue.ExtractValueFromSophisCell(CellStyle);
         }
+
+        private bool disposedValue = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Portfolio?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

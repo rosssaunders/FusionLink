@@ -3,20 +3,16 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using DevExpress.XtraTreeList.Columns;
 using sophis.portfolio;
 using sophis.utils;
-using Sophis.Data.Utils;
-using Sophis.Portfolios;
 using static RxdSolutions.FusionLink.ExcelHelper;
+using static RxdSolutions.FusionLink.PortfolioViewHelper;
 
 namespace RxdSolutions.FusionLink
 {
-    public class CopyRTDTableToClipboard : CSMPositionCtxMenu
+    public class CopyRowAsRTDTableToClipboard : CSMPositionCtxMenu
     {
         public override bool IsFolioAuthorized(ArrayList folioVector)
         {
@@ -35,16 +31,6 @@ namespace RxdSolutions.FusionLink
         public override bool IsAuthorized(ArrayList positionList)
         {
             return true;
-        }
-
-        private IEnumerable<string> GetDisplayedColumns()
-        {
-            var pv = NavigationManager.Instance.FocusedTreeView as PortfolioView;
-            var columns = pv.TreeList.Columns;
-            return columns
-                        .Cast<TreeListColumn>()
-                        .Select(x => x.Caption)
-                        .Where(x => !string.IsNullOrWhiteSpace(x));
         }
 
         public override int GetContextMenuGroup()
@@ -121,20 +107,20 @@ namespace RxdSolutions.FusionLink
 
             sb.Append($"{id}\t");
             sb.Append($"{title}\t");
-            foreach (var column in GetDisplayedColumns())
+            foreach (string column in GetDisplayedColumns())
             {
                 sb.Append(column).Append("\t");
             }
             sb.AppendLine();
 
-            for (var i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 sb.Append(getUniqueIdentifier(i)).Append("\t");
                 sb.Append(getFormulaForTitle(i)).Append("\t");
 
-                foreach (var column in GetDisplayedColumns())
+                foreach (string column in GetDisplayedColumns())
                 {
-                    var formula = getFormulaForColumn(i, column);
+                    string formula = getFormulaForColumn(i, column);
 
                     sb.Append(formula).Append("\t");
                 }

@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,6 @@ namespace DevExpress.XtraTreeList.Columns
 {
     public class TreeListColumn
     {
-        public string Caption { get; }
+        public string Caption { get; set; }
     }
 }

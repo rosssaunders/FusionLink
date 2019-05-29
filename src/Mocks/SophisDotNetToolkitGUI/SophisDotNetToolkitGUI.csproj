@@ -14,11 +14,27 @@
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2'">
     <DefineConstants>TRACE;V72</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug_7_1|net452|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug_7_2|net452|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sophis.Windows.Widgets\Sophis.Windows.Widgets.csproj" />
     <ProjectReference Include="..\SophisDotNetToolkit\SophisDotNetToolkit.csproj" />
   </ItemGroup>
   <ItemGroup>

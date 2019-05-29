@@ -27,7 +27,8 @@ namespace RxdSolutions.FusionLink
         {
             if(!_subscriptions.ContainsKey(id))
             {
-                var columns = new Dictionary<string, T> {
+                var columns = new Dictionary<string, T> 
+                {
                     { column, _factory(id, column) }
                 };
 
@@ -44,7 +45,8 @@ namespace RxdSolutions.FusionLink
         {
             if (_subscriptions.ContainsKey(folioId))
             {
-                _subscriptions[folioId].Clear();
+                var cv = _subscriptions[folioId][column];
+                cv.Dispose();
 
                 _subscriptions[folioId].Remove(column);
             }

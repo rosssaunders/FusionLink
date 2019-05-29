@@ -32,90 +32,71 @@ namespace RxdSolutions.FusionLink
 
                 var updateRequired = false;
 
-                switch (value)
+                if(!_value.GetType().Equals(value.GetType()))
                 {
-                    case int intValue:
+                    updateRequired = true;
+                }
+                else
+                {
+                    switch (value)
+                    {
+                        case int intValue:
 
-                        if(_value is int)
-                        {
                             if (!EqualityComparer<int>.Default.Equals((int)_value, intValue))
                             {
                                 updateRequired = true;
                             }
-                        }
-                        else
-                        {
-                            updateRequired = true;
-                        }
-                        
-                        break;
 
-                    case decimal decimalValue:
+                            break;
 
-                        if (_value is decimal)
-                        {
+                        case long longValue:
+
+                            if (!EqualityComparer<long>.Default.Equals((long)_value, longValue))
+                            {
+                                updateRequired = true;
+                            }
+
+                            break;
+
+                        case decimal decimalValue:
+
                             if (!EqualityComparer<decimal>.Default.Equals((decimal)_value, decimalValue))
                             {
                                 updateRequired = true;
                             }
-                        }
-                        else
-                        {
-                            updateRequired = true;
-                        }
 
-                        break;
+                            break;
 
-                    case double doubleValue:
+                        case double doubleValue:
 
-                        if (_value is double)
-                        {
                             if (!EqualityComparer<double>.Default.Equals((double)_value, doubleValue))
                             {
                                 updateRequired = true;
                             }
-                        }
-                        else
-                        {
-                            updateRequired = true;
-                        }
 
-                        break;
+                            break;
 
-                    case string stringValue:
+                        case string stringValue:
 
-                        if (_value is string)
-                        {
                             if (!EqualityComparer<string>.Default.Equals((string)_value, stringValue))
                             {
                                 updateRequired = true;
                             }
-                        }
-                        else
-                        {
-                            updateRequired = true;
-                        }
 
-                        break;
+                            break;
 
-                    case DateTime dateTimeValue:
+                        case DateTime dateTimeValue:
 
-                        if (_value is DateTime)
-                        {
                             if (!EqualityComparer<DateTime>.Default.Equals((DateTime)_value, dateTimeValue))
                             {
                                 updateRequired = true;
                             }
-                        }
-                        else
-                        {
-                            updateRequired = true;
-                        }
 
-                        break;
+                            break;
 
+                    }
                 }
-
+                
                 if(updateRequired)
                 {
                     _value = value;
@@ -126,7 +107,7 @@ namespace RxdSolutions.FusionLink
 
         private void CheckValidDataType(object value)
         {
-            var isValid = (value is string || value is int || value is double || value is decimal || value is DateTime);
+            var isValid = (value is string || value is int || value is long || value is double || value is decimal || value is DateTime);
             if(!isValid)
             {
                 throw new ApplicationException("Invalid data type passed");

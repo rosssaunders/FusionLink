@@ -8,6 +8,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using RxdSolutions.FusionLink.Properties;
 using sophis;
 using sophis.misc;
@@ -20,7 +21,6 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         public static CSMGlobalFunctions _globalFunctions;
-        public static SophisLoadedScenario _sophisLoadedScenario;
 
         public static ServiceHost _host;
         public static SynchronizationContext _context;
@@ -33,23 +33,23 @@ namespace RxdSolutions.FusionLink
             _globalFunctions = new FusionInvestGlobalFunctions();
             CSMGlobalFunctions.Register(_globalFunctions);
 
-            _sophisLoadedScenario = new SophisLoadedScenario();
-            CSMScenario.Register("SophisLoadedScenario", _sophisLoadedScenario);
-
-            SophisLoadedScenario.OnAfterAllInitialisation += (s, e) => {
-
+            try
+            {
                 RegisterServer();
 
                 RegisterUI();
-
-            };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to load FusionLink" + Environment.NewLine + Environment.NewLine + ex.ToString(), "FusionLink");
+            }
         }
 
         private void RegisterUI()
         {
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
-            CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyRTDCellToClipboard());
-            CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRTDTableToClipboard());
+            CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyCellAsRTDFunctionToClipboard());
+            CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
             CaptionBar = new CaptionBar();
             CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
@@ -163,7 +163,7 @@ namespace RxdSolutions.FusionLink
                 caption.Append(" / ");
                 caption.Append(clientsConnectedCaption);
             }
- 
+
 #if DEBUG
             var subs = $"(Subscriptions = Portfolio:{DataServer.PortfolioSubscriptionCount},Position:{DataServer.PositonSubscriptionCount},System:{DataServer.SystemValueCount})";
             caption.Append(" / ");

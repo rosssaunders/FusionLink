@@ -34,5 +34,22 @@ namespace RxdSolutions.FusionLink
                 return string.Format(Resources.PositionNotLoadedOrMissingMessage, PositionId);
             }
         }
+
+        private bool disposedValue = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Position?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

@@ -2,14 +2,12 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System.Collections.Generic;
-using DevExpress.XtraTreeList.Columns;
+using DevExpress.XtraTreeList;
 
 namespace Sophis.Util.GUI
 {
-    public class CustomTreeList
+    public class CustomTreeList : TreeList
     {
-        public TreeListColumn FocusedColumn { get; set; }
 
-        public IEnumerable<TreeListColumn> Columns { get; set; }
     }
 }
