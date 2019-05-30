@@ -7,6 +7,11 @@ namespace sophis.portfolio
 {
     public class CSMExtraction : IDisposable
     {
+        public unsafe int GetInternalID()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();

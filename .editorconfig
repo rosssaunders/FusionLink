@@ -10,7 +10,7 @@ indent_style = space
 #place catch statements on a new line
 csharp_new_line_before_catch = true
 #require braces to be on a new line for control_blocks, types, and methods (also known as "Allman" style)
-csharp_new_line_before_open_brace = control_blocks, types, methods
+csharp_new_line_before_open_brace = all
 
 #Formatting - organize using options
 

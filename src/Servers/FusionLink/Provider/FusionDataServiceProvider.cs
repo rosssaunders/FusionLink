@@ -30,6 +30,14 @@ namespace RxdSolutions.FusionLink
 
         public event EventHandler<DataAvailableEventArgs> DataAvailable;
 
+        public bool HasSubscriptions 
+        {
+            get 
+            {
+                return _portfolioSubscriptions.Count > 0 || _positionSubscriptions.Count > 0 || _systemValueSubscriptions.Count > 0;
+            }
+        }
+
         public FusionDataServiceProvider(SynchronizationContext context, IGlobalFunctions globalFunctions)
         {
             _context = context;
@@ -192,16 +200,16 @@ namespace RxdSolutions.FusionLink
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
-            if(IsRunning)
+            if(IsRunning && HasSubscriptions)
             {
-                _dataRefreshRequests++;
-
                 switch (e.InPortfolioCalculation)
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
 
                         if (_isComputing)
                             return;
+
+                        _dataRefreshRequests++;
 
                         //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
                         _context.Post(d => {
@@ -215,6 +223,34 @@ namespace RxdSolutions.FusionLink
                         break;
 
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcJustSumming:
+
+                        switch (CSMPreference.GetAutomaticComputatingType())
+                        {
+                            case eMAutomaticComputingType.M_acQuotation:
+                            case eMAutomaticComputingType.M_acLast:
+                            case eMAutomaticComputingType.M_acNothing:
+                                break;
+
+                            case eMAutomaticComputingType.M_acPortfolioWithoutPNL:
+                            case eMAutomaticComputingType.M_acPortfolioOnlyPNL:
+                            case eMAutomaticComputingType.M_acFolio:
+
+                                var id = e.Extraction.GetInternalID();
+
+                                if (id == 1)
+                                {
+                                    _dataRefreshRequests++;
+
+                                    _context.Post(d => {
+
+                                        RefreshData();
+
+                                    }, null);
+                                }
+
+                                break;
+                        }
+
                         //Do Nothing for now.
                         break;
 

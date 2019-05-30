@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using MEnums;
 using sophis.portfolio;
 
 namespace sophis.misc
@@ -16,9 +17,11 @@ namespace sophis.misc
         {
         }
 
-        public unsafe bool fLoadingPortfolio {
-            get; set;
-        }
+        protected eMode m_Mode;
+
+#pragma warning disable IDE1006 // Naming Styles
+        public unsafe bool fLoadingPortfolio { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
 
         public enum eMPortfolioCalculationType
         {
@@ -27,9 +30,11 @@ namespace sophis.misc
             M_pcNotInPortfolio = 0
         }
 
-        public unsafe CSMGlobalFunctions.eMPortfolioCalculationType fInPortfolioCalculation { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
+        public unsafe eMPortfolioCalculationType fInPortfolioCalculation { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
 
-        public unsafe CSMGlobalFunctions.eMPortfolioCalculationType IsInPortfolioCalculation()
+        public unsafe eMPortfolioCalculationType IsInPortfolioCalculation()
         {
             throw new NotImplementedException();
         }

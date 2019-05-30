@@ -18,6 +18,8 @@ namespace RxdSolutions.FusionLink
             _factory = factory;
         }
 
+        public int Count => _subscriptions.Count;
+
         public IEnumerable<T> GetCells()
         {
             return _subscriptions.Values.SelectMany(x => x.Values);

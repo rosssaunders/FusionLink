@@ -14,11 +14,17 @@ namespace RxdSolutions.FusionLink
 
         public int PortfolioRefreshVersion { get; }
 
-        public PortfolioAdditionEndedEventArgs(CSMExtraction extraction, int folioId, int portfolioRefreshVersion)
+        public MEnums.eMode Mode { get; }
+
+        public bool LoadingPortfolio { get; }
+
+        public PortfolioAdditionEndedEventArgs(CSMExtraction extraction, int folioId, int portfolioRefreshVersion, MEnums.eMode m_Mode, bool fLoadingPortfolio)
         {
             Extraction = extraction;
             FolioId = folioId;
             PortfolioRefreshVersion = portfolioRefreshVersion;
+            Mode = m_Mode;
+            LoadingPortfolio = fLoadingPortfolio;
         }
     }
 }
