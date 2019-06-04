@@ -37,7 +37,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (args.PositionId == PositionId && args.Column == Column)
             {
-                _observer.OnNext(args.Value);
+                if (args.Value is null)
+                    _observer.OnNext(ExcelEmpty.Value);
+                else
+                    _observer.OnNext(args.Value);
             }   
         }
 

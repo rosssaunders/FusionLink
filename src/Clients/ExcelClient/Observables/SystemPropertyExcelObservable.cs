@@ -35,7 +35,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private void OnPortfolioDateReceived(object sender, SystemValueReceivedEventArgs args)
         {
             if(args.Property == SystemProperty)
-                _observer.OnNext(args.Value);
+            {
+                if (args.Value is null)
+                    _observer.OnNext(ExcelEmpty.Value);
+                else
+                    _observer.OnNext(args.Value);
+            }
         }
 
         void CleanUp()

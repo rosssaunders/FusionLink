@@ -30,9 +30,12 @@ namespace RxdSolutions.FusionLink
             {
                 CheckValidDataType(value);
 
+                if (_value is null && value is null)
+                    return;
+
                 var updateRequired = false;
 
-                if(!_value.GetType().Equals(value.GetType()))
+                if(!_value.GetType().Equals(value?.GetType()))
                 {
                     updateRequired = true;
                 }
@@ -107,7 +110,7 @@ namespace RxdSolutions.FusionLink
 
         private void CheckValidDataType(object value)
         {
-            var isValid = (value is string || value is int || value is long || value is double || value is decimal || value is DateTime);
+            var isValid = value is string || value is int || value is long || value is double || value is decimal || value is DateTime || value is null;
             if(!isValid)
             {
                 throw new ApplicationException("Invalid data type passed");

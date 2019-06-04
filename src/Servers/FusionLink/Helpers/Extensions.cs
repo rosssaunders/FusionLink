@@ -8,21 +8,23 @@ namespace RxdSolutions.FusionLink
 {
     public static class Extensions
     {
-        public static DateTime GetDateTime(this CSMDay day)
-        {
-            return new DateTime(day.fYear, day.fMonth, day.fDay);
-        }
-
-        public static DateTime GetDateTime(this int day)
+        public static object GetDateTime(this int day)
         {
             if(day == 99999)
             {
                 return DateTime.Today;
             }
 
+            if(day == 0)
+            {
+                return 0;
+            }
+
             using(var dt = new CSMDay(day))
                 return new DateTime(dt.fYear, dt.fMonth, dt.fDay);
         }
+
+        private static int SophisNull = -10_000_000;
 
         public static object ExtractValueFromSophisCell(this SSMCellValue cv, SSMCellStyle cs)
         {
@@ -30,20 +32,25 @@ namespace RxdSolutions.FusionLink
             {
                 case NSREnums.eMDataType.M_dDate:
                 case NSREnums.eMDataType.M_dDateTime:
-                    {
-                        var day = new CSMDay(cv.integerValue);
-                        return new DateTime(day.fYear, day.fMonth, day.fDay);
-                    }
+                    
+                    if(cv.integerValue == 0)
+                        return 0;
+
+                    return GetDateTime(cv.integerValue);
+                    
 
                 case NSREnums.eMDataType.M_dInt:
-                    return (long)cv.integerValue;
+                    
+                    return ConvertLong((long)cv.integerValue, cs.@null);
 
 #if !V72
                 case NSREnums.eMDataType.M_dPascalString:
 #endif
                 case NSREnums.eMDataType.M_dUnicodeString:
                 case NSREnums.eMDataType.M_dNullTerminatedString:
-                    return cv.GetString();
+
+                    var stringValue = ConvertString(cv.GetString());
+                    return stringValue;
 
                 case NSREnums.eMDataType.M_dLong:
                 case NSREnums.eMDataType.M_dLongLong:
@@ -56,25 +63,75 @@ namespace RxdSolutions.FusionLink
                     return cv.GetString();
 
                 case NSREnums.eMDataType.M_dBool:
-                    return cv.shortInteger;
+                    return Convert.ToBoolean(cv.shortInteger);
 
                 case NSREnums.eMDataType.M_dPointer:
                     return cv.shortInteger;
 
                 case NSREnums.eMDataType.M_dDouble:
-                    return cv.doubleValue;
+                    return ConvertDouble(cv.doubleValue, cs.@null);
 
                 case NSREnums.eMDataType.M_dFloat:
-                    return (double)cv.floatValue;
+                    return ConvertDouble((double)cv.floatValue, cs.@null);
 
                 case NSREnums.eMDataType.M_dShort:
-                    return (double)cv.shortInteger;
+                    return ConvertLong((long)cv.shortInteger, cs.@null);
 
                 case NSREnums.eMDataType.M_dSmallIcon:
-                    return (double)cv.iconIdentifier;
+                    return (long)cv.iconIdentifier;
             }
 
             throw new ApplicationException("Unknown eMDataType");
+        }
+
+        private static object ConvertLong(long value, sophis.gui.eMNullValueType valueType)
+        {
+            if (valueType == sophis.gui.eMNullValueType.M_nvUndefined || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
+            {
+                if (value == SophisNull)
+                    return null;
+            }
+
+            if (valueType == sophis.gui.eMNullValueType.M_nvZero || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
+            {
+                if(value == 0)
+                    return null;
+            }
+
+            return value;
+        }
+
+        private static object ConvertDouble(double value, sophis.gui.eMNullValueType valueType)
+        {
+            if (valueType == sophis.gui.eMNullValueType.M_nvUndefined || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
+            {
+                if (value == SophisNull)
+                    return null;
+            }
+
+            if (valueType == sophis.gui.eMNullValueType.M_nvZero || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
+            {
+                if (value == 0)
+                    return null;
+            }
+
+            return value;
+        }
+
+        private static object ConvertString(string inString)
+        {
+            if (inString == null) return null;
+            var newString = new System.Text.StringBuilder();
+            char ch;
+            for (int i = 0; i < inString.Length; i++)
+            {
+                ch = inString[i];
+                if (!char.IsControl(ch))
+                {
+                    newString.Append(ch);
+                }
+            }
+            return newString.ToString();
         }
     }
 }
