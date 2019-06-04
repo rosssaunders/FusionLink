@@ -36,11 +36,6 @@ namespace RxdSolutions.FusionLink
 
         public string DefaultMessage { get; set; } = Resources.DefaultGettingDataMessage;
 
-        /// <remarks>
-        /// In seconds
-        /// </remarks>
-        public int ProviderPollingInterval { get; set; } = 30;
-
         public bool IsRunning { get; private set; }
 
         public DataServer(IDataServerProvider dataService)

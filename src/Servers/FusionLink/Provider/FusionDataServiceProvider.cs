@@ -96,19 +96,22 @@ namespace RxdSolutions.FusionLink
                 {
                     using (var position = portfolio.GetNthTreeViewPosition(i))
                     {
-                        switch (positions)
+                        if(position.GetIdentifier() > 0) //Exclude Virtual FX positions
                         {
-                            case PositionsToRequest.All:
-                                results.Add(position.GetIdentifier());
-                                break;
-
-                            case PositionsToRequest.Open:
-                                if (position.GetInstrumentCount() != 0)
-                                {
+                            switch (positions)
+                            {
+                                case PositionsToRequest.All:
                                     results.Add(position.GetIdentifier());
-                                }
-                                break;
-                        }
+                                    break;
+
+                                case PositionsToRequest.Open:
+                                    if (position.GetInstrumentCount() != 0)
+                                    {
+                                        results.Add(position.GetIdentifier());
+                                    }
+                                    break;
+                            }
+                        }   
                     }
                 }
 
@@ -269,17 +272,19 @@ namespace RxdSolutions.FusionLink
 
             var portfolios = new HashSet<int>();
 
-            foreach (var c in _portfolioSubscriptions.GetCells().Select(x => x.FolioId))
-                portfolios.Add(c);
-
-            foreach (var c in _positionSubscriptions.GetCells().Select(x => x.PositionId))
+            foreach (var c in _portfolioSubscriptions.GetCells())
             {
-                using (var pos = CSMPosition.GetCSRPosition(c))
+                if(c.Portfolio is object)
                 {
-                    if(pos is object)
-                    {
-                        portfolios.Add(pos.GetPortfolioCode());
-                    }
+                    portfolios.Add(c.FolioId);
+                }
+            }
+                
+            foreach (var c in _positionSubscriptions.GetCells())
+            {
+                if(c.Position is object)
+                {
+                    portfolios.Add(c.Position.GetPortfolioCode());
                 }
             }
 

@@ -21,7 +21,14 @@ namespace RxdSolutions.FusionLink
         public override object GetValue()
         {
             if (Position is null)
+            {
                 Position = CSMPosition.GetCSRPosition(PositionId);
+            }
+
+            if (Column is null)
+            {
+                return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
+            }
 
             if (Position is object)
             {

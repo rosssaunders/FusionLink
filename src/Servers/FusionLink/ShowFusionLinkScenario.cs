@@ -14,6 +14,11 @@ namespace RxdSolutions.FusionLink
             return eMProcessingType.M_pUserPreference;
         }
 
+        public override bool AlwaysEnabled()
+        {
+            return true;
+        }
+
         public override CMString GetName()
         {
             return Resources.ShowFusionLinkScenarioName;

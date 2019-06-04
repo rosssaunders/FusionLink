@@ -134,6 +134,24 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Excel with FusionLink.
+        /// </summary>
+        internal static string OpenFusionLinkExcel {
+            get {
+                return ResourceManager.GetString("OpenFusionLinkExcel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested Portfolio &apos;{0}&apos; cannot be found.
+        /// </summary>
+        internal static string PortfolioNotFoundMessage {
+            get {
+                return ResourceManager.GetString("PortfolioNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested portfolio &apos;{0}&apos; is not loaded. Please load in the FusionInvest client..
         /// </summary>
         internal static string PortfolioNotLoadedMessage {

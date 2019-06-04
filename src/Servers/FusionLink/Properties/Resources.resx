@@ -142,6 +142,12 @@
   <data name="MultipleClientsConnectedMessage" xml:space="preserve">
     <value>{0} clients connected</value>
   </data>
+  <data name="OpenFusionLinkExcel" xml:space="preserve">
+    <value>Open Excel with FusionLink</value>
+  </data>
+  <data name="PortfolioNotFoundMessage" xml:space="preserve">
+    <value>The requested Portfolio '{0}' cannot be found</value>
+  </data>
   <data name="PortfolioNotLoadedMessage" xml:space="preserve">
     <value>The requested portfolio '{0}' is not loaded. Please load in the FusionInvest client.</value>
   </data>

@@ -22,7 +22,12 @@ namespace RxdSolutions.FusionLink
 
         public override object GetValue()
         {
-            if(!Portfolio.IsLoaded())
+            if (Portfolio is null)
+            {
+                return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
+            }
+
+            if (!Portfolio.IsLoaded())
             {
                 return string.Format(Resources.PortfolioNotLoadedMessage, FolioId);
             }

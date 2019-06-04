@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
@@ -48,6 +47,8 @@ namespace RxdSolutions.FusionLink
         private void RegisterUI()
         {
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
+            CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
+
             CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyCellAsRTDFunctionToClipboard());
             CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
@@ -128,11 +129,9 @@ namespace RxdSolutions.FusionLink
         {
             DataServer = new DataServer(dataServiceProvider);
 
-            int refreshRate = 0;
             string defaultMessage = "";
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
-            DataServer.ProviderPollingInterval = refreshRate;
             DataServer.DefaultMessage = defaultMessage;
         }
 
