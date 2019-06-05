@@ -30,17 +30,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
             app.RTD.ThrottleInterval = 100;
 
-            using (var sb = new ExcelStatusBarHelper(Resources.SearchingForServersMessage))
-            {
-                //Start the monitor
-                ConnectionMonitor = new ConnectionMonitor();
-                ConnectionMonitor.FindAvailableServices();
-                ConnectionMonitor.Start();
-            }
-
             //Open the client connection
+            ConnectionMonitor = new ConnectionMonitor();
             ConnectionMonitor.RegisterClient(Client);
             ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
+
+            //Start the monitor
+            ConnectionMonitor.FindAvailableServicesAsync().ContinueWith(result =>
+            {
+                ConnectionMonitor.Start();
+            });
         }
 
         public void AutoClose()

@@ -26,11 +26,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
         }
 
         [ExcelFunction(Name = "GETCONNECTION", 
-                       Description = "Returns the connection string of the connection to FusionInvest",
+                       Description = "Returns the connection name of the connection to FusionInvest",
                        HelpTopic = "Get-Connection")]
         public static object GetConnection()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionStringExcelObservable(AddIn.Client));
+            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionNameExcelObservable(AddIn.Client, AddIn.ConnectionMonitor));
         }
 
         [ExcelFunction(Name = "GETCONNECTIONID", 

@@ -123,6 +123,12 @@
   <data name="ExcelHelpCategory" xml:space="preserve">
     <value>FusionLink</value>
   </data>
+  <data name="NoEndPointsAvailableMessage" xml:space="preserve">
+    <value>No FusionLink connections available</value>
+  </data>
+  <data name="NotConnectedMessage" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
   <data name="PortfolioNotLoadedMessage" xml:space="preserve">
     <value>The requested positions cannot be found as the portfolio is not loaded.</value>
   </data>

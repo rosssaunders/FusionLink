@@ -29,6 +29,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             _rtdClient.OnSystemValueReceived += OnPortfolioDateReceived;
 
+            _observer.OnNext(ExcelEmpty.Value);
+
             return new ActionDisposable(CleanUp);
         }
 

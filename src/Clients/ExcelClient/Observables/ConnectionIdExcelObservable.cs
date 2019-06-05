@@ -3,6 +3,7 @@
 
 using System;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -28,7 +29,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
             else
             {
-                _observer.OnNext("Not connected");
+                _observer.OnNext(Resources.NotConnectedMessage);
             }
 
             return new ActionDisposable(CleanUp);
@@ -36,7 +37,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private void OnConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
         {
-            _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
+            if(_rtdClient.Connection is object)
+            {
+                _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
+            }
+            else
+            {
+                _observer.OnNext(Resources.NotConnectedMessage);
+            }
         }
 
         private void CleanUp()

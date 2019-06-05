@@ -79,6 +79,24 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No FusionLink connections available.
+        /// </summary>
+        internal static string NoEndPointsAvailableMessage {
+            get {
+                return ResourceManager.GetString("NoEndPointsAvailableMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not connected.
+        /// </summary>
+        internal static string NotConnectedMessage {
+            get {
+                return ResourceManager.GetString("NotConnectedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
         /// </summary>
         internal static string PortfolioNotLoadedMessage {

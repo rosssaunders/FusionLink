@@ -60,30 +60,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
             
-            try
-            {
-                _server.Register();
+            _server.Register();
 
-                //Subscribe to any topics in case this is a reconnection
-                foreach(var ps in _positionSubscriptions)
-                    _server.SubscribeToPositionValue(ps.Id, ps.Column);
+            //Subscribe to any topics in case this is a reconnection
+            foreach(var ps in _positionSubscriptions)
+                _server.SubscribeToPositionValue(ps.Id, ps.Column);
 
-                foreach (var ps in _portfolioSubscriptions)
-                    _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
+            foreach (var ps in _portfolioSubscriptions)
+                _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
 
-                foreach (var ps in _systemSubscriptions)
-                    _server.SubscribeToSystemValue(ps);
+            foreach (var ps in _systemSubscriptions)
+                _server.SubscribeToSystemValue(ps);
 
-                Connection = address;
+            Connection = address;
 
-                OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
-            }
-            catch
-            {
-                OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
-
-                throw;
-            }
+            OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
         }
 
         public void Close()
@@ -147,6 +138,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     //Sink
                 }
             }
+
+            _server = null;
+            Connection = null;
+
+            OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
         }
 
         public ServiceStatus GetServiceStatus()

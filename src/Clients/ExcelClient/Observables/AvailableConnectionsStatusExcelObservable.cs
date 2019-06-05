@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -35,9 +36,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private void SendConnectionList()
         {
-            if (_monitor.AvailableEndpoints.Count == 0)
+            if(_monitor.IsSearchingForEndPoints)
             {
-                _observer.OnNext("No connections available");
+                _observer.OnNext(Resources.SearchingForServersMessage);
+            }
+            else if (_monitor.AvailableEndpoints.Count == 0)
+            {
+                _observer.OnNext(Resources.NoEndPointsAvailableMessage);
             }
             else
             {

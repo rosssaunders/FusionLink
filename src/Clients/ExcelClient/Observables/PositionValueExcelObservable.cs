@@ -30,6 +30,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             _rtdClient.OnPositionValueReceived += OnDataReceived;
 
+            _observer.OnNext(ExcelEmpty.Value);
+
             return new ActionDisposable(CleanUp);
         }
 

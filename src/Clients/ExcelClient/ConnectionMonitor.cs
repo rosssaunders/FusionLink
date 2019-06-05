@@ -32,6 +32,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public event EventHandler<EventArgs> AvailableEndpointsChanged;
 
+        public bool IsSearchingForEndPoints { get; private set; }
+
+        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
+
+        public bool IsConnected { get; private set; }
+
         public ConnectionMonitor()
         {
             _clients = new List<DataServiceClient>();
@@ -56,8 +62,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _clients.Add(client);
         }
 
-        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
-
         public Task FindAvailableServicesAsync()
         {
             return Task.Run(() => {
@@ -69,52 +73,65 @@ namespace RxdSolutions.FusionLink.ExcelClient
         
         public void FindAvailableServices()
         {
-            var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-            var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
-
-            foreach (var endPoints in findResponse.Endpoints)
+            try
             {
-                var found = false;
+                IsSearchingForEndPoints = true;
 
-                foreach (var knownEndpoint in _availableEndpoints)
+                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+
+                var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
+
+                foreach (var endPoints in findResponse.Endpoints)
                 {
-                    if (knownEndpoint.Uri == endPoints.Address.Uri)
+                    var found = false;
+
+                    foreach (var knownEndpoint in _availableEndpoints)
                     {
-                        found = true;
-                        break;
+                        if (knownEndpoint.Uri == endPoints.Address.Uri)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        lock (_availableEndpoints)
+                        {
+                            _availableEndpoints.Add(endPoints.Address);
+                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                        }
                     }
                 }
 
-                if (!found)
+                foreach (var knownEndpoint in _availableEndpoints.ToList())
                 {
-                    lock (_availableEndpoints)
+                    var found = false;
+                    foreach (var endPoints in findResponse.Endpoints)
                     {
-                        _availableEndpoints.Add(endPoints.Address);
-                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                        if (knownEndpoint.Uri == endPoints.Address.Uri)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        lock (_availableEndpoints)
+                        {
+                            _availableEndpoints.Remove(knownEndpoint);
+                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                        }
                     }
                 }
             }
-
-            foreach (var knownEndpoint in _availableEndpoints.ToList())
+            finally
             {
-                var found = false;
-                foreach (var endPoints in findResponse.Endpoints)
-                {
-                    if (knownEndpoint.Uri == endPoints.Address.Uri)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
+                IsSearchingForEndPoints = false;
 
-                if (!found)
-                {
-                    lock (_availableEndpoints)
-                    {
-                        _availableEndpoints.Remove(knownEndpoint);
-                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                    }
-                }
+                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -137,6 +154,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
                             {
                                 try
                                 {
+                                    //Check if we think we are connected by the connection state is broken
+                                    if(IsConnected)
+                                    {
+                                        client.Close();
+
+                                        IsConnected = false;
+                                    }
+
                                     if (_availableEndpoints.Count > 0)
                                     {
                                         if (_connection == null)
@@ -157,20 +182,24 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                             try
                                             {
                                                 client.Open(connectionToAttempt);
+
+                                                IsConnected = true;
                                             }
                                             catch(TimeoutException)
                                             {
                                                 //Ignore and try again on the next pass
+                                                IsConnected = false;
                                             }
                                             catch(CommunicationException)
                                             {
                                                 //Looks like the server is dead. Remove from the available list.
                                                 _availableEndpoints.Remove(connectionToAttempt);
                                                 AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                                                IsConnected = false;
                                             }
                                             catch(Exception)
                                             {
-                                                //Sink
+                                                IsConnected = false;
                                             }
                                         }
                                     }
