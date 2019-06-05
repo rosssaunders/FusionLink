@@ -21,8 +21,6 @@ namespace RxdSolutions.FusionLink
 
         bool IsRunning { get; }
 
-        void ComputePortfolios(int skipPortfolio);
-
         void SubscribeToPortfolio(int portfolioId, string column);
 
         void SubscribeToPosition(int positionId, string column);

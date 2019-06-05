@@ -186,7 +186,7 @@ namespace RxdSolutions.FusionLink
         {
             _context.Post(state => {
 
-                _positionSubscriptions.Add(positionId, column);
+                _positionSubscriptions.Remove(positionId, column);
 
             }, null);
 
@@ -263,7 +263,7 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public void ComputePortfolios(int skipPortfolio)
+        private void ComputePortfolios(int skipPortfolio)
         {
             if (_isComputing)
                 return;

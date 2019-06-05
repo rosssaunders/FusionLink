@@ -29,6 +29,14 @@ namespace RxdSolutions.FusionLink
 
         public void EntryPoint()
         {
+            if (UserRight.CanOpen())
+            {
+                LoadFusionLink();
+            }
+        }
+
+        private void LoadFusionLink()
+        {
             _globalFunctions = new FusionInvestGlobalFunctions();
             CSMGlobalFunctions.Register(_globalFunctions);
 

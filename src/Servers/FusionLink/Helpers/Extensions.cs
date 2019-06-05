@@ -24,7 +24,7 @@ namespace RxdSolutions.FusionLink
                 return new DateTime(dt.fYear, dt.fMonth, dt.fDay);
         }
 
-        private static int SophisNull = -10_000_000;
+        public static int SophisNull = -10_000_000;
 
         public static object ExtractValueFromSophisCell(this SSMCellValue cv, SSMCellStyle cs)
         {
