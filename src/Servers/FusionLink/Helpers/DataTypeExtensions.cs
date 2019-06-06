@@ -6,7 +6,7 @@ using sophisTools;
 
 namespace RxdSolutions.FusionLink
 {
-    public static class Extensions
+    public static class DataTypeExtensions
     {
         public static object GetDateTime(this int day)
         {
@@ -20,7 +20,12 @@ namespace RxdSolutions.FusionLink
                 return 0;
             }
 
-            using(var dt = new CSMDay(day))
+            if (day == SophisNull)
+            {
+                return 0;
+            }
+
+            using (var dt = new CSMDay(day))
                 return new DateTime(dt.fYear, dt.fMonth, dt.fDay);
         }
 
@@ -84,7 +89,7 @@ namespace RxdSolutions.FusionLink
             throw new ApplicationException("Unknown eMDataType");
         }
 
-        private static object ConvertLong(long value, sophis.gui.eMNullValueType valueType)
+        public static object ConvertLong(long value, sophis.gui.eMNullValueType valueType)
         {
             if (valueType == sophis.gui.eMNullValueType.M_nvUndefined || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
             {
@@ -101,7 +106,7 @@ namespace RxdSolutions.FusionLink
             return value;
         }
 
-        private static object ConvertDouble(double value, sophis.gui.eMNullValueType valueType)
+        public static object ConvertDouble(double value, sophis.gui.eMNullValueType valueType)
         {
             if (valueType == sophis.gui.eMNullValueType.M_nvUndefined || valueType == sophis.gui.eMNullValueType.M_nvZeroAndUndefined)
             {
@@ -116,6 +121,14 @@ namespace RxdSolutions.FusionLink
             }
 
             return value;
+        }
+
+        public static int ConvertDateTime(DateTime value)
+        {
+            using(var day = new CSMDay(value.Day, value.Month, value.Year))
+            {
+                return day.toLong();
+            }
         }
 
         private static object ConvertString(string inString)

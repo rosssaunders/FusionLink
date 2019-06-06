@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 
@@ -38,6 +39,17 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract]
         [FaultContract(typeof(PortfolioNotLoadedFaultContract))]
+        [FaultContract(typeof(PortfolioNotFoundFaultContract))]
         List<int> GetPositions(int folioId, PositionsToRequest position);
+
+        [OperationContract]
+        [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
+
+        [OperationContract]
+        void RequestCalculate();
+
+        [OperationContract]
+        void LoadPositions();
     }
 }

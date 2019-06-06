@@ -54,7 +54,7 @@ namespace RxdSolutions.FusionLink
                     if (value is null)
                         return null;
 
-                    if((double)value == Extensions.SophisNull)
+                    if((double)value == DataTypeExtensions.SophisNull)
                     {
                         return null;
                     }

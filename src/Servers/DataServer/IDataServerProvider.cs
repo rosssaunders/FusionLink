@@ -10,7 +10,6 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
-
     public interface IDataServerProvider
     {
         event EventHandler<DataAvailableEventArgs> DataAvailable;
@@ -33,6 +32,12 @@ namespace RxdSolutions.FusionLink
 
         void UnsubscribeToSystemValue(SystemProperty property);
 
-        bool TryGetPositions(int folioId, PositionsToRequest positions, out List<int> results);
+        List<int> GetPositions(int folioId, PositionsToRequest positions);
+
+        List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
+
+        void RequestCalculate();
+
+        void LoadPositions();
     }
 }

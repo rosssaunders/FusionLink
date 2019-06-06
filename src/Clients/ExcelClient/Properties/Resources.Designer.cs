@@ -79,6 +79,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Instrument not found.
+        /// </summary>
+        internal static string InstrumentNotFoundMessage {
+            get {
+                return ResourceManager.GetString("InstrumentNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No FusionLink connections available.
         /// </summary>
         internal static string NoEndPointsAvailableMessage {
@@ -111,6 +120,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         internal static string SearchingForServersMessage {
             get {
                 return ResourceManager.GetString("SearchingForServersMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start date must be before the end date.
+        /// </summary>
+        internal static string StartDateGreaterThanEndDateMessage {
+            get {
+                return ResourceManager.GetString("StartDateGreaterThanEndDateMessage", resourceCulture);
             }
         }
     }

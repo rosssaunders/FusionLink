@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using RxdSolutions.FusionLink.Properties;
 
 namespace RxdSolutions.FusionLink
 {
@@ -16,7 +17,7 @@ namespace RxdSolutions.FusionLink
 
         public event EventHandler<SubscriptionChangedEventArgs<T>> SubscriptionRemoved;
 
-        public string DefaultMessage { get; set; } = "Getting data... please wait";
+        public string DefaultMessage { get; set; } = Resources.DefaultGettingDataMessage;
 
         public Subscriptions()
         {

@@ -30,12 +30,17 @@ namespace RxdSolutions.FusionLink
             {
                 CheckValidDataType(value);
 
-                if (_value is null && value is null)
-                    return;
-
                 var updateRequired = false;
 
-                if(!_value.GetType().Equals(value?.GetType()))
+                if (_value is null && value is null)
+                {
+                    return;
+                }
+                else if (_value is null && value is object)
+                {
+                    updateRequired = true;
+                }
+                else if (!_value.GetType().Equals(value?.GetType()))
                 {
                     updateRequired = true;
                 }

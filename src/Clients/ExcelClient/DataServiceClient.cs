@@ -145,8 +145,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
             OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
         }
 
+        internal void LoadPositions()
+        {
+            _server.LoadPositions();
+        }
+
+        internal void RequestCalculate()
+        {
+            _server.RequestCalculate();
+        }
+
         public ServiceStatus GetServiceStatus()
         {
+            if (_server is null)
+                return ServiceStatus.NotConnected;
+
             return _server.GetServiceStatus();
         }
 
@@ -230,9 +243,25 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return _server.GetPositions(portfolioId, positions);
             }
+            catch(FaultException<PortfolioNotFoundFaultContract>)
+            {
+                throw new PortfolioNotFoundException();
+            }
             catch (FaultException<PortfolioNotLoadedFaultContract>)
             {
                 throw new PortfolioNotLoadedException();
+            }
+        }
+
+        public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _server.GetPriceHistory(instrumentId, startDate, endDate);
+            }
+            catch (FaultException<InstrumentNotFoundFaultContract>)
+            {
+                throw new InstrumentNotFoundException();
             }
         }
 

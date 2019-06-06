@@ -155,12 +155,32 @@ namespace RxdSolutions.FusionLink
             throw new NotImplementedException();
         }
 
-        public bool TryGetPositions(int folioId, PositionsToRequest positions, out List<int> results)
+        public bool GetPositions(int folioId, PositionsToRequest positions, out List<int> results)
         {
             throw new NotImplementedException();
         }
 
         public void ComputePortfolios(int skipPortfolio)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate, out List<PriceHistory> results)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RequestCalculate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadPositions()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
         }

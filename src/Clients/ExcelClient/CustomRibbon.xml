@@ -12,6 +12,10 @@
                        size="large"
                        imageMso="DataOptionsMenu" />
         </group>
+        <group id="CalculateGroup" label="Portfolio">
+          <button id="loadPortfolios" label="Load (F8)" size="large" imageMso="DatabaseMoveToSharePoint" onAction="OnLoadPositions" />
+          <button id="calculate" label="Calculate (F9)" size="large" imageMso="CalculateNow" onAction="OnCalculate" />
+        </group>
       </tab>
     </tabs>
   </ribbon>

@@ -140,6 +140,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             RefreshAvailableConnections();
         }
 
+        public void OnCalculate(IRibbonControl control)
+        {
+            AddIn.Client.RequestCalculate();
+        }
+
+        public void OnLoadPositions(IRibbonControl control)
+        {
+            AddIn.Client.LoadPositions();
+        }
+
         private static void RefreshAvailableConnections()
         {
             AddIn.ConnectionMonitor.FindAvailableServicesAsync();

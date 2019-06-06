@@ -16,7 +16,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         private readonly List<DataServiceClient> _clients;
 
-        private HashSet<CommunicationState> _closedStates = new HashSet<CommunicationState>() { CommunicationState.Closed, CommunicationState.Faulted };
+        private readonly HashSet<CommunicationState> _closedStates = new HashSet<CommunicationState>() { CommunicationState.Closed, CommunicationState.Faulted };
 
         private Uri _connection;
 
@@ -80,7 +80,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 AvailableEndpointsChanged?.Invoke(this, new EventArgs());
 
                 var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)));
+                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)) { Duration = TimeSpan.FromSeconds(2) });
 
                 foreach (var endPoints in findResponse.Endpoints)
                 {

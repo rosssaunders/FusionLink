@@ -123,6 +123,9 @@
   <data name="ExcelHelpCategory" xml:space="preserve">
     <value>FusionLink</value>
   </data>
+  <data name="InstrumentNotFoundMessage" xml:space="preserve">
+    <value>Instrument not found</value>
+  </data>
   <data name="NoEndPointsAvailableMessage" xml:space="preserve">
     <value>No FusionLink connections available</value>
   </data>
@@ -134,5 +137,8 @@
   </data>
   <data name="SearchingForServersMessage" xml:space="preserve">
     <value>Searching for available FusionLink servers. Please wait...</value>
+  </data>
+  <data name="StartDateGreaterThanEndDateMessage" xml:space="preserve">
+    <value>Start date must be before the end date</value>
   </data>
 </root>

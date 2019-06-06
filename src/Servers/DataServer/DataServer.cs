@@ -238,12 +238,30 @@ namespace RxdSolutions.FusionLink
 
         public List<int> GetPositions(int folioId, PositionsToRequest position)
         {
-            if(_dataServiceProvider.TryGetPositions(folioId, position, out List<int> results))
+            try
             {
-                return results;
+                return _dataServiceProvider.GetPositions(folioId, position);
             }
+            catch (PortfolioNotFoundException)
+            {
+                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract(), new FaultReason("Portfolio Not Found"));
+            }
+            catch (PortfolioNotLoadedException)
+            {
+                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract(), new FaultReason("Portfolio Not Loaded"));
+            }
+        }
 
-            throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract(), new FaultReason("Portfolio Not Loaded"));
+        public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _dataServiceProvider.GetPriceHistory(instrumentId, startDate, endDate);
+            }
+            catch(InstrumentNotFoundException)
+            {
+                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract(), new FaultReason("Instrument not found"));
+            }
         }
 
         public int PositonSubscriptionCount {
@@ -376,6 +394,16 @@ namespace RxdSolutions.FusionLink
                 }
 
             });
+        }
+
+        public void RequestCalculate()
+        {
+            _dataServiceProvider.RequestCalculate();
+        }
+
+        public void LoadPositions()
+        {
+            _dataServiceProvider.LoadPositions();
         }
     }
 }
