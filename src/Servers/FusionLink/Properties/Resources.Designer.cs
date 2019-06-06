@@ -79,7 +79,7 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy Cell as Excel Reference.
+        ///   Looks up a localized string similar to Copy Cell as Excel FusionLink Reference.
         /// </summary>
         internal static string CopyCellAsExcelReference {
             get {
@@ -88,7 +88,7 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy Row(s) as Excel Table Reference.
+        ///   Looks up a localized string similar to Copy Row(s) as Excel FusionLink References.
         /// </summary>
         internal static string CopyTableAsExcelReference {
             get {

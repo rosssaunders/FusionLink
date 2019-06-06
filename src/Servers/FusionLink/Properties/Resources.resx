@@ -124,10 +124,10 @@
     <value>FusionLink Connection Id is {0}</value>
   </data>
   <data name="CopyCellAsExcelReference" xml:space="preserve">
-    <value>Copy Cell as Excel Reference</value>
+    <value>Copy Cell as Excel FusionLink Reference</value>
   </data>
   <data name="CopyTableAsExcelReference" xml:space="preserve">
-    <value>Copy Row(s) as Excel Table Reference</value>
+    <value>Copy Row(s) as Excel FusionLink References</value>
   </data>
   <data name="DefaultDataLoadingMessage" xml:space="preserve">
     <value>Getting data... please wait</value>

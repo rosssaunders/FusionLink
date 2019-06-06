@@ -12,6 +12,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class GetPriceHistoryFunction
     {
+        private static DateTime ExcelMinDate = new DateTime(1899, 12, 30);
+
         [ExcelFunction(Name = "GETPRICEHISTORY", 
                        Description = "Returns a list of position ids of the given portfolio. By default only includes open positions.", 
                        HelpTopic = "Get-Price-History")]
@@ -19,10 +21,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                              [ExcelArgument(Name = "start_date", Description = "Start Date")]DateTime startDate,
                                              [ExcelArgument(Name = "end_date", Description = "End Date")]DateTime endDate)
         {
-            if (startDate == DateTime.MinValue)
+            
+
+            if (startDate == ExcelMinDate)
                 startDate = DateTime.MinValue;
 
-            if (endDate == DateTime.MinValue)
+            if (endDate == ExcelMinDate)
                 endDate = DateTime.MaxValue;
 
             if(startDate > endDate)
