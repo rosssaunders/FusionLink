@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using ExcelDna.Integration;
-using static ExcelDna.Integration.XlCall;
-using RxdSolutions.FusionLink.Interface;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {

@@ -264,6 +264,18 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _dataServiceProvider.GetPriceHistory(reference, startDate, endDate);
+            }
+            catch (InstrumentNotFoundException)
+            {
+                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract(), new FaultReason("Instrument not found"));
+            }
+        }
+
         public int PositonSubscriptionCount {
             get => _positionSubscriptions.Count;
         }

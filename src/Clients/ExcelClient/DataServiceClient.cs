@@ -265,6 +265,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
+        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _server.GetPriceHistory(reference, startDate, endDate);
+            }
+            catch (FaultException<InstrumentNotFoundFaultContract>)
+            {
+                throw new InstrumentNotFoundException();
+            }
+        }
+
         #region IDisposable Support
 
         private bool disposedValue = false;

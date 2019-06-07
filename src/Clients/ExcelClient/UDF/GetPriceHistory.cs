@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ExcelDna.Integration;
-using static ExcelDna.Integration.XlCall;
-using RxdSolutions.FusionLink.Interface;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -17,12 +13,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
         [ExcelFunction(Name = "GETPRICEHISTORY", 
                        Description = "Returns a list of position ids of the given portfolio. By default only includes open positions.", 
                        HelpTopic = "Get-Price-History")]
-        public static object GetPriceHistory([ExcelArgument(Name = "instrument_id", Description = "The instrument id")]int instrumentId,
+        public static object GetPriceHistory([ExcelArgument(Name = "instrument_id", Description = "The instrument Reference (either Reference or Sicovam)")]object reference,
                                              [ExcelArgument(Name = "start_date", Description = "Start Date")]DateTime startDate,
                                              [ExcelArgument(Name = "end_date", Description = "End Date")]DateTime endDate)
         {
-            
-
             if (startDate == ExcelMinDate)
                 startDate = DateTime.MinValue;
 
@@ -42,7 +36,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
             List<PriceHistory> prices;
             try
             {
-                prices = AddIn.Client.GetPriceHistory(instrumentId, startDate, endDate);
+                if (reference is double)
+                {
+                    prices = AddIn.Client.GetPriceHistory(Convert.ToInt32(reference), startDate, endDate);
+                }
+                else
+                {
+                    prices = AddIn.Client.GetPriceHistory((string)reference, startDate, endDate);
+                }
             }
             catch(InstrumentNotFoundException)
             {

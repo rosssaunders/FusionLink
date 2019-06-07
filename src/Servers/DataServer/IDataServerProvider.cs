@@ -36,6 +36,8 @@ namespace RxdSolutions.FusionLink
 
         List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
 
+        List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
+
         void RequestCalculate();
 
         void LoadPositions();

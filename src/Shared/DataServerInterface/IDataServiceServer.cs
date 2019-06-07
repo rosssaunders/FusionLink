@@ -42,9 +42,13 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(PortfolioNotFoundFaultContract))]
         List<int> GetPositions(int folioId, PositionsToRequest position);
 
-        [OperationContract]
+        [OperationContract(Name = "GetPriceHistoryById")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
         List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
+
+        [OperationContract(Name = "GetPriceHistoryByReference")]
+        [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
 
         [OperationContract]
         void RequestCalculate();

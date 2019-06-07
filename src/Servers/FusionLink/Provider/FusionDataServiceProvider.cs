@@ -93,6 +93,21 @@ namespace RxdSolutions.FusionLink
                 throw ex;
         }
 
+
+        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
+        {
+            //Find the instrumentId
+            int instrumentId = 0;
+
+            _context.Send(state => {
+
+                instrumentId = CSMInstrument.GetCode(reference);
+
+            }, null);
+
+            return GetPriceHistory(instrumentId, startDate, endDate);
+        }
+
         public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
         {
             var results = new List<PriceHistory>();
