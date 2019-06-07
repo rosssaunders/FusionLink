@@ -8,6 +8,8 @@ namespace RxdSolutions.FusionLink
 {
     public static class DataTypeExtensions
     {
+        public static int SophisNull = -10_000_000;
+
         public static object GetDateTime(this int day)
         {
             if(day == 99999)
@@ -29,7 +31,10 @@ namespace RxdSolutions.FusionLink
                 return new DateTime(dt.fYear, dt.fMonth, dt.fDay);
         }
 
-        public static int SophisNull = -10_000_000;
+        public static object GetDateTime(this short day)
+        {
+            return GetDateTime((int)day);
+        }
 
         public static object ExtractValueFromSophisCell(this SSMCellValue cv, SSMCellStyle cs)
         {

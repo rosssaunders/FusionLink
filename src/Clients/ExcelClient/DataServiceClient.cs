@@ -277,6 +277,19 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
+        public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
+        {
+            try
+            {
+                return _server.GetCurvePoints(currency, family, reference);
+            }
+            catch (FaultException<CurveNotFoundFaultContract>)
+            {
+                throw new CurveNotFoundException();
+            }
+        }
+
+
         #region IDisposable Support
 
         private bool disposedValue = false;

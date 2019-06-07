@@ -14,6 +14,10 @@ namespace RxdSolutions.FusionLink
     {
         event EventHandler<DataAvailableEventArgs> DataAvailable;
 
+        void RequestCalculate();
+
+        void LoadPositions();
+
         void Start();
 
         void Stop();
@@ -38,8 +42,6 @@ namespace RxdSolutions.FusionLink
 
         List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
 
-        void RequestCalculate();
-
-        void LoadPositions();
+        List<CurvePoint> GetCurvePoints(string currency, string family, string reference);
     }
 }

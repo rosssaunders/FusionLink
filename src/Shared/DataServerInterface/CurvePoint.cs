@@ -1,0 +1,24 @@
+﻿using System;
+using System.Runtime.Serialization;
+
+namespace RxdSolutions.FusionLink
+{
+    [DataContract]
+    public class CurvePoint
+    {
+        [DataMember]
+        public string Tenor { get; set; }
+
+        [DataMember]
+        public double? Rate { get; set; }
+
+        [DataMember]
+        public bool IsEnabled { get; set; }
+
+        [DataMember]
+        public string RateCode { get; set; }
+
+        [DataMember]
+        public string PointType { get; set; }
+    }
+}

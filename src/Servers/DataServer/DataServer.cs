@@ -276,6 +276,26 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public List<CurvePoint> GetCurvePoints(string curency, string family, string reference)
+        {
+            try
+            {
+                return _dataServiceProvider.GetCurvePoints(curency, family, reference);
+            }
+            catch (CurrencyNotFoundException)
+            {
+                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract(), new FaultReason("Curve not found"));
+            }
+            catch (CurveFamilyFoundException)
+            {
+                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract(), new FaultReason("Curve not found"));
+            }
+            catch (CurveNotFoundException)
+            {
+                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract(), new FaultReason("Curve not found"));
+            }
+        }
+
         public int PositonSubscriptionCount {
             get => _positionSubscriptions.Count;
         }

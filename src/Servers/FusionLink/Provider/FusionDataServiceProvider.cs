@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Threading;
 using RxdSolutions.FusionLink.Interface;
 using sophis.instrument;
+using sophis.market_data;
 using sophis.portfolio;
+using sophis.static_data;
 
 namespace RxdSolutions.FusionLink
 {
@@ -151,6 +153,64 @@ namespace RxdSolutions.FusionLink
                     }       
                 }
 
+            }, null);
+
+            if (ex is null)
+                return results;
+            else
+                throw ex;
+        }
+
+        public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
+        {
+            var results = new List<CurvePoint>();
+            Exception ex = null;
+
+            _context.Send(state => {
+
+                var currencyCode = CSMCurrency.StringToCurrency(currency);
+
+                if (currencyCode == 0)
+                {
+                    ex = new CurrencyNotFoundException();
+                    return;
+                }
+
+                var familyCode = CSMYieldCurveFamily.GetYieldCurveFamilyCode(currencyCode, family);
+
+                if(familyCode == 0)
+                {
+                    ex = new CurveFamilyFoundException();
+                    return;
+                }
+
+                var curveId = CSMYieldCurve.LookUpYieldCurveId(familyCode, reference);
+
+                if(curveId == 0)
+                {
+                    ex = new CurveNotFoundException();
+                    return;
+                }
+
+                using (var yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId))
+                using (var activeCurve = yieldCurve.GetActiveSSYieldCurve())
+                {
+                    for(int i = 0; i < activeCurve.fPointCount; i++)
+                    {
+                        using (var yieldPoint = activeCurve.fPointList.GetNthElement(i))
+                        {
+                            var cp = new CurvePoint();
+                            results.Add(cp);
+
+                            string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
+                            cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                            cp.PointType = yieldPoint.IsPointOfType(eMTypeSegment.M_etsFutureFRA) ? "FutureFRA" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsMoneyMarket) ? "Money Market" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsSwap) ? "Swap" : "Unknown";
+                            cp.Rate = yieldPoint.fYield;
+                            cp.IsEnabled = yieldPoint.fInfoPtr.fIsUsed;
+                            cp.RateCode = yieldPoint.fInfoPtr.fRateCode.ToString();
+                        }
+                    }
+                }
             }, null);
 
             if (ex is null)

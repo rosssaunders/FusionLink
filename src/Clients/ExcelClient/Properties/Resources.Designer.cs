@@ -61,6 +61,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested curve could not be found.
+        /// </summary>
+        internal static string CurveNotFoundMessage {
+            get {
+                return ResourceManager.GetString("CurveNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://github.com/RXDSolutions/FusionLink/wiki/.
         /// </summary>
         internal static string DocumentationBaseAddress {

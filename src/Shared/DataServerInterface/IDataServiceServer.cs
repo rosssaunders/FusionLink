@@ -55,5 +55,11 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract]
         void LoadPositions();
+
+        [OperationContract(Name = "GetCurvePointsByReference")]
+        [FaultContract(typeof(CurrencyNotFoundFaultContract))]
+        [FaultContract(typeof(CurveFamilyNotFoundFaultContract))]
+        [FaultContract(typeof(CurveNotFoundFaultContract))]
+        List<CurvePoint> GetCurvePoints(string curency, string family, string reference);
     }
 }
