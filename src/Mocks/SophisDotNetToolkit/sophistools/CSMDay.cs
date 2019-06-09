@@ -34,6 +34,11 @@ namespace sophisTools
         {
         }
 
+        public int toLong()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
         }

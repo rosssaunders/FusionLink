@@ -5,19 +5,9 @@ using System;
 
 namespace sophis.static_data
 {
-    public class CSMInterestRate : IDisposable
+    public class CSMHistoricalData : IDisposable
     {
         public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetFamily()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetCurrency()
         {
             throw new NotImplementedException();
         }

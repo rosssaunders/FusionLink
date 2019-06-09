@@ -284,11 +284,11 @@ namespace RxdSolutions.FusionLink
             }
             catch (CurrencyNotFoundException)
             {
-                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract(), new FaultReason("Curve not found"));
+                throw new FaultException<CurrencyNotFoundFaultContract>(new CurrencyNotFoundFaultContract(), new FaultReason("Curve not found"));
             }
             catch (CurveFamilyFoundException)
             {
-                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract(), new FaultReason("Curve not found"));
+                throw new FaultException<CurveFamilyNotFoundFaultContract>(new CurveFamilyNotFoundFaultContract(), new FaultReason("Curve family found"));
             }
             catch (CurveNotFoundException)
             {

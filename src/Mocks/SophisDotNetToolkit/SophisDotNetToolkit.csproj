@@ -3,7 +3,7 @@
   <PropertyGroup>
     <ProjectGuid>{B1AC111D-B967-4459-A483-3B820230F18A}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>sophis</RootNamespace>
+    <RootNamespace></RootNamespace>
     <AssemblyName>SophisDotNetToolkit</AssemblyName>
     <TargetFrameworks>net452;net462</TargetFrameworks>
     <Deterministic>true</Deterministic>

@@ -2,16 +2,28 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using sophis.static_data;
 using sophis.utils;
 
 namespace sophis.instrument
 {
     public class CSMInstrument : IDisposable
     {
+        public static CSMInstrument GetInstance(int instrument_id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int GetCode(CMString reference)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SSMHistory NEW_HistoryList(int startDate, int endDate, ref int elementCount, CSMHistoricalData context)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();

@@ -29,7 +29,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 return Resources.CurveNotFoundMessage;
             }
 
-            object[,] array = new object[points.Count + 1, 6];
+            object[,] array = new object[points.Count + 1, 5];
 
             array[0, 0] = "Tenor";
             array[0, 1] = "Rate";

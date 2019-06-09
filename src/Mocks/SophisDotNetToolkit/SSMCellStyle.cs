@@ -3,6 +3,7 @@
 
 using System;
 using NSREnums;
+using sophis.gui;
 
 public class SSMCellStyle : IDisposable
 {
@@ -11,6 +12,10 @@ public class SSMCellStyle : IDisposable
     }
 
     public eMDataType kind { get; set; }
+
+    public eMNullValueType @null { get; set; }
+
+    public int @decimal { get; set; }
 
     public void Dispose()
     {

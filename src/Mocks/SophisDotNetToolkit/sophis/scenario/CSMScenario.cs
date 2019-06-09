@@ -29,6 +29,11 @@ namespace sophis.scenario
             return false;
         }
 
+        public virtual bool AlwaysEnabled()
+        {
+            return false;
+        }
+
         public virtual CMString GetName()
         {
             throw new NotImplementedException();

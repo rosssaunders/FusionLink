@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using RxdSolutions.FusionLink.Interface;
+using sophis.gui;
 using sophis.instrument;
 using sophis.market_data;
 using sophis.portfolio;
@@ -136,14 +137,14 @@ namespace RxdSolutions.FusionLink
                             {
                                 var ph = new PriceHistory()
                                 {
-                                    Ask = (double?)DataTypeExtensions.ConvertDouble(price.ask, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    Bid = (double?)DataTypeExtensions.ConvertDouble(price.bid, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    First = (double?)DataTypeExtensions.ConvertDouble(price.first, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    High = (double?)DataTypeExtensions.ConvertDouble(price.high, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    Low = (double?)DataTypeExtensions.ConvertDouble(price.low, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    Last = (double?)DataTypeExtensions.ConvertDouble(price.last, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    Theoretical = (double?)DataTypeExtensions.ConvertDouble(price.theorical, sophis.gui.eMNullValueType.M_nvUndefined),
-                                    Volume = (double?)DataTypeExtensions.ConvertDouble(price.volume, sophis.gui.eMNullValueType.M_nvUndefined),
+                                    Ask = (double?)DataTypeExtensions.ConvertDouble(price.ask, eMNullValueType.M_nvUndefined),
+                                    Bid = (double?)DataTypeExtensions.ConvertDouble(price.bid, eMNullValueType.M_nvUndefined),
+                                    First = (double?)DataTypeExtensions.ConvertDouble(price.first, eMNullValueType.M_nvUndefined),
+                                    High = (double?)DataTypeExtensions.ConvertDouble(price.high, eMNullValueType.M_nvUndefined),
+                                    Low = (double?)DataTypeExtensions.ConvertDouble(price.low, eMNullValueType.M_nvUndefined),
+                                    Last = (double?)DataTypeExtensions.ConvertDouble(price.last, eMNullValueType.M_nvUndefined),
+                                    Theoretical = (double?)DataTypeExtensions.ConvertDouble(price.theorical, eMNullValueType.M_nvUndefined),
+                                    Volume = (double?)DataTypeExtensions.ConvertDouble(price.volume, eMNullValueType.M_nvUndefined),
                                     Date = (DateTime)price.day.GetDateTime()
                                 };
 

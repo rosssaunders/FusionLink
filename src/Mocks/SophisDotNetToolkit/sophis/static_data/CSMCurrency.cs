@@ -6,12 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using sophis.utils;
 
 namespace sophis.static_data
 {
     public class CSMCurrency : IDisposable
     {
         public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int StringToCurrency(CMString dest)
         {
             throw new NotImplementedException();
         }

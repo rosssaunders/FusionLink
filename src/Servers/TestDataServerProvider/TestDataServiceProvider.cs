@@ -184,5 +184,15 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
