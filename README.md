@@ -27,21 +27,21 @@ Various build configurations are supplied for versions 7.1.3.14, 7.1.3.19 & 7.2.
 4. Choose the build configuration which matches your SDK.
 5. Build the solution. (The first time will download all the required NuGet packages)
 
-### Installation
+## Installation
 
-#### Excel Client
+### Excel Client
 
 1. All the files in the build directory of the "ExcelClient" project need to be distributed to your installation location of choice.
 2. Start Excel
 3. Open "FusionLink-AddIn.xll" from Excel. 
 4. To verify the add-in has loaded successfully, you should see a new ribbon tab "FusionLink".
 
-#### Permissions
+### Permissions
 
 1. In the FusionLink project under the SQL folder, run all the SQL in Install.sql. This will setup a new permission under "SDK Rights" for each user and group.
 2. Enable the "FusionLink" right for the users / groups that require access in the FusionInvest / FusionCapital UI.
 
-#### Toolkit
+### Toolkit
 
 1. All the files in the build directory of the "FusionLink" project need to be placed in your Toolkit dll folder. 
 2. In the AssemblyDll section of your config file add the location of the "FusionLink" dll.
