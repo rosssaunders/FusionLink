@@ -1,6 +1,6 @@
 # FusionLink
 
-Provides the ability to get live ticking numbers from Finastra FusionInvest (Sophis Value) / FusionCapital (Sophis Risque) client into Excel. 
+FusionLink is a Xll library for Excel and a FusionInvest Toolkit which provides the ability to subscribe to real-time and query data from a FusionInvest client.
 
 ## Getting Started
 
