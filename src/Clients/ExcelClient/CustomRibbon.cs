@@ -142,12 +142,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void OnCalculate(IRibbonControl control)
         {
-            AddIn.Client.RequestCalculate();
+            if(AddIn.Client.State == System.ServiceModel.CommunicationState.Opened)
+                AddIn.Client.RequestCalculate();
         }
 
         public void OnLoadPositions(IRibbonControl control)
         {
-            AddIn.Client.LoadPositions();
+            if (AddIn.Client.State == System.ServiceModel.CommunicationState.Opened)
+                AddIn.Client.LoadPositions();
         }
 
         private static void RefreshAvailableConnections()

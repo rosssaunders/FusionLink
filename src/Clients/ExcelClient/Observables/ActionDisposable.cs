@@ -8,10 +8,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
     public class ActionDisposable : IDisposable
     {
         Action _disposeAction;
+
         public ActionDisposable(Action disposeAction)
         {
             _disposeAction = disposeAction;
         }
+
         public void Dispose()
         {
             _disposeAction();
