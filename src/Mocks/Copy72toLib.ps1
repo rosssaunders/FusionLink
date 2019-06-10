@@ -9,3 +9,4 @@ Get-ChildItem SophisDotNetTools\bin\Debug_7_2\net462\*.* | Copy-Item -Destinatio
 Get-ChildItem SophisDotNetValue\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem SophisPortfoliosGUI\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem Sophis.DotNetCore\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
+Get-ChildItem Sophis.Core.Data\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2

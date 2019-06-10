@@ -87,6 +87,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Release_7_1_3_19'">
     <Reference Include="MFCCaptionBar">
@@ -123,6 +127,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -167,6 +175,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
     <Reference Include="MFCCaptionBar">
@@ -199,6 +211,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -235,6 +251,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop'">
     <Reference Include="MFCCaptionBar">
@@ -267,6 +287,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -309,6 +333,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

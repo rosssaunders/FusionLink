@@ -466,6 +466,9 @@ namespace RxdSolutions.FusionLink
             if (_dataRefreshRequests == 0)
                 return;
 
+            //Let Sophis complete its internal calculations
+            Sophis.Event.SophisEventManager.Instance.Dispatch();
+
             _dataRefreshRequests = 0;
 
             var args = new DataAvailableEventArgs();

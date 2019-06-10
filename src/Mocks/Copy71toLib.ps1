@@ -8,3 +8,4 @@ Get-ChildItem SophisDotNetToolkitGUI\bin\Debug_7_1\net452\*.* | Copy-Item -Desti
 Get-ChildItem SophisDotNetTools\bin\Debug_7_1\net452\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_1
 Get-ChildItem SophisDotNetValue\bin\Debug_7_1\net452\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_1
 Get-ChildItem SophisPortfoliosGUI\bin\Debug_7_1\net452\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_1
+Get-ChildItem Sophis.Core.Data\bin\Debug_7_1\net452\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_1
