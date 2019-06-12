@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using RxdSolutions.FusionLink.Interface;
@@ -18,8 +19,9 @@ namespace RxdSolutions.FusionLink
         private readonly SynchronizationContext _context;
         private readonly IGlobalFunctions _globalFunctions;
 
-        private readonly CellSubscriptions<PortfolioCellValue> _portfolioSubscriptions;
-        private readonly CellSubscriptions<PositionCellValue> _positionSubscriptions;
+        private readonly CellSubscriptions<PortfolioCellValue> _portfolioCellSubscriptions;
+        private readonly PropertySubscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
+        private readonly CellSubscriptions<PositionCellValue> _positionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
         //Avoid infinite loops
@@ -36,7 +38,7 @@ namespace RxdSolutions.FusionLink
         {
             get 
             {
-                return _portfolioSubscriptions.Count > 0 || _positionSubscriptions.Count > 0 || _systemValueSubscriptions.Count > 0;
+                return _portfolioCellSubscriptions.Count > 0 || _positionCellSubscriptions.Count > 0 || _systemValueSubscriptions.Count > 0;
             }
         }
 
@@ -45,8 +47,9 @@ namespace RxdSolutions.FusionLink
             _context = context;
             _globalFunctions = globalFunctions;
 
-            _portfolioSubscriptions = new CellSubscriptions<PortfolioCellValue>((i, s) => new PortfolioCellValue(i, s));
-            _positionSubscriptions = new CellSubscriptions<PositionCellValue>((i, s) => new PositionCellValue(i, s));
+            _portfolioCellSubscriptions = new CellSubscriptions<PortfolioCellValue>((i, s) => new PortfolioCellValue(i, s));
+            _positionCellSubscriptions = new CellSubscriptions<PositionCellValue>((i, s) => new PositionCellValue(i, s));
+            _portfolioPropertySubscriptions = new PropertySubscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
 
             _globalFunctions.PortfolioCalculationEnded += GlobalFunctions_PortfolioCalculationEnded;
@@ -95,7 +98,6 @@ namespace RxdSolutions.FusionLink
             else
                 throw ex;
         }
-
 
         public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
         {
@@ -203,10 +205,22 @@ namespace RxdSolutions.FusionLink
                             var cp = new CurvePoint();
                             results.Add(cp);
 
-                            string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
-                            cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                            double multiplier = 1;
+
+                            if(yieldPoint.fType == 'x')
+                            {
+                                string startDateOffset = yieldPoint.fStartDate > 0 ? $"{yieldPoint.fStartDate}" : "";
+                                cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                                multiplier = 0.01d;
+                            }
+                            else
+                            {
+                                string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
+                                cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                            }
+                            
                             cp.PointType = yieldPoint.IsPointOfType(eMTypeSegment.M_etsFutureFRA) ? "FutureFRA" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsMoneyMarket) ? "Money Market" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsSwap) ? "Swap" : "Unknown";
-                            cp.Rate = yieldPoint.fYield;
+                            cp.Rate = yieldPoint.fYield * multiplier;
                             cp.IsEnabled = yieldPoint.fInfoPtr.fIsUsed;
                             cp.RateCode = yieldPoint.fInfoPtr.fRateCode.ToString();
                         }
@@ -224,37 +238,45 @@ namespace RxdSolutions.FusionLink
         {
             using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
             {
-                int positionCount = portfolio.GetTreeViewPositionCount();
-                for (int i = 0; i < positionCount; i++)
-                {
-                    using (var position = portfolio.GetNthTreeViewPosition(i))
-                    {
-                        if(position.GetIdentifier() > 0) //Exclude Virtual FX positions
-                        {
-                            switch (positions)
-                            {
-                                case PositionsToRequest.All:
-                                    results.Add(position.GetIdentifier());
-                                    break;
+                GetPositionsFromPortfolio(portfolio, positions, results);
 
-                                case PositionsToRequest.Open:
-                                    if (position.GetInstrumentCount() != 0)
-                                    {
-                                        results.Add(position.GetIdentifier());
-                                    }
-                                    break;
-                            }
-                        }   
+                var allChildren = new ArrayList();
+                portfolio.GetChildren(allChildren);
+
+                for(var i = 0; i < allChildren.Count; i++)
+                {
+                    var current = allChildren[i] as CSMPortfolio;
+
+                    if(current is object)
+                    {
+                        GetPositionsFromPortfolio(current, positions, results);
                     }
                 }
+            }
+        }
 
-                int childPortfolioCount = portfolio.GetChildCount();
-
-                for (int i = 0; i < childPortfolioCount; i++)
+        private void GetPositionsFromPortfolio(CSMPortfolio portfolio, PositionsToRequest positions, List<int> results)
+        {
+            int positionCount = portfolio.GetTreeViewPositionCount();
+            for (int i = 0; i < positionCount; i++)
+            {
+                using (var position = portfolio.GetNthTreeViewPosition(i))
                 {
-                    using (var childPortfolio = portfolio.GetNthChild(i))
+                    if (position.GetIdentifier() > 0) //Exclude Virtual FX positions
                     {
-                        GetPositionsUI(childPortfolio.GetCode(), positions, results);
+                        switch (positions)
+                        {
+                            case PositionsToRequest.All:
+                                results.Add(position.GetIdentifier());
+                                break;
+
+                            case PositionsToRequest.Open:
+                                if (position.GetInstrumentCount() != 0)
+                                {
+                                    results.Add(position.GetIdentifier());
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -264,10 +286,10 @@ namespace RxdSolutions.FusionLink
         {
             _context.Post(state => {
 
-                _portfolioSubscriptions.Add(portfolioId, column);
+                _portfolioCellSubscriptions.Add(portfolioId, column);
 
                 var da = new DataAvailableEventArgs();
-                da.PortfolioValues.Add((portfolioId, column), _portfolioSubscriptions.Get(portfolioId, column).GetValue());
+                da.PortfolioValues.Add((portfolioId, column), _portfolioCellSubscriptions.Get(portfolioId, column).GetValue());
 
                 DataAvailable?.Invoke(this, da);
 
@@ -278,10 +300,10 @@ namespace RxdSolutions.FusionLink
         {
             _context.Post(state => {
 
-                _positionSubscriptions.Add(positionId, column);
+                _positionCellSubscriptions.Add(positionId, column);
 
                 var da = new DataAvailableEventArgs();
-                da.PositionValues.Add((positionId, column), _positionSubscriptions.Get(positionId, column).GetValue());
+                da.PositionValues.Add((positionId, column), _positionCellSubscriptions.Get(positionId, column).GetValue());
 
                 DataAvailable?.Invoke(this, da);
 
@@ -302,11 +324,25 @@ namespace RxdSolutions.FusionLink
             }, null);
         }
 
+        public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            _context.Post(state => {
+
+                _portfolioPropertySubscriptions.Add(portfolioId, property);
+
+                var da = new DataAvailableEventArgs();
+                da.PortfolioProperties.Add((portfolioId, property), _portfolioPropertySubscriptions.Get(portfolioId, property).GetValue());
+
+                DataAvailable?.Invoke(this, da);
+
+            }, null);
+        }
+
         public void UnsubscribeToPortfolio(int portfolioId, string column)
         {
             _context.Post(state => {
 
-                _portfolioSubscriptions.Remove(portfolioId, column);
+                _portfolioCellSubscriptions.Remove(portfolioId, column);
 
             }, null);
         }
@@ -315,7 +351,7 @@ namespace RxdSolutions.FusionLink
         {
             _context.Post(state => {
 
-                _positionSubscriptions.Remove(positionId, column);
+                _positionCellSubscriptions.Remove(positionId, column);
 
             }, null);
         }
@@ -325,6 +361,15 @@ namespace RxdSolutions.FusionLink
             _context.Post(state => {
 
                 _systemValueSubscriptions.Remove(property);
+
+            }, null);
+        }
+
+        public void UnsubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            _context.Post(state => {
+
+                _portfolioPropertySubscriptions.Remove(portfolioId, property);
 
             }, null);
         }
@@ -397,7 +442,7 @@ namespace RxdSolutions.FusionLink
         {
             var portfolios = new HashSet<int>();
 
-            foreach (var c in _portfolioSubscriptions.GetCells())
+            foreach (var c in _portfolioCellSubscriptions.GetCells())
             {
                 if(c.Portfolio is object)
                 {
@@ -405,7 +450,7 @@ namespace RxdSolutions.FusionLink
                 }
             }
                 
-            foreach (var c in _positionSubscriptions.GetCells())
+            foreach (var c in _positionCellSubscriptions.GetCells())
             {
                 if(c.Position is object)
                 {
@@ -475,7 +520,7 @@ namespace RxdSolutions.FusionLink
 
             void RefreshPortfolioCells()
             {
-                foreach (var cell in _portfolioSubscriptions.GetCells())
+                foreach (var cell in _portfolioCellSubscriptions.GetCells())
                 {
                     args.PortfolioValues.Add((cell.FolioId, cell.ColumnName), cell.GetValue());
                 }
@@ -483,7 +528,7 @@ namespace RxdSolutions.FusionLink
 
             void RefreshPositionCells()
             {
-                foreach (var cell in _positionSubscriptions.GetCells())
+                foreach (var cell in _positionCellSubscriptions.GetCells())
                 {
                     args.PositionValues.Add((cell.PositionId, cell.ColumnName), cell.GetValue());
                 }
@@ -497,11 +542,21 @@ namespace RxdSolutions.FusionLink
                 }
             }
 
+            void RefreshPortfolioProperties()
+            {
+                foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                {
+                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                }
+            }
+
             RefreshPortfolioCells();
 
             RefreshPositionCells();
 
             RefreshSystemValues();
+
+            RefreshPortfolioProperties();
 
             DataAvailable?.Invoke(this, args);
         }
@@ -512,6 +567,9 @@ namespace RxdSolutions.FusionLink
             {
                 case SystemProperty.PortfolioDate:
                     return new PortfolioDateValue();
+
+                case SystemProperty.IsRealTimeEnabled:
+                    return new IsRealTimeEnabledValue();
             }
 
             throw new InvalidOperationException();
@@ -533,7 +591,7 @@ namespace RxdSolutions.FusionLink
             _context.Post(state => {
 
                 var portfolios = new Dictionary<int, CSMPortfolio>();
-                foreach(var portfolioSubscription in _portfolioSubscriptions.GetCells())
+                foreach(var portfolioSubscription in _portfolioCellSubscriptions.GetCells())
                 {
                     portfolios[portfolioSubscription.FolioId] = portfolioSubscription.Portfolio;
                 }

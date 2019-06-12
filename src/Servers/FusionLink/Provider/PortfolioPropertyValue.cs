@@ -1,24 +1,30 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
+using RxdSolutions.FusionLink.Interface;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
+using sophis.utils;
 
 namespace RxdSolutions.FusionLink
 {
-    internal class PortfolioCellValue : CellValueBase
+    internal class PortfolioPropertyValue : IDisposable
     {
         public CSMPortfolio Portfolio { get; }
 
         public int FolioId { get; }
 
-        public PortfolioCellValue(int folioId, string column) : base(column)
+        public PortfolioProperty Property { get; }
+
+        public PortfolioPropertyValue(int folioId, PortfolioProperty property)
         {
             FolioId = folioId;
+            Property = property;
             Portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
         }
 
-        public override object GetValue()
+        public object GetValue()
         {
             if (Portfolio is null)
             {
@@ -30,19 +36,28 @@ namespace RxdSolutions.FusionLink
                 return string.Format(Resources.PortfolioNotLoadedMessage, FolioId);
             }
 
-            if (Column is null)
+            switch (Property)
             {
-                return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
+                case PortfolioProperty.Parent:
+                    return Portfolio.GetParentCode();
+
+                case PortfolioProperty.FullPath:
+                    using(var fullName = new CMString())
+                    {
+                        Portfolio.GetFullName(fullName);
+                        return fullName.StringValue;
+                    }
+                    
+                default:
+                    return $"Unknown Portfolio Property '{Property}'";
             }
-
-            Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), null, ref CellValue, CellStyle, true);
-
-            return CellValue.ExtractValueFromSophisCell(CellStyle);
         }
+
+        #region IDisposable Support
 
         private bool disposedValue = false;
 
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -53,8 +68,13 @@ namespace RxdSolutions.FusionLink
 
                 disposedValue = true;
             }
-
-            base.Dispose(disposing);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }

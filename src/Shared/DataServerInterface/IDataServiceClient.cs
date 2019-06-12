@@ -20,6 +20,9 @@ namespace RxdSolutions.FusionLink.Interface
         void SendPortfolioValue(int portfolioId, string column, object value);
 
         [OperationContract(IsOneWay = true)]
+        void SendPortfolioProperty(int id, PortfolioProperty property, object value);
+
+        [OperationContract(IsOneWay = true)]
         void SendSystemValue(SystemProperty property, object value);
 
         [OperationContract(IsOneWay = true)]

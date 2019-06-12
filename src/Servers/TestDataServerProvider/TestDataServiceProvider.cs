@@ -194,5 +194,15 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public void SubscribeToPortfolioProperty(int id, PortfolioProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeToPortfolioProperty(int id, PortfolioProperty property)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

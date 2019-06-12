@@ -23,17 +23,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             if(startDate > endDate)
             {
-                return Resources.StartDateGreaterThanEndDateMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.StartDateGreaterThanEndDateMessage));
             }
 
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
-                return Resources.NotConnectedMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));
             }
 
-            List<PriceHistory> prices;
             try
             {
+                List<PriceHistory> prices;
                 if (reference is double)
                 {
                     prices = AddIn.Client.GetPriceHistory(Convert.ToInt32(reference), startDate, endDate);
@@ -42,38 +42,49 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 {
                     prices = AddIn.Client.GetPriceHistory((string)reference, startDate, endDate);
                 }
+
+                if (prices.Count == 0)
+                {
+                    return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.ExcelEmptyRange);
+                }
+                else
+                {
+                    object[,] array = new object[prices.Count + 1, 9];
+
+                    array[0, 0] = "Date";
+                    array[0, 1] = "First";
+                    array[0, 2] = "High";
+                    array[0, 3] = "Low";
+                    array[0, 4] = "Last";
+                    array[0, 5] = "Theoretical";
+                    array[0, 6] = "Bid";
+                    array[0, 7] = "Ask";
+                    array[0, 8] = "Volume";
+
+                    for (int i = 0; i < prices.Count; i++)
+                    {
+                        array[i + 1, 0] = prices[i].Date;
+                        array[i + 1, 1] = prices[i].First ?? 0;
+                        array[i + 1, 2] = prices[i].High ?? 0;
+                        array[i + 1, 3] = prices[i].Low ?? 0;
+                        array[i + 1, 4] = prices[i].Last ?? 0;
+                        array[i + 1, 5] = prices[i].Theoretical ?? 0;
+                        array[i + 1, 6] = prices[i].Bid ?? 0;
+                        array[i + 1, 7] = prices[i].Ask ?? 0;
+                        array[i + 1, 8] = prices[i].Volume ?? 0;
+                    }
+
+                    return ExcelRangeResizer.TransformToExcelRange(array);
+                }
             }
             catch(InstrumentNotFoundException)
             {
-                return Resources.InstrumentNotFoundMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.InstrumentNotFoundMessage));
             }
-            
-            object[,] array = new object[prices.Count + 1, 9];
-
-            array[0, 0] = "Date";
-            array[0, 1] = "First";
-            array[0, 2] = "High";
-            array[0, 3] = "Low";
-            array[0, 4] = "Last";
-            array[0, 5] = "Theoretical";
-            array[0, 6] = "Bid";
-            array[0, 7] = "Ask";
-            array[0, 8] = "Volume";
-
-            for (int i = 0; i < prices.Count; i++)
+            catch (Exception ex)
             {
-                array[i + 1, 0] = prices[i].Date;
-                array[i + 1, 1] = prices[i].First ?? 0;
-                array[i + 1, 2] = prices[i].High ?? 0;
-                array[i + 1, 3] = prices[i].Low ?? 0;
-                array[i + 1, 4] = prices[i].Last ?? 0;
-                array[i + 1, 5] = prices[i].Theoretical ?? 0;
-                array[i + 1, 6] = prices[i].Bid ?? 0;
-                array[i + 1, 7] = prices[i].Ask ?? 0;
-                array[i + 1, 8] = prices[i].Volume ?? 0;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));
             }
-
-            return ExcelRangeResizer.TransformToExcelRange(array);
         }
     }
 }

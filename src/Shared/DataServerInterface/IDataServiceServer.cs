@@ -29,6 +29,9 @@ namespace RxdSolutions.FusionLink.Interface
         void SubscribeToSystemValue(SystemProperty systemValue);
 
         [OperationContract(IsOneWay = true)]
+        void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
+
+        [OperationContract(IsOneWay = true)]
         void UnsubscribeToPositionValue(int positionId, string column);
 
         [OperationContract(IsOneWay = true)]
@@ -36,6 +39,9 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeToSystemValue(SystemProperty systemValue);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
 
         [OperationContract]
         [FaultContract(typeof(PortfolioNotLoadedFaultContract))]

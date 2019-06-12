@@ -21,6 +21,7 @@ namespace RxdSolutions.FusionLink
 
         private readonly Subscriptions<(int Id, string Column)> _positionSubscriptions;
         private readonly Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private readonly Subscriptions<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly Subscriptions<SystemProperty> _systemSubscriptions;
 
         private readonly AutoResetEvent _clientMonitorResetEvent;
@@ -59,10 +60,20 @@ namespace RxdSolutions.FusionLink
             _systemSubscriptions.SubscriptionAdded += SystemSubscriptionAdded;
             _systemSubscriptions.SubscriptionRemoved += SystemSubscriptionRemoved;
 
+            _portfolioPropertySubscriptions = new Subscriptions<(int, PortfolioProperty)>() { DefaultMessage = DefaultMessage };
+            _portfolioPropertySubscriptions.OnValueChanged += PortfolioPropertyPointChanged;
+            _portfolioPropertySubscriptions.SubscriptionAdded += PortfolioPropertySubscriptionAdded;
+            _portfolioPropertySubscriptions.SubscriptionRemoved += PortfolioPropertySubscriptionRemoved;
+
             _clientMonitorResetEvent = new AutoResetEvent(false);
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
             _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
             _clientMonitorThread.Start();
+        }
+
+        private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
+        {
+            _dataServiceProvider.SubscribeToSystemValue(e.Key);
         }
 
         private void SystemSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
@@ -70,9 +81,14 @@ namespace RxdSolutions.FusionLink
             _dataServiceProvider.UnsubscribeToSystemValue(e.Key);
         }
 
-        private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
+        private void PortfolioPropertySubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
-            _dataServiceProvider.SubscribeToSystemValue(e.Key);
+            _dataServiceProvider.SubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void PortfolioPropertySubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
+        {
+            _dataServiceProvider.UnsubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
         }
 
         private void PortfolioSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
@@ -215,6 +231,22 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            var dp = _portfolioPropertySubscriptions.Add(OperationContext.Current.SessionId, (portfolioId, property));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioPropertySubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Property)))
+                {
+                    c.SendPortfolioProperty(dp.Key.Id, dp.Key.Property, dp.Value);
+                }
+
+            });
+        }
+
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
             _positionSubscriptions.Remove(OperationContext.Current.SessionId, (positionId, column));
@@ -232,6 +264,13 @@ namespace RxdSolutions.FusionLink
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
             _systemSubscriptions.Remove(OperationContext.Current.SessionId, property);
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+        }
+
+        public void UnsubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            _portfolioPropertySubscriptions.Remove(OperationContext.Current.SessionId, (portfolioId, property));
 
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
@@ -371,6 +410,16 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        private void PortfolioPropertyPointChanged(object sender, DataPointChangedEventArgs<(int Id, PortfolioProperty Property)> e)
+        {
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendPortfolioProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+
+            });
+        }
+
         private void Unregister(string sessionId, IDataServiceClient c)
         {
             lock (_clients)
@@ -407,6 +456,13 @@ namespace RxdSolutions.FusionLink
                 foreach (var kvp in e.PortfolioValues)
                 {
                     var dp = _portfolioSubscriptions.Get(kvp.Key);
+                    if (dp is object)
+                        dp.Value = kvp.Value;
+                }
+
+                foreach (var kvp in e.PortfolioProperties)
+                {
+                    var dp = _portfolioPropertySubscriptions.Get(kvp.Key);
                     if (dp is object)
                         dp.Value = kvp.Value;
                 }

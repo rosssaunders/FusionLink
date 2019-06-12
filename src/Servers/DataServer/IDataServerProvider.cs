@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -30,11 +27,15 @@ namespace RxdSolutions.FusionLink
 
         void SubscribeToSystemValue(SystemProperty property);
 
+        void SubscribeToPortfolioProperty(int id, PortfolioProperty property);
+
         void UnsubscribeToPortfolio(int portfolioId, string column);
 
         void UnsubscribeToPosition(int positionId, string column);
 
         void UnsubscribeToSystemValue(SystemProperty property);
+
+        void UnsubscribeToPortfolioProperty(int id, PortfolioProperty property);
 
         List<int> GetPositions(int folioId, PositionsToRequest positions);
 

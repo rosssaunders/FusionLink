@@ -1,5 +1,4 @@
 ﻿using ExcelDna.Integration;
-using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -19,14 +18,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public static object PRV(int portfolioId, string column)
         {
             return GetPortfolioValue(portfolioId, column);
-        }
-
-        [ExcelFunction(Name = "GETPORTFOLIODATE",
-                       Description = "Returns the Portfolio Date of FusionInvest",
-                       HelpTopic = "Get-Portfolio-Date")]
-        public static object GetPortfolioDate()
-        {
-            return ExcelAsyncUtil.Observe(nameof(GetPortfolioDate), null, () => new SystemPropertyExcelObservable(SystemProperty.PortfolioDate, AddIn.Client));
         }
     }
 }

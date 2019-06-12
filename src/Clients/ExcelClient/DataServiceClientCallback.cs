@@ -10,12 +10,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
+        public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
 
         public void Heartbeat()
         {
             //DoNothing
+        }
+
+        public void SendPortfolioProperty(int portfolioId, PortfolioProperty property, object value)
+        {
+            OnPortfolioPropertyReceived?.Invoke(this, new PortfolioPropertyReceivedEventArgs(portfolioId, property, value));
         }
 
         public void SendPortfolioValue(int portfolioId, string column, object value)

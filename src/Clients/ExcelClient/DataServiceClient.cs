@@ -13,8 +13,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private IDataServiceServer _server;
         private DataServiceClientCallback _callback;
 
-        private readonly HashSet<(int Id, string Column)> _positionSubscriptions;
-        private readonly HashSet<(int Id, string Column)> _portfolioSubscriptions;
+        private readonly HashSet<(int Id, string Column)> _positionCellValueSubscriptions;
+        private readonly HashSet<(int Id, string Column)> _portfolioCellValueSubscriptions;
+        private readonly HashSet<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
+
         private readonly HashSet<SystemProperty> _systemSubscriptions;
 
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
@@ -22,11 +24,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
+        public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
 
         public DataServiceClient()
         {
-            _positionSubscriptions = new HashSet<(int, string)>();
-            _portfolioSubscriptions = new HashSet<(int, string)>();
+            _positionCellValueSubscriptions = new HashSet<(int, string)>();
+            _portfolioCellValueSubscriptions = new HashSet<(int, string)>();
+            _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
             _systemSubscriptions = new HashSet<SystemProperty>();
         }
 
@@ -57,16 +61,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
             _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
             _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
+            _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
 
             _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
             
             _server.Register();
 
             //Subscribe to any topics in case this is a reconnection
-            foreach(var ps in _positionSubscriptions)
+            foreach(var ps in _positionCellValueSubscriptions)
                 _server.SubscribeToPositionValue(ps.Id, ps.Column);
 
-            foreach (var ps in _portfolioSubscriptions)
+            foreach (var ps in _portfolioCellValueSubscriptions)
                 _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
 
             foreach (var ps in _systemSubscriptions)
@@ -105,10 +110,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
                         _server.Unregister();
 
                         //Subscribe to any topics in case this is a reconnection
-                        foreach (var ps in _positionSubscriptions)
+                        foreach (var ps in _positionCellValueSubscriptions)
                             _server.UnsubscribeToPositionValue(ps.Id, ps.Column);
 
-                        foreach (var ps in _portfolioSubscriptions)
+                        foreach (var ps in _portfolioCellValueSubscriptions)
                             _server.UnsubscribeToPortfolioValue(ps.Id, ps.Column);
 
                         foreach (var ps in _systemSubscriptions)
@@ -165,8 +170,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void SubscribeToPositionValue(int positionId, string column)
         {
-            if(!_positionSubscriptions.Contains((positionId, column)))
-                _positionSubscriptions.Add((positionId, column));
+            if(!_positionCellValueSubscriptions.Contains((positionId, column)))
+                _positionCellValueSubscriptions.Add((positionId, column));
 
             if(_server is object && State == CommunicationState.Opened)
                 _server.SubscribeToPositionValue(positionId, column);
@@ -174,8 +179,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void SubscribeToPortfolioValue(int folioId, string column)
         {
-            if (!_portfolioSubscriptions.Contains((folioId, column)))
-                _portfolioSubscriptions.Add((folioId, column));
+            if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
+                _portfolioCellValueSubscriptions.Add((folioId, column));
 
             if (_server is object && State == CommunicationState.Opened)
                 _server.SubscribeToPortfolioValue(folioId, column);
@@ -190,10 +195,28 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 _server.SubscribeToSystemValue(property);
         }
 
+        public void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
+        {
+            if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
+                _portfolioPropertySubscriptions.Add((folioId, property));
+
+            if (_server is object && State == CommunicationState.Opened)
+                _server.SubscribeToPortfolioProperty(folioId, property);
+        }
+
+        public void UnsubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
+        {
+            if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
+                _portfolioPropertySubscriptions.Remove((folioId, property));
+
+            if (_server is object && State == CommunicationState.Opened)
+                _server.UnsubscribeToPortfolioProperty(folioId, property);
+        }
+
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
-            if (!_positionSubscriptions.Contains((positionId, column)))
-                _positionSubscriptions.Remove((positionId, column));
+            if (!_positionCellValueSubscriptions.Contains((positionId, column)))
+                _positionCellValueSubscriptions.Remove((positionId, column));
 
             if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToPositionValue(positionId, column);
@@ -201,8 +224,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void UnsubscribeToPortfolioValue(int folioId, string column)
         {
-            if (!_portfolioSubscriptions.Contains((folioId, column)))
-                _portfolioSubscriptions.Remove((folioId, column));
+            if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
+                _portfolioCellValueSubscriptions.Remove((folioId, column));
 
             if (_server is object && State == CommunicationState.Opened)
                 _server.UnsubscribeToPortfolioValue(folioId, column);
@@ -235,6 +258,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
         {
             OnSystemValueReceived?.Invoke(sender, e);
+        }
+
+        private void Callback_OnPortfolioPropertyReceived(object sender, PortfolioPropertyReceivedEventArgs e)
+        {
+            OnPortfolioPropertyReceived?.Invoke(sender, e);
         }
 
         public List<int> GetPositions(int portfolioId, PositionsToRequest positions)
@@ -300,8 +328,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if (disposing)
                 {
-                    _positionSubscriptions.Clear();
-                    _portfolioSubscriptions.Clear();
+                    _positionCellValueSubscriptions.Clear();
+                    _portfolioCellValueSubscriptions.Clear();
                 }
 
                 disposedValue = true;
