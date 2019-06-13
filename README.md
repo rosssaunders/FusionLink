@@ -45,7 +45,7 @@ Various build configurations are supplied for versions 7.1.3.14, 7.1.3.19 & 7.2.
 
 1. All the files in the build directory of the "FusionLink" project need to be placed in your Toolkit dll folder. 
 2. In the AssemblyDll section of your config file add the location of the "FusionLink" dll.
-3. Load FusionInvest / FusionCapital. If your user has the nessesary permission to "FusionLink" you should be able to see a MFC Caption Bar with the connection information.
+3. Load FusionInvest / FusionCapital. If your user has the necessary permission to "FusionLink" you should be able to see a MFC Caption Bar with the connection information.
 
 ## Built With
 
