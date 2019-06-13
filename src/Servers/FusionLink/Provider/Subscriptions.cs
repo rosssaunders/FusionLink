@@ -7,12 +7,12 @@ using System.Linq;
 
 namespace RxdSolutions.FusionLink
 {
-    internal class PropertySubscriptions<T, U> where T : class, IDisposable 
+    internal class Subscriptions<T, U> where T : class, IDisposable 
     {
         private Dictionary<int, Dictionary<U, T>> _subscriptions;
         private readonly Func<int, U, T> _factory;
 
-        public PropertySubscriptions(Func<int, U, T> factory)
+        public Subscriptions(Func<int, U, T> factory)
         {
             _subscriptions = new Dictionary<int, Dictionary<U, T>>();
             _factory = factory;

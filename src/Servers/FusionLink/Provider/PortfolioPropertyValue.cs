@@ -31,11 +31,6 @@ namespace RxdSolutions.FusionLink
                 return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
             }
 
-            if (!Portfolio.IsLoaded())
-            {
-                return string.Format(Resources.PortfolioNotLoadedMessage, FolioId);
-            }
-
             switch (Property)
             {
                 case PortfolioProperty.Parent:

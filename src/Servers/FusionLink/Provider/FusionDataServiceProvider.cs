@@ -5,12 +5,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Forms;
 using RxdSolutions.FusionLink.Interface;
 using sophis.gui;
 using sophis.instrument;
 using sophis.market_data;
 using sophis.portfolio;
 using sophis.static_data;
+using Sophis.Event;
 
 namespace RxdSolutions.FusionLink
 {
@@ -18,10 +20,10 @@ namespace RxdSolutions.FusionLink
     {
         private readonly SynchronizationContext _context;
         private readonly IGlobalFunctions _globalFunctions;
-
-        private readonly CellSubscriptions<PortfolioCellValue> _portfolioCellSubscriptions;
-        private readonly PropertySubscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
-        private readonly CellSubscriptions<PositionCellValue> _positionCellSubscriptions;
+        private readonly IPortfolioListener _portfolioListener;
+        private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
+        private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
+        private readonly Subscriptions<PositionCellValue, string> _positionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
         //Avoid infinite loops
@@ -42,17 +44,19 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public FusionDataServiceProvider(SynchronizationContext context, IGlobalFunctions globalFunctions)
+        public FusionDataServiceProvider(SynchronizationContext context, IGlobalFunctions globalFunctions, IPortfolioListener portfolioListener)
         {
             _context = context;
             _globalFunctions = globalFunctions;
+            _portfolioListener = portfolioListener;
 
-            _portfolioCellSubscriptions = new CellSubscriptions<PortfolioCellValue>((i, s) => new PortfolioCellValue(i, s));
-            _positionCellSubscriptions = new CellSubscriptions<PositionCellValue>((i, s) => new PositionCellValue(i, s));
-            _portfolioPropertySubscriptions = new PropertySubscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
+            _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s));
+            _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s));
+            _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
 
             _globalFunctions.PortfolioCalculationEnded += GlobalFunctions_PortfolioCalculationEnded;
+            _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
         }
 
         public void Start()
@@ -512,7 +516,7 @@ namespace RxdSolutions.FusionLink
                 return;
 
             //Let Sophis complete its internal calculations
-            Sophis.Event.SophisEventManager.Instance.Dispatch();
+            SophisEventManager.Instance.Dispatch();
 
             _dataRefreshRequests = 0;
 
@@ -542,23 +546,35 @@ namespace RxdSolutions.FusionLink
                 }
             }
 
-            void RefreshPortfolioProperties()
-            {
-                foreach (var value in _portfolioPropertySubscriptions.GetCells())
-                {
-                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
-                }
-            }
-
             RefreshPortfolioCells();
 
             RefreshPositionCells();
 
             RefreshSystemValues();
 
-            RefreshPortfolioProperties();
-
             DataAvailable?.Invoke(this, args);
+        }
+
+        private void PortfolioListener_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
+        {
+            _context.Post(state =>
+            {
+                if(e.IsLocal)
+                {
+                    //There must be a Sophis API call which does the same work without the risk of deadlock.
+                    Application.DoEvents();
+                }
+
+                var args = new DataAvailableEventArgs();
+
+                foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                {
+                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                }
+
+                DataAvailable?.Invoke(this, args);
+
+            }, null);
         }
 
         private SystemValue GetSystemValueProperty(SystemProperty property)

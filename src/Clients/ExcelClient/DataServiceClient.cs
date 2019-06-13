@@ -74,6 +74,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
             foreach (var ps in _portfolioCellValueSubscriptions)
                 _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
 
+            foreach (var ps in _portfolioPropertySubscriptions)
+                _server.SubscribeToPortfolioProperty(ps.Id, ps.Property);
+
             foreach (var ps in _systemSubscriptions)
                 _server.SubscribeToSystemValue(ps);
 
@@ -91,6 +94,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     _callback.OnSystemValueReceived -= CallBack_OnSystemValueReceived;
                     _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
                     _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
+                    _callback.OnPortfolioPropertyReceived -= Callback_OnPortfolioPropertyReceived;
                     _callback = null;
                 }
                 catch

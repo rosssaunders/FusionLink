@@ -20,6 +20,8 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         public static CSMGlobalFunctions _globalFunctions;
+        public static PortfolioActionListener _portfolioActionListener;
+        public static PortfolioEventListener _portfolioEventListener;
 
         public static ServiceHost _host;
         public static SynchronizationContext _context;
@@ -37,11 +39,10 @@ namespace RxdSolutions.FusionLink
 
         private void LoadFusionLink()
         {
-            _globalFunctions = new FusionInvestGlobalFunctions();
-            CSMGlobalFunctions.Register(_globalFunctions);
-
             try
             {
+                RegisterListeners();
+
                 RegisterServer();
 
                 RegisterUI();
@@ -50,6 +51,18 @@ namespace RxdSolutions.FusionLink
             {
                 MessageBox.Show("Unable to load FusionLink" + Environment.NewLine + Environment.NewLine + ex.ToString(), "FusionLink");
             }
+        }
+
+        private void RegisterListeners()
+        {
+            _globalFunctions = new FusionInvestGlobalFunctions();
+            CSMGlobalFunctions.Register(_globalFunctions);
+
+            _portfolioEventListener = new PortfolioEventListener();
+            CSMPortfolioEvent.Register("PortfolioEventListener", CSMPortfolioEvent.eMOrder.M_oAfter, _portfolioEventListener);
+
+            _portfolioActionListener = new PortfolioActionListener();
+            CSMPortfolioAction.Register("PortfolioActionListener", CSMPortfolioAction.eMOrder.M_oAfter, _portfolioActionListener);
         }
 
         private void RegisterUI()
@@ -91,7 +104,8 @@ namespace RxdSolutions.FusionLink
             _context = SynchronizationContext.Current;
             var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
-            var dataServiceProvider = new FusionDataServiceProvider(_context, _globalFunctions as IGlobalFunctions);
+            var aggregateListener = new AggregateListener(_portfolioActionListener, _portfolioEventListener);
+            var dataServiceProvider = new FusionDataServiceProvider(_context, _globalFunctions as IGlobalFunctions, aggregateListener);
 
             CreateDataServerFromConfig(dataServiceProvider);
 

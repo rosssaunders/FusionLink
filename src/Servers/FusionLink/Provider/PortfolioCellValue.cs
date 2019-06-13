@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System.Runtime.ExceptionServices;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
 
@@ -18,6 +19,7 @@ namespace RxdSolutions.FusionLink
             Portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
         }
 
+        [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
             if (Portfolio is null)
@@ -35,9 +37,11 @@ namespace RxdSolutions.FusionLink
                 return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
             }
 
-            Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), null, ref CellValue, CellStyle, true);
+            Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), sophis.globals.CSMExtraction.gMain(), ref CellValue, CellStyle, false);
 
-            return CellValue.ExtractValueFromSophisCell(CellStyle);
+            var value = CellValue.ExtractValueFromSophisCell(CellStyle);
+
+            return value;
         }
 
         private bool disposedValue = false;

@@ -15,7 +15,7 @@ namespace RxdSolutions.FusionLink
         {
             var pv = GetPortfolioView();
             var column = pv.TreeList.FocusedColumn;
-            return column.Caption;
+            return column?.Caption;
         }
 
         public static IEnumerable<string> GetDisplayedColumns()
