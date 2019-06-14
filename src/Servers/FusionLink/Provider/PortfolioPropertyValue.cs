@@ -33,7 +33,14 @@ namespace RxdSolutions.FusionLink
 
             switch (Property)
             {
-                case PortfolioProperty.Parent:
+                case PortfolioProperty.Name:
+                    using (var name = new CMString())
+                    {
+                        Portfolio.GetName(name);
+                        return name.StringValue;
+                    }
+
+                case PortfolioProperty.ParentId:
                     return Portfolio.GetParentCode();
 
                 case PortfolioProperty.FullPath:

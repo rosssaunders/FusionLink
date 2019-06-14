@@ -11,14 +11,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-System-Value")]
         public static object GetSystemValue(string property)
         {
-            if (!Enum.TryParse(property, out SystemProperty enteredValue))
+            if (!Enum.TryParse(property, true, out SystemProperty enteredValue))
             {
                 return ExcelError.ExcelErrorValue; // #VALUE
             }
 
             return ExcelAsyncUtil.Observe(nameof(GetSystemValue), new object[] { enteredValue }, () => new SystemPropertyExcelObservable(enteredValue, AddIn.Client));
         }
-
 
         [ExcelFunction(Name = "GETPORTFOLIODATE",
                        Description = "Returns the Portfolio Date of FusionInvest",

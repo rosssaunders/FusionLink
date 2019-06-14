@@ -175,7 +175,7 @@ namespace RxdSolutions.FusionLink
         {
             var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
 
-            Unregister(OperationContext.Current.SessionId, c);
+            Unregister(OperationContext.Current.SessionId);
         }
 
         public ServiceStatus GetServiceStatus()
@@ -375,7 +375,7 @@ namespace RxdSolutions.FusionLink
                 {
                     Debug.Print(ex.Message);
 
-                    Unregister(key, c);
+                    Unregister(key);
                 }
             }
         }
@@ -420,7 +420,7 @@ namespace RxdSolutions.FusionLink
             });
         }
 
-        private void Unregister(string sessionId, IDataServiceClient c)
+        private void Unregister(string sessionId)
         {
             lock (_clients)
             {
@@ -436,6 +436,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var sub in _systemSubscriptions.GetKeys())
                 _systemSubscriptions.Remove(sessionId, sub);
+
+            foreach (var sub in _portfolioPropertySubscriptions.GetKeys())
+                _portfolioPropertySubscriptions.Remove(sessionId, sub);
 
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, null));
         }

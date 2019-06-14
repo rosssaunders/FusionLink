@@ -9,9 +9,12 @@ namespace RxdSolutions.FusionLink.Interface
     public enum PortfolioProperty
     {
         [EnumMember]
-        Parent,
+        Name,
 
         [EnumMember]
-        FullPath
+        FullPath,
+
+        [EnumMember]
+        ParentId
     }
 }
