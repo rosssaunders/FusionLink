@@ -8,35 +8,30 @@
     <TargetFramework>net462</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>x64</Platforms>
-    <Configurations>Develop;Debug_7_1_3_14;Debug_7_1_3_19;Debug_7_2_6;Release_7_1_3_14;Release_7_1_3_19;Release_7_2_6</Configurations>
+    <Configurations>Develop_713;Develop_72;Debug_713;Debug_72;Release_713;Release_72</Configurations>
     <Authors>RXD Solutions</Authors>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
     <Product>FusionLink</Product>
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_713'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_72'">
     <DefineConstants>DEBUG;TRACE;V72</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release_7_1_3_14'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release_713'">
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release_7_1_3_19'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release_7_2_6'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release_72'">
     <DefineConstants>TRACE;V72</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
@@ -50,11 +45,12 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release_7_1_3_14'">
+  <ItemGroup Condition="'$(Configuration)'=='Release_713'">
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
       <Private>true</Private>
@@ -92,49 +88,7 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release_7_1_3_19'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release_7_2_6'">
+  <ItemGroup Condition="'$(Configuration)'=='Release_72'">
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
       <Private>true</Private>
@@ -180,7 +134,7 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
+  <ItemGroup Condition="'$(Configuration)'=='Debug_713'">
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
       <Private>true</Private>
@@ -218,45 +172,53 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
+  <ItemGroup Condition="'$(Configuration)'=='Debug_72'">
     <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="Sophis.DotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets.Core">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraTreeList.v18.1">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Develop'">
+  <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
       <Private>true</Private>
@@ -289,54 +251,54 @@
       <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
+    <Reference Include="Sophis.Core.Data">
       <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
+  <ItemGroup Condition="'$(Configuration)'=='Develop_72'">
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Sophis.DotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.DotNetCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.Core.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -363,16 +325,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Develop'">
+  <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_14'">
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71314_x64)\Toolkits" /y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_1_3_19'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_713'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_7_2_6'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_72'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v726_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

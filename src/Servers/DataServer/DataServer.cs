@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,6 +29,10 @@ namespace RxdSolutions.FusionLink
         private readonly int _clientCheckInterval;
         private Thread _clientMonitorThread;
         private bool _isClosed = false;
+
+        private CancellationTokenSource _cancellationTokenSource;
+        private Task _dataPublisher;
+        private BlockingCollection<DataAvailableEventArgs> _publishQueue;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
@@ -69,6 +74,8 @@ namespace RxdSolutions.FusionLink
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
             _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
             _clientMonitorThread.Start();
+
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
@@ -123,6 +130,10 @@ namespace RxdSolutions.FusionLink
 
                 IsRunning = true;
 
+                _publishQueue = new BlockingCollection<DataAvailableEventArgs>();
+
+                StartPublisher();
+
                 _dataServiceProvider.Start();
             }
 
@@ -141,10 +152,62 @@ namespace RxdSolutions.FusionLink
 
                 IsRunning = false;
 
+                _publishQueue.CompleteAdding();
+
+                _dataPublisher.Wait();
+
+                _dataPublisher = null;
+
                 _dataServiceProvider.Stop();
             }
 
             SendServiceStatus();
+        }
+
+        private void StartPublisher()
+        {
+            _dataPublisher = Task.Run(() =>
+            {
+                foreach (DataAvailableEventArgs e in _publishQueue.GetConsumingEnumerable(_cancellationTokenSource.Token))
+                {
+                    if (!IsRunning)
+                        return;
+
+                    MergeData(e);
+                }
+
+            }, _cancellationTokenSource.Token);
+        }
+
+        private void MergeData(DataAvailableEventArgs e)
+        {
+            foreach (var kvp in e.PortfolioValues)
+            {
+                var dp = _portfolioSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.PortfolioProperties)
+            {
+                var dp = _portfolioPropertySubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.PositionValues)
+            {
+                var dp = _positionSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.SystemValues)
+            {
+                var dp = _systemSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
         }
 
         public void Close()
@@ -173,8 +236,6 @@ namespace RxdSolutions.FusionLink
 
         public void Unregister()
         {
-            var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
-
             Unregister(OperationContext.Current.SessionId);
         }
 
@@ -454,37 +515,7 @@ namespace RxdSolutions.FusionLink
 
         private void DataService_DataAvailable(object sender, DataAvailableEventArgs e)
         {
-            _ = Task.Run(() => {
-
-                foreach (var kvp in e.PortfolioValues)
-                {
-                    var dp = _portfolioSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-                foreach (var kvp in e.PortfolioProperties)
-                {
-                    var dp = _portfolioPropertySubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-                foreach (var kvp in e.PositionValues)
-                {
-                    var dp = _positionSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-                foreach (var kvp in e.SystemValues)
-                {
-                    var dp = _systemSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-            });
+            _publishQueue.Add(e);
         }
 
         public void RequestCalculate()

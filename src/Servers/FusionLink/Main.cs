@@ -5,9 +5,9 @@ using System;
 using System.Diagnostics;
 using System.ServiceModel;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using RxdSolutions.FusionLink.Properties;
 using sophis;
 using sophis.misc;
@@ -20,11 +20,11 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         public static CSMGlobalFunctions _globalFunctions;
+        public static AfterAllInitializationScenario afterAllInitializationScenario;
         public static PortfolioActionListener _portfolioActionListener;
         public static PortfolioEventListener _portfolioEventListener;
 
         public static ServiceHost _host;
-        public static SynchronizationContext _context;
 
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
@@ -33,8 +33,15 @@ namespace RxdSolutions.FusionLink
         {
             if (UserRight.CanOpen())
             {
-                LoadFusionLink();
+                afterAllInitializationScenario = new AfterAllInitializationScenario();
+                afterAllInitializationScenario.AfterAllInitialization += AfterAllInitialization;
+                CSMScenario.Register("AfterAllInitialization", afterAllInitializationScenario);
             }
+        }
+
+        private void AfterAllInitialization(object sender, EventArgs e)
+        {
+            LoadFusionLink();
         }
 
         private void LoadFusionLink()
@@ -43,13 +50,17 @@ namespace RxdSolutions.FusionLink
             {
                 RegisterListeners();
 
-                RegisterServer();
+                var startupTask = RegisterServer().ContinueWith(t => {
 
-                RegisterUI();
+                    RegisterUI();
+
+                    UpdateCaption();
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to load FusionLink" + Environment.NewLine + Environment.NewLine + ex.ToString(), "FusionLink");
+                MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + ex.ToString(), Resources.ErrorCaption);
             }
         }
 
@@ -86,30 +97,37 @@ namespace RxdSolutions.FusionLink
 
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
         {
-            if (DataServer == null)
-                return;
+            try
+            {
+                if (DataServer == null)
+                    return;
 
-            if (DataServer.IsRunning)
-                DataServer.Stop();
-            else
-                DataServer.Start();
+                if (DataServer.IsRunning)
+                    DataServer.Stop();
+                else
+                    DataServer.Start();
 
-            CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
+                CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
 
-            UpdateCaption();
+                UpdateCaption();
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write("Main", "OnCaptionBarButtonClicked", CSMLog.eMVerbosity.M_error, ex.ToString());
+
+                MessageBox.Show(ex.Message, Resources.ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void RegisterServer()
+        private Task RegisterServer()
         {
-            _context = SynchronizationContext.Current;
-            var uiThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-
             var aggregateListener = new AggregateListener(_portfolioActionListener, _portfolioEventListener);
-            var dataServiceProvider = new FusionDataServiceProvider(_context, _globalFunctions as IGlobalFunctions, aggregateListener);
+            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions, aggregateListener);
 
             CreateDataServerFromConfig(dataServiceProvider);
 
-            _ = Task.Run(() => {
+            return Task.Run(() =>
+            {
 
                 try
                 {
@@ -133,18 +151,16 @@ namespace RxdSolutions.FusionLink
                 DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
 #endif
 
-            }).ContinueWith (t => {
-                UpdateCaption();
-            }, uiThreadScheduler);
+            });
         }
 
         private void OnSubscriptionChanged(object sender, EventArgs e)
         {
-            _context.Post(x => {
+            Dispatcher.CurrentDispatcher.InvokeAsync(() => {
 
                 UpdateCaption();
 
-            }, null);
+            });
         }
 
         private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
@@ -203,28 +219,35 @@ namespace RxdSolutions.FusionLink
                     DataServer.Start();
                 }
             }
-            
-            _context.Post(x => 
+
+            Dispatcher.CurrentDispatcher.InvokeAsync(() => 
             {
                 UpdateCaption();
 
-            }, null);
+            });
         }
 
         private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
         {
-            _context.Post(x => {
+            Dispatcher.CurrentDispatcher.InvokeAsync(() => {
 
                 UpdateCaption();
 
-            }, null);
+            });
         }
 
         public void Close()
         {
-            DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-            DataServer.Close();
-            _host?.Close();
+            try
+            {
+                DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
+                DataServer.Close();
+                _host?.Close();
+            }
+            catch(Exception ex)
+            {
+                CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
+            }
         }
     }
 }

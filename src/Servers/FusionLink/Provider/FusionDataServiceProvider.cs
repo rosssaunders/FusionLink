@@ -4,21 +4,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
+using System.Windows.Threading;
 using RxdSolutions.FusionLink.Interface;
 using sophis.gui;
 using sophis.instrument;
 using sophis.market_data;
 using sophis.portfolio;
 using sophis.static_data;
-using Sophis.Event;
 
 namespace RxdSolutions.FusionLink
 {
     public class FusionDataServiceProvider : IDataServerProvider
     {
-        private readonly SynchronizationContext _context;
+        private readonly Dispatcher _context;
         private readonly IGlobalFunctions _globalFunctions;
         private readonly IPortfolioListener _portfolioListener;
         private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
@@ -44,9 +42,9 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public FusionDataServiceProvider(SynchronizationContext context, IGlobalFunctions globalFunctions, IPortfolioListener portfolioListener)
+        public FusionDataServiceProvider(IGlobalFunctions globalFunctions, IPortfolioListener portfolioListener)
         {
-            _context = context;
+            _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
             _portfolioListener = portfolioListener;
 
@@ -74,7 +72,7 @@ namespace RxdSolutions.FusionLink
             var results = new List<int>();
             Exception ex = null;
 
-            _context.Send(state => {
+            _context.Invoke(() => {
 
                 using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
                 {
@@ -95,7 +93,7 @@ namespace RxdSolutions.FusionLink
                     }
                 }
 
-            }, null);
+            });
 
             if (ex == null)
                 return results;
@@ -108,11 +106,11 @@ namespace RxdSolutions.FusionLink
             //Find the instrumentId
             int instrumentId = 0;
 
-            _context.Send(state => {
+            _context.Invoke(() => {
 
                 instrumentId = CSMInstrument.GetCode(reference);
 
-            }, null);
+            });
 
             return GetPriceHistory(instrumentId, startDate, endDate);
         }
@@ -122,7 +120,7 @@ namespace RxdSolutions.FusionLink
             var results = new List<PriceHistory>();
             Exception ex = null;
 
-            _context.Send(state => {
+            _context.Invoke(() => {
 
                 using (var instrument = CSMInstrument.GetInstance(instrumentId))
                 {
@@ -160,7 +158,7 @@ namespace RxdSolutions.FusionLink
                     }       
                 }
 
-            }, null);
+            });
 
             if (ex is null)
                 return results;
@@ -173,7 +171,7 @@ namespace RxdSolutions.FusionLink
             var results = new List<CurvePoint>();
             Exception ex = null;
 
-            _context.Send(state => {
+            _context.Invoke(() => {
 
                 var currencyCode = CSMCurrency.StringToCurrency(currency);
 
@@ -230,7 +228,7 @@ namespace RxdSolutions.FusionLink
                         }
                     }
                 }
-            }, null);
+            });
 
             if (ex is null)
                 return results;
@@ -288,7 +286,7 @@ namespace RxdSolutions.FusionLink
 
         public void SubscribeToPortfolio(int portfolioId, string column)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _portfolioCellSubscriptions.Add(portfolioId, column);
 
@@ -297,12 +295,12 @@ namespace RxdSolutions.FusionLink
 
                 DataAvailable?.Invoke(this, da);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void SubscribeToPosition(int positionId, string column)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _positionCellSubscriptions.Add(positionId, column);
 
@@ -311,12 +309,12 @@ namespace RxdSolutions.FusionLink
 
                 DataAvailable?.Invoke(this, da);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _systemValueSubscriptions.Add(property, GetSystemValueProperty(property));
 
@@ -325,12 +323,12 @@ namespace RxdSolutions.FusionLink
 
                 DataAvailable?.Invoke(this, da);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _portfolioPropertySubscriptions.Add(portfolioId, property);
 
@@ -339,43 +337,43 @@ namespace RxdSolutions.FusionLink
 
                 DataAvailable?.Invoke(this, da);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void UnsubscribeToPortfolio(int portfolioId, string column)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _portfolioCellSubscriptions.Remove(portfolioId, column);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void UnsubscribeToPosition(int positionId, string column)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _positionCellSubscriptions.Remove(positionId, column);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _systemValueSubscriptions.Remove(property);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void UnsubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 _portfolioPropertySubscriptions.Remove(portfolioId, property);
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
@@ -393,14 +391,7 @@ namespace RxdSolutions.FusionLink
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
 
-                        //Sophis calls the global callback prior to performing their internal calculations so post the refresh to the back of the queue
-                        _context.Post(d => {
-
-                            ComputePortfolios(e.FolioId);
-
-                            RefreshData();
-
-                        }, null);
+                        ComputePortfolios(e.FolioId);
 
                         break;
 
@@ -422,12 +413,6 @@ namespace RxdSolutions.FusionLink
                                 if (id == 1)
                                 {
                                     _dataRefreshRequests++;
-
-                                    _context.Post(d => {
-
-                                        RefreshData();
-
-                                    }, null);
                                 }
 
                                 break;
@@ -437,8 +422,11 @@ namespace RxdSolutions.FusionLink
                         break;
 
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcNotInPortfolio:
-                        break;
+                        return;
+                        
                 }
+
+                RefreshData();
             }
         }
 
@@ -515,9 +503,6 @@ namespace RxdSolutions.FusionLink
             if (_dataRefreshRequests == 0)
                 return;
 
-            //Let Sophis complete its internal calculations
-            SophisEventManager.Instance.Dispatch();
-
             _dataRefreshRequests = 0;
 
             var args = new DataAvailableEventArgs();
@@ -557,24 +542,38 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioListener_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
         {
-            _context.Post(state =>
+            _context.InvokeAsync(() => 
             {
                 if(e.IsLocal)
                 {
                     //There must be a Sophis API call which does the same work without the risk of deadlock.
-                    Application.DoEvents();
+                    var yield = Dispatcher.Yield();
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        var args = new DataAvailableEventArgs();
+
+                        foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                        {
+                            args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                        }
+
+                        DataAvailable?.Invoke(this, args);
+
+                    });
                 }
-
-                var args = new DataAvailableEventArgs();
-
-                foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                else
                 {
-                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                    var args = new DataAvailableEventArgs();
+
+                    foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                    {
+                        args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                    }
+
+                    DataAvailable?.Invoke(this, args);
                 }
-
-                DataAvailable?.Invoke(this, args);
-
-            }, null);
+                
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         private SystemValue GetSystemValueProperty(SystemProperty property)
@@ -593,18 +592,18 @@ namespace RxdSolutions.FusionLink
 
         public void RequestCalculate()
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 ComputePortfolios(-1);
 
                 RefreshData();
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         public void LoadPositions()
         {
-            _context.Post(state => {
+            _context.InvokeAsync(() => {
 
                 var portfolios = new Dictionary<int, CSMPortfolio>();
                 foreach(var portfolioSubscription in _portfolioCellSubscriptions.GetCells())
@@ -623,7 +622,7 @@ namespace RxdSolutions.FusionLink
                     }
                 }
 
-            }, null);
+            }, DispatcherPriority.ApplicationIdle);
 
             RequestCalculate();
         }
