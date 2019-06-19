@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace RxdSolutions.FusionLink
 {
-    internal class CellSubscriptions<T> where T : CellValueBase
+    internal class Subscriptions<T, U> where T : class, IDisposable 
     {
-        private Dictionary<int, Dictionary<string, T>> _subscriptions;
-        private readonly Func<int, string, T> _factory;
+        private Dictionary<int, Dictionary<U, T>> _subscriptions;
+        private readonly Func<int, U, T> _factory;
 
-        public CellSubscriptions(Func<int, string, T> factory)
+        public Subscriptions(Func<int, U, T> factory)
         {
-            _subscriptions = new Dictionary<int, Dictionary<string, T>>();
+            _subscriptions = new Dictionary<int, Dictionary<U, T>>();
             _factory = factory;
         }
 
@@ -25,25 +25,25 @@ namespace RxdSolutions.FusionLink
             return _subscriptions.Values.SelectMany(x => x.Values);
         }
 
-        public void Add(int id, string column)
+        public void Add(int id, U property)
         {
-            if(!_subscriptions.ContainsKey(id))
+            if (!_subscriptions.ContainsKey(id))
             {
-                var columns = new Dictionary<string, T> 
+                var columns = new Dictionary<U, T>
                 {
-                    { column, _factory(id, column) }
+                    { property, _factory(id, property) }
                 };
 
                 _subscriptions.Add(id, columns);
             }
 
-            if(!_subscriptions[id].ContainsKey(column))
+            if (!_subscriptions[id].ContainsKey(property))
             {
-                _subscriptions[id].Add(column, _factory(id, column));
+                _subscriptions[id].Add(property, _factory(id, property));
             }
         }
 
-        public void Remove(int folioId, string column)
+        public void Remove(int folioId, U column)
         {
             if (_subscriptions.ContainsKey(folioId))
             {
@@ -56,7 +56,7 @@ namespace RxdSolutions.FusionLink
 
         public IEnumerable<T> Get(int folioId)
         {
-            if(_subscriptions.ContainsKey(folioId))
+            if (_subscriptions.ContainsKey(folioId))
             {
                 return _subscriptions[folioId].Values;
             }
@@ -64,11 +64,11 @@ namespace RxdSolutions.FusionLink
             return Enumerable.Empty<T>();
         }
 
-        public T Get(int folioId, string column)
+        public T Get(int folioId, U property)
         {
             if (_subscriptions.ContainsKey(folioId))
             {
-                return _subscriptions[folioId][column];
+                return _subscriptions[folioId][property];
             }
 
             return null;

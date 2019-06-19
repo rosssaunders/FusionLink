@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,12 +22,17 @@ namespace RxdSolutions.FusionLink
 
         private readonly Subscriptions<(int Id, string Column)> _positionSubscriptions;
         private readonly Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
+        private readonly Subscriptions<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly Subscriptions<SystemProperty> _systemSubscriptions;
 
         private readonly AutoResetEvent _clientMonitorResetEvent;
         private readonly int _clientCheckInterval;
         private Thread _clientMonitorThread;
         private bool _isClosed = false;
+
+        private CancellationTokenSource _cancellationTokenSource;
+        private Task _dataPublisher;
+        private BlockingCollection<DataAvailableEventArgs> _publishQueue;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
@@ -59,10 +65,22 @@ namespace RxdSolutions.FusionLink
             _systemSubscriptions.SubscriptionAdded += SystemSubscriptionAdded;
             _systemSubscriptions.SubscriptionRemoved += SystemSubscriptionRemoved;
 
+            _portfolioPropertySubscriptions = new Subscriptions<(int, PortfolioProperty)>() { DefaultMessage = DefaultMessage };
+            _portfolioPropertySubscriptions.OnValueChanged += PortfolioPropertyPointChanged;
+            _portfolioPropertySubscriptions.SubscriptionAdded += PortfolioPropertySubscriptionAdded;
+            _portfolioPropertySubscriptions.SubscriptionRemoved += PortfolioPropertySubscriptionRemoved;
+
             _clientMonitorResetEvent = new AutoResetEvent(false);
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
             _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
             _clientMonitorThread.Start();
+
+            _cancellationTokenSource = new CancellationTokenSource();
+        }
+
+        private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
+        {
+            _dataServiceProvider.SubscribeToSystemValue(e.Key);
         }
 
         private void SystemSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
@@ -70,9 +88,14 @@ namespace RxdSolutions.FusionLink
             _dataServiceProvider.UnsubscribeToSystemValue(e.Key);
         }
 
-        private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
+        private void PortfolioPropertySubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
-            _dataServiceProvider.SubscribeToSystemValue(e.Key);
+            _dataServiceProvider.SubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void PortfolioPropertySubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
+        {
+            _dataServiceProvider.UnsubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
         }
 
         private void PortfolioSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
@@ -107,6 +130,10 @@ namespace RxdSolutions.FusionLink
 
                 IsRunning = true;
 
+                _publishQueue = new BlockingCollection<DataAvailableEventArgs>();
+
+                StartPublisher();
+
                 _dataServiceProvider.Start();
             }
 
@@ -125,10 +152,62 @@ namespace RxdSolutions.FusionLink
 
                 IsRunning = false;
 
+                _publishQueue.CompleteAdding();
+
+                _dataPublisher.Wait();
+
+                _dataPublisher = null;
+
                 _dataServiceProvider.Stop();
             }
 
             SendServiceStatus();
+        }
+
+        private void StartPublisher()
+        {
+            _dataPublisher = Task.Run(() =>
+            {
+                foreach (DataAvailableEventArgs e in _publishQueue.GetConsumingEnumerable(_cancellationTokenSource.Token))
+                {
+                    if (!IsRunning)
+                        return;
+
+                    MergeData(e);
+                }
+
+            }, _cancellationTokenSource.Token);
+        }
+
+        private void MergeData(DataAvailableEventArgs e)
+        {
+            foreach (var kvp in e.PortfolioValues)
+            {
+                var dp = _portfolioSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.PortfolioProperties)
+            {
+                var dp = _portfolioPropertySubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.PositionValues)
+            {
+                var dp = _positionSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
+            foreach (var kvp in e.SystemValues)
+            {
+                var dp = _systemSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
         }
 
         public void Close()
@@ -157,9 +236,7 @@ namespace RxdSolutions.FusionLink
 
         public void Unregister()
         {
-            var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
-
-            Unregister(OperationContext.Current.SessionId, c);
+            Unregister(OperationContext.Current.SessionId);
         }
 
         public ServiceStatus GetServiceStatus()
@@ -215,6 +292,22 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            var dp = _portfolioPropertySubscriptions.Add(OperationContext.Current.SessionId, (portfolioId, property));
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioPropertySubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Property)))
+                {
+                    c.SendPortfolioProperty(dp.Key.Id, dp.Key.Property, dp.Value);
+                }
+
+            });
+        }
+
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
             _positionSubscriptions.Remove(OperationContext.Current.SessionId, (positionId, column));
@@ -232,6 +325,13 @@ namespace RxdSolutions.FusionLink
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
             _systemSubscriptions.Remove(OperationContext.Current.SessionId, property);
+
+            OnSubscriptionChanged?.Invoke(this, new EventArgs());
+        }
+
+        public void UnsubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        {
+            _portfolioPropertySubscriptions.Remove(OperationContext.Current.SessionId, (portfolioId, property));
 
             OnSubscriptionChanged?.Invoke(this, new EventArgs());
         }
@@ -336,7 +436,7 @@ namespace RxdSolutions.FusionLink
                 {
                     Debug.Print(ex.Message);
 
-                    Unregister(key, c);
+                    Unregister(key);
                 }
             }
         }
@@ -371,7 +471,17 @@ namespace RxdSolutions.FusionLink
             });
         }
 
-        private void Unregister(string sessionId, IDataServiceClient c)
+        private void PortfolioPropertyPointChanged(object sender, DataPointChangedEventArgs<(int Id, PortfolioProperty Property)> e)
+        {
+            SendMessageToAllClients((s, c) => {
+
+                if (_portfolioPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendPortfolioProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+
+            });
+        }
+
+        private void Unregister(string sessionId)
         {
             lock (_clients)
             {
@@ -388,6 +498,9 @@ namespace RxdSolutions.FusionLink
             foreach (var sub in _systemSubscriptions.GetKeys())
                 _systemSubscriptions.Remove(sessionId, sub);
 
+            foreach (var sub in _portfolioPropertySubscriptions.GetKeys())
+                _portfolioPropertySubscriptions.Remove(sessionId, sub);
+
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, null));
         }
 
@@ -402,30 +515,7 @@ namespace RxdSolutions.FusionLink
 
         private void DataService_DataAvailable(object sender, DataAvailableEventArgs e)
         {
-            _ = Task.Run(() => {
-
-                foreach (var kvp in e.PortfolioValues)
-                {
-                    var dp = _portfolioSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-                foreach (var kvp in e.PositionValues)
-                {
-                    var dp = _positionSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-                foreach (var kvp in e.SystemValues)
-                {
-                    var dp = _systemSubscriptions.Get(kvp.Key);
-                    if (dp is object)
-                        dp.Value = kvp.Value;
-                }
-
-            });
+            _publishQueue.Add(e);
         }
 
         public void RequestCalculate()

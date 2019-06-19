@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
@@ -16,37 +17,48 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
-                return Resources.NotConnectedMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));
             }
 
-            List<CurvePoint> points;
             try
             {
-                points = AddIn.Client.GetCurvePoints(currency, family, reference);
+                var results = AddIn.Client.GetCurvePoints(currency, family, reference);
+                CurvePoint[] points = results.ToArray();
+
+                if (points.Length == 0)
+                {
+                    return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.ExcelEmptyRange);
+                }
+                else
+                {
+                    object[,] array = new object[points.Length + 1, 5];
+
+                    array[0, 0] = "Tenor";
+                    array[0, 1] = "Rate";
+                    array[0, 2] = "IsEnabled";
+                    array[0, 3] = "RateCode";
+                    array[0, 4] = "Type";
+
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        array[i + 1, 0] = points[i].Tenor;
+                        array[i + 1, 1] = points[i].Rate ?? 0;
+                        array[i + 1, 2] = points[i].IsEnabled;
+                        array[i + 1, 3] = points[i].RateCode;
+                        array[i + 1, 4] = points[i].PointType;
+                    }
+
+                    return ExcelRangeResizer.TransformToExcelRange(array);
+                }
             }
             catch (CurveNotFoundException)
             {
-                return Resources.CurveNotFoundMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.CurveNotFoundMessage));
             }
-
-            object[,] array = new object[points.Count + 1, 5];
-
-            array[0, 0] = "Tenor";
-            array[0, 1] = "Rate";
-            array[0, 2] = "IsEnabled";
-            array[0, 3] = "RateCode";
-            array[0, 4] = "Type";
-
-            for (int i = 0; i < points.Count; i++)
+            catch (Exception ex)
             {
-                array[i + 1, 0] = points[i].Tenor;
-                array[i + 1, 1] = points[i].Rate ?? 0;
-                array[i + 1, 2] = points[i].IsEnabled;
-                array[i + 1, 3] = points[i].RateCode;
-                array[i + 1, 4] = points[i].PointType;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));
             }
-
-            return ExcelRangeResizer.TransformToExcelRange(array);
         }
     }
 }

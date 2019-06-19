@@ -115,6 +115,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested portfolio could not be found.
+        /// </summary>
+        internal static string PortfolioNotFoundMessage {
+            get {
+                return ResourceManager.GetString("PortfolioNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
         /// </summary>
         internal static string PortfolioNotLoadedMessage {

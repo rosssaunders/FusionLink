@@ -93,6 +93,15 @@ namespace RxdSolutions.FusionLink
 
                             break;
 
+                        case bool boolValue:
+
+                            if (!EqualityComparer<bool>.Default.Equals((bool)_value, boolValue))
+                            {
+                                updateRequired = true;
+                            }
+
+                            break;
+
                         case DateTime dateTimeValue:
 
                             if (!EqualityComparer<DateTime>.Default.Equals((DateTime)_value, dateTimeValue))
@@ -115,7 +124,7 @@ namespace RxdSolutions.FusionLink
 
         private void CheckValidDataType(object value)
         {
-            var isValid = value is string || value is int || value is long || value is double || value is decimal || value is DateTime || value is null;
+            var isValid = value is string || value is int || value is long || value is double || value is decimal || value is DateTime || value is null || value is bool;
             if(!isValid)
             {
                 throw new ApplicationException("Invalid data type passed");

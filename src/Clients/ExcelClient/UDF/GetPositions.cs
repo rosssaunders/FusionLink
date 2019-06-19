@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
@@ -15,26 +16,41 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
-                return Resources.NotConnectedMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));
             }
 
-            List<int> positionIds;
             try
             {
-                positionIds = AddIn.Client.GetPositions(portfolioId, includeAll ? PositionsToRequest.All : PositionsToRequest.Open);
+                var results = AddIn.Client.GetPositions(portfolioId, includeAll ? PositionsToRequest.All : PositionsToRequest.Open);
+                int[] positionIds = results.OrderBy(x => x).ToArray();
+
+                if (positionIds.Length == 0)
+                {
+                    return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.ExcelEmptyRange);
+                }
+                else
+                {
+                    object[,] array = new object[positionIds.Length, 1];
+                    for (int i = 0; i < positionIds.Length; i++)
+                    {
+                        array[i, 0] = positionIds[i];
+                    }
+
+                    return ExcelRangeResizer.TransformToExcelRange(array);
+                }
+            }
+            catch (PortfolioNotFoundException)
+            {
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotFoundMessage));
             }
             catch (PortfolioNotLoadedException)
             {
-                return Resources.PortfolioNotLoadedMessage;
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotLoadedMessage));
             }
-
-            object[,] array = new object[positionIds.Count, 1];
-            for (int i = 0; i < positionIds.Count; i++)
+            catch(Exception ex)
             {
-                array[i, 0] = positionIds[i];
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));
             }
-
-            return ExcelRangeResizer.TransformToExcelRange(array);
         }
     }
 }

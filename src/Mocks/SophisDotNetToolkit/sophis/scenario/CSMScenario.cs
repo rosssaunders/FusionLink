@@ -24,6 +24,11 @@ namespace sophis.scenario
             return false;
         }
 
+        public virtual bool InTheAnalysisMenu()
+        {
+            return false;
+        }
+
         public virtual bool AvailableForReport()
         {
             return false;

@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using sophis.utils;
 
 namespace sophis.portfolio
@@ -14,6 +15,11 @@ namespace sophis.portfolio
         }
 
         public int GetCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public unsafe void GetFullName(CMString full_name)
         {
             throw new NotImplementedException();
         }
@@ -76,6 +82,10 @@ namespace sophis.portfolio
         public CSMPortfolio GetNthChild(int i)
         {
             throw new NotImplementedException();
+        }
+
+        public void GetChildren(ArrayList children)
+        {
         }
     }
 }

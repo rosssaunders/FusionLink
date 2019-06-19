@@ -6,12 +6,15 @@ using System.Runtime.Serialization;
 namespace RxdSolutions.FusionLink.Interface
 {
     [DataContract]
-    public enum SystemProperty
+    public enum PortfolioProperty
     {
         [EnumMember]
-        PortfolioDate,
+        Name,
 
         [EnumMember]
-        IsRealTimeEnabled
+        FullPath,
+
+        [EnumMember]
+        ParentId
     }
 }
