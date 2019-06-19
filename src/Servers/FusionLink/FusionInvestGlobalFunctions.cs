@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using sophis.instrument;
 using sophis.portfolio;
@@ -14,20 +15,26 @@ namespace RxdSolutions.FusionLink
     {
         public event EventHandler<PortfolioCalculationEndedEventArgs> PortfolioCalculationEnded;
 
-        public event EventHandler<PortfolioAdditionEndedEventArgs> PortfolioAdditionEnded;
+#if !V72
 
         public override void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
         {
-            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), this.fInPortfolioCalculation, this.m_Mode, this.fLoadingPortfolio));
+            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, m_Mode, this.fLoadingPortfolio));
 
             base.EndPortfolioCalculation(extraction, folioId);
         }
 
-        public override void EndPortfolioAddition(CSMExtraction extraction, int folioId)
-        {
-            PortfolioAdditionEnded?.Invoke(this, new PortfolioAdditionEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), this.m_Mode, this.fLoadingPortfolio));
+#endif
 
-            base.EndPortfolioAddition(extraction, folioId);
+#if V72
+
+        public override void EndPortfolioCalculation(CSMExtraction extraction, int folio_id, bool full, ArrayList impactedPortfolios)
+        {
+            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folio_id, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, m_Mode, this.fLoadingPortfolio));
+
+            base.EndPortfolioCalculation(extraction, folio_id, full, impactedPortfolios);
         }
+
+#endif
     }
 }

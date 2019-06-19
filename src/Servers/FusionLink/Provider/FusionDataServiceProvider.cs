@@ -197,12 +197,12 @@ namespace RxdSolutions.FusionLink
                     return;
                 }
 
-                using (var yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId))
-                using (var activeCurve = yieldCurve.GetActiveSSYieldCurve())
+                using (CSMYieldCurve yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId))
+                using (SSMYieldCurve activeCurve = yieldCurve.GetActiveSSYieldCurve())
                 {
-                    for(int i = 0; i < activeCurve.fPointCount; i++)
+                    for(int i = 0; i < GetPointCount(activeCurve); i++)
                     {
-                        using (var yieldPoint = activeCurve.fPointList.GetNthElement(i))
+                        using (var yieldPoint = GetPointList(activeCurve).GetNthElement(i))
                         {
                             var cp = new CurvePoint();
                             results.Add(cp);
@@ -234,6 +234,24 @@ namespace RxdSolutions.FusionLink
                 return results;
             else
                 throw ex;
+        }
+
+        private int GetPointCount(SSMYieldCurve curve)
+        {
+#if V72
+            return curve.fPoints.fPointCount;
+#else
+            return curve.fPointCount;
+#endif
+        }
+
+        private SSMYieldPoint GetPointList(SSMYieldCurve curve)
+        {
+#if V72
+            return curve.fPoints.fPointList;
+#else
+            return curve.fPointList;
+#endif
         }
 
         private void GetPositionsUI(int folioId, PositionsToRequest positions, List<int> results)

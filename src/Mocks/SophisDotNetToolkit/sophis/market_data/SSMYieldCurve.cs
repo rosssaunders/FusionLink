@@ -7,9 +7,17 @@ namespace sophis.market_data
 {
     public class SSMYieldCurve : IDisposable
     {
+
+#if V72
+
+        public unsafe sophis.DAL.MYieldCurvePoints fPoints { get; set; }
+
+#else
         public unsafe int fPointCount { get; set; }
 
         public unsafe SSMYieldPoint fPointList { get; set; }
+
+#endif
 
         public void Dispose()
         {

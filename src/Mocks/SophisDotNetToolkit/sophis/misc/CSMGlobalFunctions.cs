@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using MEnums;
 using sophis.portfolio;
 
@@ -48,13 +49,21 @@ namespace sophis.misc
             throw new NotImplementedException();
         }
 
-        public unsafe virtual void EndPortfolioAddition(CSMExtraction extraction, int folio_id)
-        {
-        }
+#if !V72
 
         public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folio_id)
         {
         }
+
+#endif
+
+#if V72
+
+        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folio_id, bool full, ArrayList impactedPortfolios)
+        {
+        }
+
+#endif
 
         public unsafe static CSMGlobalFunctions GetCurrentGlobalFunctions()
         {

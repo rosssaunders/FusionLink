@@ -35,7 +35,6 @@ namespace RxdSolutions.FusionLink
         private BlockingCollection<DataAvailableEventArgs> _publishQueue;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
-        public event EventHandler<DataUpdatedFromProviderEventArgs> OnDataUpdatedFromProvider;
         public event EventHandler<EventArgs> OnSubscriptionChanged;
 
         public IReadOnlyList<IDataServiceClient> Clients => _clients.Values.ToList();

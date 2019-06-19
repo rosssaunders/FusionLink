@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Collections;
 using sophis.misc;
 using sophis.portfolio;
 
@@ -13,14 +14,21 @@ namespace sophis.value
         {
         }
 
-        public unsafe override void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
+
+#if !V72
+
+        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folio_id)
         {
-            throw new NotImplementedException();
         }
 
-        public unsafe override void EndPortfolioAddition(CSMExtraction extraction, int folioId)
+#endif
+
+#if V72
+
+        public unsafe virtual void EndPortfolioCalculation(CSMExtraction extraction, int folio_id, bool full, ArrayList impactedPortfolios)
         {
-            throw new NotImplementedException();
         }
+
+#endif
     }
 }

@@ -8,7 +8,5 @@ namespace RxdSolutions.FusionLink
     public interface IGlobalFunctions
     {
         event EventHandler<PortfolioCalculationEndedEventArgs> PortfolioCalculationEnded;
-
-        event EventHandler<PortfolioAdditionEndedEventArgs> PortfolioAdditionEnded;
     }
 }

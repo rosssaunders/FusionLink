@@ -145,7 +145,6 @@ namespace RxdSolutions.FusionLink
 
                 DataServer.Start();
                 DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
-                DataServer.OnDataUpdatedFromProvider += OnDataUpdatedFromProvider;
 
 #if DEBUG
                 DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
@@ -222,15 +221,6 @@ namespace RxdSolutions.FusionLink
 
             Dispatcher.CurrentDispatcher.InvokeAsync(() => 
             {
-                UpdateCaption();
-
-            });
-        }
-
-        private void OnDataUpdatedFromProvider(object sender, DataUpdatedFromProviderEventArgs e)
-        {
-            Dispatcher.CurrentDispatcher.InvokeAsync(() => {
-
                 UpdateCaption();
 
             });

@@ -15,6 +15,12 @@
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
+    <DefineConstants>DEBUG;TRACE;V72</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug_713'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
@@ -262,43 +268,43 @@
       <Private>true</Private>
     </Reference>
     <Reference Include="Sophis.DotNetCore">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.DotNetCore.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.DotNetCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
