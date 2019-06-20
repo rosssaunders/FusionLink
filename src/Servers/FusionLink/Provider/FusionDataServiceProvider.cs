@@ -560,26 +560,11 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioListener_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
         {
-            _context.InvokeAsync(() => 
+            if (e.IsLocal)
             {
-                if(e.IsLocal)
-                {
-                    //There must be a Sophis API call which does the same work without the risk of deadlock.
-                    var yield = Dispatcher.Yield();
-                    yield.GetAwaiter().OnCompleted(() =>
-                    {
-                        var args = new DataAvailableEventArgs();
-
-                        foreach (var value in _portfolioPropertySubscriptions.GetCells())
-                        {
-                            args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
-                        }
-
-                        DataAvailable?.Invoke(this, args);
-
-                    });
-                }
-                else
+                //There must be a Sophis API call which does the same work without the risk of deadlock.
+                var yield = Dispatcher.Yield();
+                yield.GetAwaiter().OnCompleted(() =>
                 {
                     var args = new DataAvailableEventArgs();
 
@@ -589,9 +574,19 @@ namespace RxdSolutions.FusionLink
                     }
 
                     DataAvailable?.Invoke(this, args);
+                });
+            }
+            else
+            {
+                var args = new DataAvailableEventArgs();
+
+                foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                {
+                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
                 }
-                
-            }, DispatcherPriority.ApplicationIdle);
+
+                DataAvailable?.Invoke(this, args);
+            }
         }
 
         private SystemValue GetSystemValueProperty(SystemProperty property)
