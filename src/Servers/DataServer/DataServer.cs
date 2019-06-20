@@ -402,12 +402,12 @@ namespace RxdSolutions.FusionLink
 
         public int PortfolioValueSubscriptionCount
         {
-            get => _portfolioPropertySubscriptions.Count;
+            get => _portfolioSubscriptions.Count;
         }
 
         public int PortfolioPropertySubscriptionCount
         {
-            get => _portfolioSubscriptions.Count;
+            get => _portfolioPropertySubscriptions.Count;
         }
 
         public int SystemValueCount
