@@ -19,23 +19,44 @@ namespace RxdSolutions.FusionLink
 {
     public class Main : IMain
     {
-        public static CSMGlobalFunctions _globalFunctions;
-        public static AfterAllInitializationScenario afterAllInitializationScenario;
-        public static PortfolioActionListener _portfolioActionListener;
-        public static PortfolioEventListener _portfolioEventListener;
+        private static CSMGlobalFunctions _globalFunctions;
+        private static AfterAllInitializationScenario afterAllInitializationScenario;
+        private static PortfolioActionListener _portfolioActionListener;
+        private static PortfolioEventListener _portfolioEventListener;
+        private static ServiceHost _host;
+        private static DataServer _dataServer;
 
-        public static ServiceHost _host;
+        private bool _displayDebugMessage = false;
 
-        public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
         public void EntryPoint()
         {
             if (UserRight.CanOpen())
             {
+                LoadConfig();
+
+                RegisterListeners();
+
+                RegisterScenarios();
+
                 afterAllInitializationScenario = new AfterAllInitializationScenario();
                 afterAllInitializationScenario.AfterAllInitialization += AfterAllInitialization;
                 CSMScenario.Register("AfterAllInitialization", afterAllInitializationScenario);
+            }
+        }
+
+        public void Close()
+        {
+            try
+            {
+                _dataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
+                _dataServer.Close();
+                _host?.Close();
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -48,13 +69,18 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                RegisterListeners();
-
                 var startupTask = RegisterServer().ContinueWith(t => {
 
-                    RegisterUI();
+                    if(t.Exception == null)
+                    {
+                        RegisterUI();
 
-                    UpdateCaption();
+                        UpdateCaption();
+                    }
+                    else
+                    {
+                        MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + t.Exception.ToString(), Resources.ErrorCaption);
+                    }
 
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
@@ -76,11 +102,14 @@ namespace RxdSolutions.FusionLink
             CSMPortfolioAction.Register("PortfolioActionListener", CSMPortfolioAction.eMOrder.M_oAfter, _portfolioActionListener);
         }
 
-        private void RegisterUI()
+        private void RegisterScenarios()
         {
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
             CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
+        }
 
+        private void RegisterUI()
+        {
             CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyCellAsRTDFunctionToClipboard());
             CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
@@ -99,15 +128,15 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                if (DataServer == null)
+                if (_dataServer == null)
                     return;
 
-                if (DataServer.IsRunning)
-                    DataServer.Stop();
+                if (_dataServer.IsRunning)
+                    _dataServer.Stop();
                 else
-                    DataServer.Start();
+                    _dataServer.Start();
 
-                CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
+                CaptionBar.ButtonText = _dataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
 
                 UpdateCaption();
             }
@@ -128,10 +157,9 @@ namespace RxdSolutions.FusionLink
 
             return Task.Run(() =>
             {
-
                 try
                 {
-                    _host = DataServerHostFactory.Create(DataServer);
+                    _host = DataServerHostFactory.Create(_dataServer);
                 }
                 catch (AddressAlreadyInUseException)
                 {
@@ -141,21 +169,19 @@ namespace RxdSolutions.FusionLink
                     _host = null;
                 }
 
-                DataServer = _host.SingletonInstance as DataServer;
+                _dataServer = _host.SingletonInstance as DataServer;
 
-                DataServer.Start();
-                DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
+                _dataServer.Start();
+                _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
 
-#if DEBUG
-                DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
-#endif
-
+                if(_displayDebugMessage)
+                    _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
             });
         }
 
         private void OnSubscriptionChanged(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.InvokeAsync(() => {
+            Dispatcher.CurrentDispatcher.Invoke(() => {
 
                 UpdateCaption();
 
@@ -164,12 +190,17 @@ namespace RxdSolutions.FusionLink
 
         private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
         {
-            DataServer = new DataServer(dataServiceProvider);
+            _dataServer = new DataServer(dataServiceProvider);
 
             string defaultMessage = "";
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
-            DataServer.DefaultMessage = defaultMessage;
+            _dataServer.DefaultMessage = defaultMessage;
+        }
+
+        private void LoadConfig()
+        {
+            CSMConfigurationFile.getEntryValue("FusionLink", "ShowDebug", ref _displayDebugMessage, false);
         }
 
         private void UpdateCaption()
@@ -182,7 +213,7 @@ namespace RxdSolutions.FusionLink
             caption.Append(dataServiceIdentifierCaption);
 
             //Clients
-            int clientCount = DataServer.Clients.Count;
+            int clientCount = _dataServer.Clients.Count;
 
             if (clientCount > 0)
             {
@@ -200,44 +231,23 @@ namespace RxdSolutions.FusionLink
                 caption.Append(clientsConnectedCaption);
             }
 
-#if DEBUG
-            var subs = $"(Subscriptions = Portfolio:{DataServer.PortfolioSubscriptionCount},Position:{DataServer.PositonSubscriptionCount},System:{DataServer.SystemValueCount})";
-            caption.Append(" / ");
-            caption.Append(subs);
-#endif
+            if (_displayDebugMessage)
+            {
+                var subs = $"(Subs = PortVal:{_dataServer.PortfolioValueSubscriptionCount},PortProp:{_dataServer.PortfolioPropertySubscriptionCount},Pos:{_dataServer.PositonValueSubscriptionCount},Sys:{_dataServer.SystemValueCount})";
+                caption.Append(" / ");
+                caption.Append(subs);
+            }                
 
             CaptionBar.Text = caption.ToString();
         }
 
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
-            if (DataServer.Clients.Count > 0)
-            {
-                if (!DataServer.IsRunning)
-                {
-                    DataServer.Start();
-                }
-            }
-
-            Dispatcher.CurrentDispatcher.InvokeAsync(() => 
+            Dispatcher.CurrentDispatcher.Invoke(() => 
             {
                 UpdateCaption();
 
             });
-        }
-
-        public void Close()
-        {
-            try
-            {
-                DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-                DataServer.Close();
-                _host?.Close();
-            }
-            catch(Exception ex)
-            {
-                CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
-            }
         }
     }
 }

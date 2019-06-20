@@ -395,15 +395,23 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public int PositonSubscriptionCount {
+        public int PositonValueSubscriptionCount
+        {
             get => _positionSubscriptions.Count;
         }
 
-        public int PortfolioSubscriptionCount {
+        public int PortfolioValueSubscriptionCount
+        {
+            get => _portfolioPropertySubscriptions.Count;
+        }
+
+        public int PortfolioPropertySubscriptionCount
+        {
             get => _portfolioSubscriptions.Count;
         }
 
-        public int SystemValueCount {
+        public int SystemValueCount
+        {
             get => _systemSubscriptions.Count;
         }
 
