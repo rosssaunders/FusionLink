@@ -43,5 +43,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             return ExcelAsyncUtil.Observe(nameof(GetServiceStatus), null, () => new ServiceStatusExcelObservable(AddIn.Client));
         }
+
+        [ExcelFunction(Name = "GETLASTMESSAGERECEIVEDTIME",
+                       Description = "Returns the status of the Service",
+                       HelpTopic = "Get-Last-Message-Received-Time")]
+        public static object GetLastMessageReceivedTime()
+        {
+            return ExcelAsyncUtil.Observe(nameof(GetLastMessageReceivedTime), null, () => new LastMessageReceivedTimeObservable(AddIn.Client));
+        }
     }
 }

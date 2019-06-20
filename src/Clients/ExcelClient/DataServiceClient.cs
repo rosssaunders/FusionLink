@@ -45,6 +45,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
+        public DateTime LastMessageReceivedTime
+        {
+            get
+            {
+                return _callback.LastReceivedMessageTimestamp;
+            }
+        }
+
         public EndpointAddress Connection { get; private set; }
 
         public void Open(EndpointAddress endpointAddress)
