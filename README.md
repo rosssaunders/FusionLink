@@ -2,6 +2,8 @@
 
 FusionLink is a Xll library for Excel and a FusionInvest Toolkit which provides the ability to subscribe to real-time and query data from a FusionInvest client.
 
+![Demo](https://github.com/RXDSolutions/FusionLink/wiki/images/RealTimeDemo.gif)
+
 ## Getting Started
 
 ### Prerequisites
