@@ -2,6 +2,7 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
+using System.Runtime.ExceptionServices;
 using RxdSolutions.FusionLink.Interface;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
@@ -24,34 +25,42 @@ namespace RxdSolutions.FusionLink
             Portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
         }
 
+        [HandleProcessCorruptedStateExceptions]
         public object GetValue()
         {
-            if (Portfolio is null)
+            try
             {
-                return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
+                if (Portfolio is null)
+                {
+                    return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
+                }
+
+                switch (Property)
+                {
+                    case PortfolioProperty.Name:
+                        using (var name = new CMString())
+                        {
+                            Portfolio.GetName(name);
+                            return name.StringValue;
+                        }
+
+                    case PortfolioProperty.ParentId:
+                        return Portfolio.GetParentCode();
+
+                    case PortfolioProperty.FullPath:
+                        using (var fullName = new CMString())
+                        {
+                            Portfolio.GetFullName(fullName);
+                            return fullName.StringValue;
+                        }
+
+                    default:
+                        return $"Unknown Portfolio Property '{Property}'";
+                }
             }
-
-            switch (Property)
+            catch(Exception ex)
             {
-                case PortfolioProperty.Name:
-                    using (var name = new CMString())
-                    {
-                        Portfolio.GetName(name);
-                        return name.StringValue;
-                    }
-
-                case PortfolioProperty.ParentId:
-                    return Portfolio.GetParentCode();
-
-                case PortfolioProperty.FullPath:
-                    using(var fullName = new CMString())
-                    {
-                        Portfolio.GetFullName(fullName);
-                        return fullName.StringValue;
-                    }
-                    
-                default:
-                    return $"Unknown Portfolio Property '{Property}'";
+                return ex.Message;
             }
         }
 

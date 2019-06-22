@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
@@ -76,14 +77,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _server.Register();
 
             //Subscribe to any topics in case this is a reconnection
-            foreach(var ps in _positionCellValueSubscriptions)
-                _server.SubscribeToPositionValue(ps.Id, ps.Column);
+            foreach(var (Id, Column) in _positionCellValueSubscriptions)
+                _server.SubscribeToPositionValue(Id, Column);
 
-            foreach (var ps in _portfolioCellValueSubscriptions)
-                _server.SubscribeToPortfolioValue(ps.Id, ps.Column);
+            foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
+                _server.SubscribeToPortfolioValue(Id, Column);
 
-            foreach (var ps in _portfolioPropertySubscriptions)
-                _server.SubscribeToPortfolioProperty(ps.Id, ps.Property);
+            foreach (var (Id, Property) in _portfolioPropertySubscriptions)
+                _server.SubscribeToPortfolioProperty(Id, Property);
 
             foreach (var ps in _systemSubscriptions)
                 _server.SubscribeToSystemValue(ps);
@@ -122,14 +123,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
                         _server.Unregister();
 
                         //Subscribe to any topics in case this is a reconnection
-                        foreach (var ps in _positionCellValueSubscriptions)
-                            _server.UnsubscribeToPositionValue(ps.Id, ps.Column);
+                        foreach (var (Id, Column) in _positionCellValueSubscriptions)
+                            _server.UnsubscribeFromPositionValue(Id, Column);
 
-                        foreach (var ps in _portfolioCellValueSubscriptions)
-                            _server.UnsubscribeToPortfolioValue(ps.Id, ps.Column);
+                        foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
+                            _server.UnsubscribeFromPortfolioValue(Id, Column);
 
                         foreach (var ps in _systemSubscriptions)
-                            _server.UnsubscribeToSystemValue(ps);
+                            _server.UnsubscribeFromSystemValue(ps);
+
+                        foreach (var (Id, Property) in _portfolioPropertySubscriptions)
+                            _server.UnsubscribeFromPortfolioProperty(Id, Property);
                     }
 
                     try
@@ -185,8 +189,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if(!_positionCellValueSubscriptions.Contains((positionId, column)))
                 _positionCellValueSubscriptions.Add((positionId, column));
 
-            if(_server is object && State == CommunicationState.Opened)
-                _server.SubscribeToPositionValue(positionId, column);
+            InvokeServerWithErrorHandling(() => _server.SubscribeToPositionValue(positionId, column));
         }
 
         public void SubscribeToPortfolioValue(int folioId, string column)
@@ -194,17 +197,15 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
                 _portfolioCellValueSubscriptions.Add((folioId, column));
 
-            if (_server is object && State == CommunicationState.Opened)
-                _server.SubscribeToPortfolioValue(folioId, column);
+            InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioValue(folioId, column));
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
             if (!_systemSubscriptions.Contains(property))
                 _systemSubscriptions.Add(property);
-            
-            if (_server is object && State == CommunicationState.Opened)
-                _server.SubscribeToSystemValue(property);
+
+            InvokeServerWithErrorHandling(() => _server.SubscribeToSystemValue(property));
         }
 
         public void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
@@ -212,8 +213,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
                 _portfolioPropertySubscriptions.Add((folioId, property));
 
-            if (_server is object && State == CommunicationState.Opened)
-                _server.SubscribeToPortfolioProperty(folioId, property);
+            InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioProperty(folioId, property));
         }
 
         public void UnsubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
@@ -221,8 +221,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
                 _portfolioPropertySubscriptions.Remove((folioId, property));
 
-            if (_server is object && State == CommunicationState.Opened)
-                _server.UnsubscribeToPortfolioProperty(folioId, property);
+            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioProperty(folioId, property));
         }
 
         public void UnsubscribeToPositionValue(int positionId, string column)
@@ -230,8 +229,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_positionCellValueSubscriptions.Contains((positionId, column)))
                 _positionCellValueSubscriptions.Remove((positionId, column));
 
-            if (_server is object && State == CommunicationState.Opened)
-                _server.UnsubscribeToPositionValue(positionId, column);
+            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPositionValue(positionId, column));
         }
 
         public void UnsubscribeToPortfolioValue(int folioId, string column)
@@ -239,8 +237,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
                 _portfolioCellValueSubscriptions.Remove((folioId, column));
 
-            if (_server is object && State == CommunicationState.Opened)
-                _server.UnsubscribeToPortfolioValue(folioId, column);
+            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioValue(folioId, column));
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
@@ -248,8 +245,22 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (!_systemSubscriptions.Contains(property))
                 _systemSubscriptions.Remove(property);
 
+            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromSystemValue(property));
+        }
+
+        private void InvokeServerWithErrorHandling(Action action)
+        {
             if (_server is object && State == CommunicationState.Opened)
-                _server.UnsubscribeToSystemValue(property);
+            {
+                try
+                {
+                    action();
+                }
+                catch (FaultException<ErrorFaultContract> ex)
+                {
+                    throw new DataServiceException(ex.Detail.Message);
+                }
+            }
         }
 
         private void Callback_OnServiceStatusReceived(object sender, ServiceStatusReceivedEventArgs e)
@@ -283,13 +294,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return _server.GetPositions(portfolioId, positions);
             }
-            catch(FaultException<PortfolioNotFoundFaultContract>)
+            catch(FaultException<PortfolioNotFoundFaultContract> ex)
             {
-                throw new PortfolioNotFoundException();
+                throw new PortfolioNotFoundException($"{Resources.PortfolioNotFoundMessage} - {ex.Detail.PortfolioId}");
             }
-            catch (FaultException<PortfolioNotLoadedFaultContract>)
+            catch (FaultException<PortfolioNotLoadedFaultContract> ex)
             {
-                throw new PortfolioNotLoadedException();
+                throw new PortfolioNotLoadedException($"{Resources.PortfolioNotLoadedMessage} - {ex.Detail.PortfolioId}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
             }
         }
 
@@ -299,9 +314,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return _server.GetPriceHistory(instrumentId, startDate, endDate);
             }
-            catch (FaultException<InstrumentNotFoundFaultContract>)
+            catch (FaultException<InstrumentNotFoundFaultContract> ex)
             {
-                throw new InstrumentNotFoundException();
+                throw new InstrumentNotFoundException($"{Resources.InstrumentNotFoundMessage} - {ex.Detail.Instrument}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
             }
         }
 
@@ -311,9 +330,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return _server.GetPriceHistory(reference, startDate, endDate);
             }
-            catch (FaultException<InstrumentNotFoundFaultContract>)
+            catch (FaultException<InstrumentNotFoundFaultContract> ex)
             {
-                throw new InstrumentNotFoundException();
+                throw new InstrumentNotFoundException($"{Resources.InstrumentNotFoundMessage} - {ex.Detail.Instrument}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
             }
         }
 
@@ -323,12 +346,23 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return _server.GetCurvePoints(currency, family, reference);
             }
-            catch (FaultException<CurveNotFoundFaultContract>)
+            catch (FaultException<CurveNotFoundFaultContract> ex)
             {
-                throw new CurveNotFoundException();
+                throw new CurveNotFoundException($"{Resources.CurveNotFoundMessage} - {ex.Detail.Curve}");
+            }
+            catch (FaultException<CurveFamilyNotFoundFaultContract> ex)
+            {
+                throw new CurveNotFoundException($"{Resources.CurveNotFoundMessage} - {ex.Detail.CurveFamily}");
+            }
+            catch (FaultException<CurrencyNotFoundFaultContract> ex)
+            {
+                throw new CurveNotFoundException($"{Resources.CurveNotFoundMessage} - {ex.Detail.Currency}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
             }
         }
-
 
         #region IDisposable Support
 
@@ -342,6 +376,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 {
                     _positionCellValueSubscriptions.Clear();
                     _portfolioCellValueSubscriptions.Clear();
+                    _systemSubscriptions.Clear();
+                    _portfolioPropertySubscriptions.Clear();
                 }
 
                 disposedValue = true;

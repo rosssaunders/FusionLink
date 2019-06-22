@@ -2,6 +2,8 @@
 
 FusionLink is a Xll library for Excel and a FusionInvest Toolkit which provides the ability to subscribe to real-time and query data from a FusionInvest client.
 
+![Demo](https://github.com/RXDSolutions/FusionLink/wiki/images/RealTimeDemo.gif)
+
 ## Getting Started
 
 ### Prerequisites
@@ -63,7 +65,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* [DG Partners](http://www.dgpartners.co.uk/) for generously letting RXD Solutions use their development environment.
+* [DG Partners](http://www.dgpartners.co.uk/) for generously providing RXD Solutions access to their development environment.
 * [Philippe Bonneau](http://www.it-quants.com/Blogs.aspx) for the inspiration on using the MFC Caption Bar within Sophis.
 
 ## Build Status

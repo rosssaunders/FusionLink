@@ -130,17 +130,17 @@ namespace RxdSolutions.FusionLink
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeToPortfolio(int portfolioId, string column)
+        public void UnsubscribeFromPortfolio(int portfolioId, string column)
         {
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeToPosition(int positionId, string column)
+        public void UnsubscribeFromPosition(int positionId, string column)
         {
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeToSystemValue(SystemProperty property)
+        public void UnsubscribeFromSystemValue(SystemProperty property)
         {
             throw new NotImplementedException();
         }
@@ -200,7 +200,7 @@ namespace RxdSolutions.FusionLink
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeToPortfolioProperty(int id, PortfolioProperty property)
+        public void UnsubscribeFromPortfolioProperty(int id, PortfolioProperty property)
         {
             throw new NotImplementedException();
         }

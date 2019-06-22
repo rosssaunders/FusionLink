@@ -2,23 +2,27 @@
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Threading;
 using RxdSolutions.FusionLink.Interface;
-using sophis.gui;
+using RxdSolutions.FusionLink.Services;
 using sophis.instrument;
-using sophis.market_data;
 using sophis.portfolio;
-using sophis.static_data;
+using sophis.utils;
 
 namespace RxdSolutions.FusionLink
 {
     public class FusionDataServiceProvider : IDataServerProvider
     {
+        private readonly string _className = nameof(FusionDataServiceProvider);
+
         private readonly Dispatcher _context;
         private readonly IGlobalFunctions _globalFunctions;
         private readonly IPortfolioListener _portfolioListener;
+        private readonly PositionService _positionService;
+        private readonly InstrumentService _instrumentService;
+        private readonly CurveService _curveService;
+
         private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
         private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
         private readonly Subscriptions<PositionCellValue, string> _positionCellSubscriptions;
@@ -42,11 +46,18 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public FusionDataServiceProvider(IGlobalFunctions globalFunctions, IPortfolioListener portfolioListener)
+        public FusionDataServiceProvider(IGlobalFunctions globalFunctions, 
+                                         IPortfolioListener portfolioListener,
+                                         PositionService positionService,
+                                         InstrumentService instrumentService,
+                                         CurveService curveService)
         {
             _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
             _portfolioListener = portfolioListener;
+            _positionService = positionService;
+            _instrumentService = instrumentService;
+            _curveService = curveService;
 
             _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s));
             _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s));
@@ -69,329 +80,277 @@ namespace RxdSolutions.FusionLink
 
         public List<int> GetPositions(int folioId, PositionsToRequest positions)
         {
-            var results = new List<int>();
-            Exception ex = null;
+            return _context.Invoke(() => {
 
-            _context.Invoke(() => {
-
-                using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
+                try
                 {
-                    if(portfolio is object)
-                    {
-                        if (!portfolio.IsLoaded())
-                        {
-                            ex = new PortfolioNotLoadedException();
-                            return;
-                        }
-
-                        GetPositionsUI(folioId, positions, results);
-                    }
-                    else
-                    {
-                        ex = new PortfolioNotFoundException();
-                        return;
-                    }
+                    return _positionService.GetPositions(folioId, positions);
+                }
+                catch(PortfolioNotLoadedException e)
+                {
+                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch(PortfolioNotFoundException e)
+                {
+                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
                 }
 
             });
-
-            if (ex == null)
-                return results;
-            else
-                throw ex;
         }
 
         public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
         {
-            //Find the instrumentId
-            int instrumentId = 0;
+            return _context.Invoke(() => {
 
-            _context.Invoke(() => {
+                try
+                {
+                    var instrumentId = CSMInstrument.GetCode(reference);
 
-                instrumentId = CSMInstrument.GetCode(reference);
+                    return _instrumentService.GetPriceHistory(instrumentId, startDate, endDate);
+                }
+                catch(InstrumentNotFoundException e)
+                {
+                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
 
             });
-
-            return GetPriceHistory(instrumentId, startDate, endDate);
         }
 
         public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
         {
-            var results = new List<PriceHistory>();
-            Exception ex = null;
+            return _context.Invoke(() => {
 
-            _context.Invoke(() => {
-
-                using (var instrument = CSMInstrument.GetInstance(instrumentId))
+                try
                 {
-                    if(instrument is null)
-                    {
-                        ex = new InstrumentNotFoundException();
-                        return;
-                    }
-
-                    int refCount = 0;
-                    var history = instrument.NEW_HistoryList(DataTypeExtensions.ConvertDateTime(startDate), DataTypeExtensions.ConvertDateTime(endDate), ref refCount, null);
-
-                    for (var i = 0; i < refCount; i++)
-                    {
-                        using (SSMHistory price = history.GetNthElement(i))
-                        {
-                            if (price.day != DataTypeExtensions.SophisNull)
-                            {
-                                var ph = new PriceHistory()
-                                {
-                                    Ask = (double?)DataTypeExtensions.ConvertDouble(price.ask, eMNullValueType.M_nvUndefined),
-                                    Bid = (double?)DataTypeExtensions.ConvertDouble(price.bid, eMNullValueType.M_nvUndefined),
-                                    First = (double?)DataTypeExtensions.ConvertDouble(price.first, eMNullValueType.M_nvUndefined),
-                                    High = (double?)DataTypeExtensions.ConvertDouble(price.high, eMNullValueType.M_nvUndefined),
-                                    Low = (double?)DataTypeExtensions.ConvertDouble(price.low, eMNullValueType.M_nvUndefined),
-                                    Last = (double?)DataTypeExtensions.ConvertDouble(price.last, eMNullValueType.M_nvUndefined),
-                                    Theoretical = (double?)DataTypeExtensions.ConvertDouble(price.theorical, eMNullValueType.M_nvUndefined),
-                                    Volume = (double?)DataTypeExtensions.ConvertDouble(price.volume, eMNullValueType.M_nvUndefined),
-                                    Date = (DateTime)price.day.GetDateTime()
-                                };
-
-                                results.Add(ph);
-                            }
-                        }
-                    }       
+                    return _instrumentService.GetPriceHistory(instrumentId, startDate, endDate);
                 }
-
+                catch (InstrumentNotFoundException e)
+                {
+                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
             });
-
-            if (ex is null)
-                return results;
-            else
-                throw ex;
         }
 
         public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
         {
-            var results = new List<CurvePoint>();
-            Exception ex = null;
+            return _context.Invoke(() => {
 
-            _context.Invoke(() => {
-
-                var currencyCode = CSMCurrency.StringToCurrency(currency);
-
-                if (currencyCode == 0)
+                try
                 {
-                    ex = new CurrencyNotFoundException();
-                    return;
+                    return _curveService.GetCurvePoints(currency, family, reference);
                 }
-
-                var familyCode = CSMYieldCurveFamily.GetYieldCurveFamilyCode(currencyCode, family);
-
-                if(familyCode == 0)
+                catch(CurrencyNotFoundException e)
                 {
-                    ex = new CurveFamilyFoundException();
-                    return;
+                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
                 }
-
-                var curveId = CSMYieldCurve.LookUpYieldCurveId(familyCode, reference);
-
-                if(curveId == 0)
+                catch (CurveFamilyFoundException e)
                 {
-                    ex = new CurveNotFoundException();
-                    return;
+                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
                 }
-
-                using (CSMYieldCurve yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId))
-                using (SSMYieldCurve activeCurve = yieldCurve.GetActiveSSYieldCurve())
+                catch (CurveNotFoundException e)
                 {
-                    for(int i = 0; i < GetPointCount(activeCurve); i++)
-                    {
-                        using (var yieldPoint = GetPointList(activeCurve).GetNthElement(i))
-                        {
-                            var cp = new CurvePoint();
-                            results.Add(cp);
-
-                            double multiplier = 1;
-
-                            if(yieldPoint.fType == 'x')
-                            {
-                                string startDateOffset = yieldPoint.fStartDate > 0 ? $"{yieldPoint.fStartDate}" : "";
-                                cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
-                                multiplier = 0.01d;
-                            }
-                            else
-                            {
-                                string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
-                                cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
-                            }
-                            
-                            cp.PointType = yieldPoint.IsPointOfType(eMTypeSegment.M_etsFutureFRA) ? "FutureFRA" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsMoneyMarket) ? "Money Market" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsSwap) ? "Swap" : "Unknown";
-                            cp.Rate = yieldPoint.fYield * multiplier;
-                            cp.IsEnabled = yieldPoint.fInfoPtr.fIsUsed;
-                            cp.RateCode = yieldPoint.fInfoPtr.fRateCode.ToString();
-                        }
-                    }
+                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
                 }
             });
-
-            if (ex is null)
-                return results;
-            else
-                throw ex;
-        }
-
-        private int GetPointCount(SSMYieldCurve curve)
-        {
-#if V72
-            return curve.fPoints.fPointCount;
-#else
-            return curve.fPointCount;
-#endif
-        }
-
-        private SSMYieldPoint GetPointList(SSMYieldCurve curve)
-        {
-#if V72
-            return curve.fPoints.fPointList;
-#else
-            return curve.fPointList;
-#endif
-        }
-
-        private void GetPositionsUI(int folioId, PositionsToRequest positions, List<int> results)
-        {
-            using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
-            {
-                GetPositionsFromPortfolio(portfolio, positions, results);
-
-                var allChildren = new ArrayList();
-                portfolio.GetChildren(allChildren);
-
-                for(var i = 0; i < allChildren.Count; i++)
-                {
-                    var current = allChildren[i] as CSMPortfolio;
-
-                    if(current is object)
-                    {
-                        GetPositionsFromPortfolio(current, positions, results);
-                    }
-                }
-            }
-        }
-
-        private void GetPositionsFromPortfolio(CSMPortfolio portfolio, PositionsToRequest positions, List<int> results)
-        {
-            int positionCount = portfolio.GetTreeViewPositionCount();
-            for (int i = 0; i < positionCount; i++)
-            {
-                using (var position = portfolio.GetNthTreeViewPosition(i))
-                {
-                    if (position.GetIdentifier() > 0) //Exclude Virtual FX positions
-                    {
-                        switch (positions)
-                        {
-                            case PositionsToRequest.All:
-                                results.Add(position.GetIdentifier());
-                                break;
-
-                            case PositionsToRequest.Open:
-                                if (position.GetInstrumentCount() != 0)
-                                {
-                                    results.Add(position.GetIdentifier());
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
         }
 
         public void SubscribeToPortfolio(int portfolioId, string column)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _portfolioCellSubscriptions.Add(portfolioId, column);
+                try
+                {
+                    _portfolioCellSubscriptions.Add(portfolioId, column);
 
-                var da = new DataAvailableEventArgs();
-                da.PortfolioValues.Add((portfolioId, column), _portfolioCellSubscriptions.Get(portfolioId, column).GetValue());
+                    var da = new DataAvailableEventArgs();
+                    da.PortfolioValues.Add((portfolioId, column), _portfolioCellSubscriptions.Get(portfolioId, column).GetValue());
 
-                DataAvailable?.Invoke(this, da);
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch(Exception ex)
+                {
+                    CSMLog.Write(_className, "SubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
+
+            op.Wait();
         }
 
         public void SubscribeToPosition(int positionId, string column)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _positionCellSubscriptions.Add(positionId, column);
+                try
+                {
+                    _positionCellSubscriptions.Add(positionId, column);
 
-                var da = new DataAvailableEventArgs();
-                da.PositionValues.Add((positionId, column), _positionCellSubscriptions.Get(positionId, column).GetValue());
+                    var da = new DataAvailableEventArgs();
+                    da.PositionValues.Add((positionId, column), _positionCellSubscriptions.Get(positionId, column).GetValue());
 
-                DataAvailable?.Invoke(this, da);
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "SubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
+
+            op.Wait();
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _systemValueSubscriptions.Add(property, GetSystemValueProperty(property));
+                try
+                {
+                    _systemValueSubscriptions.Add(property, GetSystemValueProperty(property));
 
-                var da = new DataAvailableEventArgs();
-                da.SystemValues.Add(property, _systemValueSubscriptions[property].GetValue());
+                    var da = new DataAvailableEventArgs();
+                    da.SystemValues.Add(property, _systemValueSubscriptions[property].GetValue());
 
-                DataAvailable?.Invoke(this, da);
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "SubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
+
+            op.Wait();
         }
 
         public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _portfolioPropertySubscriptions.Add(portfolioId, property);
+                try
+                {
+                    _portfolioPropertySubscriptions.Add(portfolioId, property);
 
-                var da = new DataAvailableEventArgs();
-                da.PortfolioProperties.Add((portfolioId, property), _portfolioPropertySubscriptions.Get(portfolioId, property).GetValue());
+                    var da = new DataAvailableEventArgs();
+                    da.PortfolioProperties.Add((portfolioId, property), _portfolioPropertySubscriptions.Get(portfolioId, property).GetValue());
 
-                DataAvailable?.Invoke(this, da);
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "SubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
+
+            op.Wait();            
         }
 
-        public void UnsubscribeToPortfolio(int portfolioId, string column)
+        public void UnsubscribeFromPortfolio(int portfolioId, string column)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _portfolioCellSubscriptions.Remove(portfolioId, column);
-
+                try
+                {
+                    _portfolioCellSubscriptions.Remove(portfolioId, column);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "UnsubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
+                
             }, DispatcherPriority.ApplicationIdle);
+
+            op.Wait();
         }
 
-        public void UnsubscribeToPosition(int positionId, string column)
+        public void UnsubscribeFromPosition(int positionId, string column)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _positionCellSubscriptions.Remove(positionId, column);
-
+                try
+                {
+                    _positionCellSubscriptions.Remove(positionId, column);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "UnsubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
+                
             }, DispatcherPriority.ApplicationIdle);
+
+            op.Wait();
         }
 
-        public void UnsubscribeToSystemValue(SystemProperty property)
+        public void UnsubscribeFromSystemValue(SystemProperty property)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _systemValueSubscriptions.Remove(property);
-
+                try
+                {
+                    _systemValueSubscriptions.Remove(property);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "UnsubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
+                
             }, DispatcherPriority.ApplicationIdle);
+
+            op.Wait();
         }
 
-        public void UnsubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
+        public void UnsubscribeFromPortfolioProperty(int portfolioId, PortfolioProperty property)
         {
-            _context.InvokeAsync(() => {
+            var op = _context.InvokeAsync(() => {
 
-                _portfolioPropertySubscriptions.Remove(portfolioId, property);
+                try
+                {
+                    _portfolioPropertySubscriptions.Remove(portfolioId, property);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "UnsubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    throw;
+                }
 
             }, DispatcherPriority.ApplicationIdle);
+
+            op.Wait();
         }
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
@@ -409,7 +368,14 @@ namespace RxdSolutions.FusionLink
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
 
-                        ComputePortfolios(e.FolioId);
+                        try
+                        {
+                            ComputePortfolios(e.FolioId);
+                        }
+                        catch(Exception ex)
+                        {
+                            CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                        }
 
                         break;
 
@@ -426,11 +392,18 @@ namespace RxdSolutions.FusionLink
                             case eMAutomaticComputingType.M_acPortfolioOnlyPNL:
                             case eMAutomaticComputingType.M_acFolio:
 
-                                var id = e.Extraction.GetInternalID();
-
-                                if (id == 1)
+                                try
                                 {
-                                    _dataRefreshRequests++;
+                                    var id = e.Extraction.GetInternalID();
+
+                                    if (id == 1)
+                                    {
+                                        _dataRefreshRequests++;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
                                 }
 
                                 break;
@@ -444,7 +417,14 @@ namespace RxdSolutions.FusionLink
                         
                 }
 
-                RefreshData();
+                try
+                {
+                    RefreshData();
+                }
+                catch(Exception ex)
+                {
+                    CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
             }
         }
 
@@ -560,11 +540,25 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioListener_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
         {
-            if (e.IsLocal)
+            try
             {
-                //There must be a Sophis API call which does the same work without the risk of deadlock.
-                var yield = Dispatcher.Yield();
-                yield.GetAwaiter().OnCompleted(() =>
+                if (e.IsLocal)
+                {
+                    //There must be a Sophis API call which does the same work without the risk of deadlock.
+                    var yield = Dispatcher.Yield();
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        var args = new DataAvailableEventArgs();
+
+                        foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                        {
+                            args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                        }
+
+                        DataAvailable?.Invoke(this, args);
+                    });
+                }
+                else
                 {
                     var args = new DataAvailableEventArgs();
 
@@ -574,18 +568,11 @@ namespace RxdSolutions.FusionLink
                     }
 
                     DataAvailable?.Invoke(this, args);
-                });
-            }
-            else
-            {
-                var args = new DataAvailableEventArgs();
-
-                foreach (var value in _portfolioPropertySubscriptions.GetCells())
-                {
-                    args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
                 }
-
-                DataAvailable?.Invoke(this, args);
+            }
+            catch(Exception ex)
+            {
+                CSMLog.Write(_className, "PortfolioListener_PortfolioChanged", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -605,39 +592,55 @@ namespace RxdSolutions.FusionLink
 
         public void RequestCalculate()
         {
+            //We don't want to wait for a response for this one to stop freezing the calling app or timing out the connection
             _context.InvokeAsync(() => {
 
-                ComputePortfolios(-1);
+                try
+                {
+                    ComputePortfolios(-1);
 
-                RefreshData();
+                    RefreshData();
+                }
+                catch(Exception ex)
+                {
+                    CSMLog.Write(_className, "RequestCalculate", CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
 
             }, DispatcherPriority.ApplicationIdle);
         }
 
         public void LoadPositions()
         {
+            //We don't want to wait for a response for this one to stop freezing the calling app or timing out the connection
             _context.InvokeAsync(() => {
 
-                var portfolios = new Dictionary<int, CSMPortfolio>();
-                foreach(var portfolioSubscription in _portfolioCellSubscriptions.GetCells())
+                try
                 {
-                    portfolios[portfolioSubscription.FolioId] = portfolioSubscription.Portfolio;
-                }
-
-                foreach(var portfolio in portfolios.Values)
-                {
-                    if(portfolio is object)
+                    var portfolios = new Dictionary<int, CSMPortfolio>();
+                    foreach (var portfolioSubscription in _portfolioCellSubscriptions.GetCells())
                     {
-                        if (!portfolio.IsLoaded())
+                        portfolios[portfolioSubscription.FolioId] = portfolioSubscription.Portfolio;
+                    }
+
+                    foreach (var portfolio in portfolios.Values)
+                    {
+                        if (portfolio is object)
                         {
-                            portfolio.Load();
+                            if (!portfolio.IsLoaded())
+                            {
+                                portfolio.Load();
+                            }
                         }
                     }
+
+                    RequestCalculate();
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "LoadPositions", CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.ApplicationIdle);
-
-            RequestCalculate();
         }
     }
 }

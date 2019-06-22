@@ -7,65 +7,82 @@ using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.Interface
 {
-    [ServiceContract(CallbackContract = typeof(IDataServiceClient))]
+    [ServiceContract(CallbackContract = typeof(IDataServiceClient), Namespace = "http://schemas.rxdsolutions.co.uk/fusionlink")]
     public interface IDataServiceServer
     {
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void Register();
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void Unregister();
 
         [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         ServiceStatus GetServiceStatus();
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SubscribeToPositionValue(int positionId, string column);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SubscribeToPortfolioValue(int folioId, string column);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SubscribeToSystemValue(SystemProperty systemValue);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
 
-        [OperationContract(IsOneWay = true)]
-        void UnsubscribeToPositionValue(int positionId, string column);
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
+        void UnsubscribeFromPositionValue(int positionId, string column);
 
-        [OperationContract(IsOneWay = true)]
-        void UnsubscribeToPortfolioValue(int folioId, string column);
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
+        void UnsubscribeFromPortfolioValue(int folioId, string column);
 
-        [OperationContract(IsOneWay = true)]
-        void UnsubscribeToSystemValue(SystemProperty systemValue);
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
+        void UnsubscribeFromSystemValue(SystemProperty systemValue);
 
-        [OperationContract(IsOneWay = true)]
-        void UnsubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
+        [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
+        void UnsubscribeFromPortfolioProperty(int folioId, PortfolioProperty property);
 
         [OperationContract]
         [FaultContract(typeof(PortfolioNotLoadedFaultContract))]
         [FaultContract(typeof(PortfolioNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
         List<int> GetPositions(int folioId, PositionsToRequest position);
 
         [OperationContract(Name = "GetPriceHistoryById")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
         List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
 
         [OperationContract(Name = "GetPriceHistoryByReference")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
         List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
 
         [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void RequestCalculate();
 
         [OperationContract]
+        [FaultContract(typeof(ErrorFaultContract))]
         void LoadPositions();
 
         [OperationContract(Name = "GetCurvePointsByReference")]
         [FaultContract(typeof(CurrencyNotFoundFaultContract))]
         [FaultContract(typeof(CurveFamilyNotFoundFaultContract))]
         [FaultContract(typeof(CurveNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
         List<CurvePoint> GetCurvePoints(string curency, string family, string reference);
     }
 }
