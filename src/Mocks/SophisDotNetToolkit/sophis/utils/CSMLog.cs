@@ -7,7 +7,8 @@ namespace sophis.utils
     {
         public enum eMVerbosity
         {
-            M_error
+            M_error,
+            M_verbose
         }
 
         public static void Write(string __class, string __method, eMVerbosity verb, string msg)
