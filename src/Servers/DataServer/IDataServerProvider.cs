@@ -29,13 +29,13 @@ namespace RxdSolutions.FusionLink
 
         void SubscribeToPortfolioProperty(int id, PortfolioProperty property);
 
-        void UnsubscribeToPortfolio(int portfolioId, string column);
+        void UnsubscribeFromPortfolio(int portfolioId, string column);
 
-        void UnsubscribeToPosition(int positionId, string column);
+        void UnsubscribeFromPosition(int positionId, string column);
 
-        void UnsubscribeToSystemValue(SystemProperty property);
+        void UnsubscribeFromSystemValue(SystemProperty property);
 
-        void UnsubscribeToPortfolioProperty(int id, PortfolioProperty property);
+        void UnsubscribeFromPortfolioProperty(int id, PortfolioProperty property);
 
         List<int> GetPositions(int folioId, PositionsToRequest positions);
 

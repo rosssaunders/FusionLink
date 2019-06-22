@@ -26,12 +26,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public IDisposable Subscribe(IExcelObserver observer)
         {
             _observer = observer;
-
-            _rtdClient.SubscribeToPortfolioProperty(PortfolioId, Property);
-
             _rtdClient.OnPortfolioPropertyReceived += OnPortfolioPropertySent;
 
-            _observer.OnNext(ExcelEmpty.Value);
+            try
+            {
+                _observer.OnNext(ExcelEmpty.Value);
+                _rtdClient.SubscribeToPortfolioProperty(PortfolioId, Property);
+            }
+            catch(Exception ex)
+            {
+                _observer.OnNext(ex.Message);
+            }
 
             return new ActionDisposable(CleanUp);
         }
@@ -49,9 +54,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         void CleanUp()
         {
-            _rtdClient.UnsubscribeToPortfolioProperty(PortfolioId, Property);
-
             _rtdClient.OnPortfolioPropertyReceived -= OnPortfolioPropertySent;
+
+            try
+            {
+                _rtdClient.UnsubscribeToPortfolioProperty(PortfolioId, Property);
+            }
+            catch(Exception)
+            {
+                //Sink... not much we can do here.
+            }
         }
     }
 }

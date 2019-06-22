@@ -26,11 +26,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             _observer = observer;
 
-            _rtdClient.SubscribeToPositionValue(PositionId, Column);
-
             _rtdClient.OnPositionValueReceived += OnDataReceived;
 
-            _observer.OnNext(ExcelEmpty.Value);
+            try
+            {
+                _observer.OnNext(ExcelEmpty.Value);
+                _rtdClient.SubscribeToPositionValue(PositionId, Column);
+            }
+            catch(Exception ex)
+            {
+                _observer.OnNext(ex.Message);
+            }
 
             return new ActionDisposable(CleanUp);
         }
@@ -43,14 +49,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     _observer.OnNext(ExcelEmpty.Value);
                 else
                     _observer.OnNext(args.Value);
-            }   
+            }
         }
 
         void CleanUp()
         {
-            _rtdClient.UnsubscribeToPositionValue(PositionId, Column);
-
             _rtdClient.OnPositionValueReceived -= OnDataReceived;
+
+            try
+            {
+                _rtdClient.UnsubscribeToPositionValue(PositionId, Column);
+            }
+            catch(Exception)
+            {
+                //sink... not much we can do
+            }
         }
     }
 }

@@ -10,22 +10,28 @@ namespace RxdSolutions.FusionLink.Interface
     [ServiceContract]
     public interface IDataServiceClient
     {
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SendServiceStaus(ServiceStatus status);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SendPositionValue(int positionId, string column, object value);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SendPortfolioValue(int portfolioId, string column, object value);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SendPortfolioProperty(int id, PortfolioProperty property, object value);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void SendSystemValue(SystemProperty property, object value);
 
-        [OperationContract(IsOneWay = true)]
+        [OperationContract(IsOneWay = false)]
+        [FaultContract(typeof(ErrorFaultContract))]
         void Heartbeat();
     }
 }

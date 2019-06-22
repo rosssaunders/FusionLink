@@ -6,9 +6,9 @@ using System.Runtime.Serialization;
 namespace RxdSolutions.FusionLink.Interface
 {
     [DataContract]
-    public class CurveFamilyNotFoundFaultContract
+    public class ErrorFaultContract
     {
         [DataMember]
-        public string CurveFamily { get; set; }
+        public string Message { get; set;  }
     }
 }

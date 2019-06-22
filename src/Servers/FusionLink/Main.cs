@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using RxdSolutions.FusionLink.Properties;
+using RxdSolutions.FusionLink.Services;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
@@ -30,10 +31,14 @@ namespace RxdSolutions.FusionLink
 
         public static CaptionBar CaptionBar;
 
+        public Dispatcher _context;
+
         public void EntryPoint()
         {
             if (UserRight.CanOpen())
             {
+                _context = Dispatcher.CurrentDispatcher;
+
                 LoadConfig();
 
                 RegisterListeners();
@@ -151,7 +156,11 @@ namespace RxdSolutions.FusionLink
         private Task RegisterServer()
         {
             var aggregateListener = new AggregateListener(_portfolioActionListener, _portfolioEventListener);
-            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions, aggregateListener);
+            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions, 
+                                                                    aggregateListener,
+                                                                    new PositionService(),
+                                                                    new InstrumentService(),
+                                                                    new CurveService());
 
             CreateDataServerFromConfig(dataServiceProvider);
 
@@ -160,11 +169,12 @@ namespace RxdSolutions.FusionLink
                 try
                 {
                     _host = DataServerHostFactory.Create(_dataServer);
+                    _host.Faulted += Host_Faulted;
                 }
                 catch (AddressAlreadyInUseException)
                 {
                     //Another Sophis has already assumed the role of server. Sink the exception.
-                    CSMLog.Write("Main", "EntryPoint", CSMLog.eMVerbosity.M_error, "Another instance is already listening and acting as the RTD Server");
+                    CSMLog.Write("Main", "EntryPoint", CSMLog.eMVerbosity.M_error, "Another instance is already listening and acting as the FusionLink Server");
 
                     _host = null;
                 }
@@ -179,9 +189,14 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        private void Host_Faulted(object sender, EventArgs e)
+        {
+            CSMLog.Write("Main", "Host_Faulted", CSMLog.eMVerbosity.M_error, "The FusionInvest host has faulted.");
+        }
+
         private void OnSubscriptionChanged(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.Invoke(() => {
+            _context.InvokeAsync(() => {
 
                 UpdateCaption();
 
@@ -212,19 +227,16 @@ namespace RxdSolutions.FusionLink
             string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
 
-            //Clients
-            int clientCount = _dataServer.Clients.Count;
-
-            if (clientCount > 0)
+            if (_dataServer.ClientCount > 0)
             {
                 string clientsConnectedCaption = "";
-                if (clientCount == 1)
+                if (_dataServer.ClientCount == 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, clientCount);
+                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, _dataServer.ClientCount);
                 }
-                else if (clientCount > 1)
+                else if (_dataServer.ClientCount > 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, clientCount);
+                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, _dataServer.ClientCount);
                 }
 
                 caption.Append(" / ");
@@ -243,11 +255,11 @@ namespace RxdSolutions.FusionLink
 
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
-            Dispatcher.CurrentDispatcher.Invoke(() => 
+            _context.InvokeAsync(() => 
             {
                 UpdateCaption();
 
-            });
+            }, DispatcherPriority.ApplicationIdle);
         }
     }
 }
