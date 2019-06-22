@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 //  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
 
+using System;
 using System.Runtime.ExceptionServices;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
@@ -22,26 +23,33 @@ namespace RxdSolutions.FusionLink
         [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
-            if (Portfolio is null)
+            try
             {
-                return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
-            }
+                if (Portfolio is null)
+                {
+                    return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
+                }
 
-            if (!Portfolio.IsLoaded())
+                if (!Portfolio.IsLoaded())
+                {
+                    return string.Format(Resources.PortfolioNotLoadedMessage, FolioId);
+                }
+
+                if (Column is null)
+                {
+                    return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
+                }
+
+                Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), sophis.globals.CSMExtraction.gMain(), ref CellValue, CellStyle, false);
+
+                var value = CellValue.ExtractValueFromSophisCell(CellStyle);
+
+                return value;
+            }
+            catch(Exception ex)
             {
-                return string.Format(Resources.PortfolioNotLoadedMessage, FolioId);
+                return ex.Message;
             }
-
-            if (Column is null)
-            {
-                return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
-            }
-
-            Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), sophis.globals.CSMExtraction.gMain(), ref CellValue, CellStyle, false);
-
-            var value = CellValue.ExtractValueFromSophisCell(CellStyle);
-
-            return value;
         }
 
         private bool disposedValue = false;

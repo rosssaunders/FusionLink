@@ -34,7 +34,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public bool IsSearchingForEndPoints { get; private set; }
 
-        public IReadOnlyList<EndpointAddress> AvailableEndpoints => _availableEndpoints;
+        public IReadOnlyList<EndpointAddress> AvailableEndpoints
+        {
+            get
+            {
+                lock(_availableEndpoints)
+                {
+                    return _availableEndpoints.ToList();
+                }
+            }
+        }
 
         public bool IsConnected { get; private set; }
 
@@ -80,13 +89,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 AvailableEndpointsChanged?.Invoke(this, new EventArgs());
 
                 var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)) { Duration = TimeSpan.FromSeconds(2) });
+                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)) { Duration = TimeSpan.FromSeconds(3) });
 
                 foreach (var endPoints in findResponse.Endpoints)
                 {
                     var found = false;
 
-                    foreach (var knownEndpoint in _availableEndpoints)
+                    foreach (var knownEndpoint in AvailableEndpoints)
                     {
                         if (knownEndpoint.Uri == endPoints.Address.Uri)
                         {
@@ -105,7 +114,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     }
                 }
 
-                foreach (var knownEndpoint in _availableEndpoints.ToList())
+                foreach (var knownEndpoint in AvailableEndpoints)
                 {
                     var found = false;
                     foreach (var endPoints in findResponse.Endpoints)
@@ -150,64 +159,72 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     {
                         foreach(var client in _clients)
                         {
-                            if (_closedStates.Contains(client.State))
+                            if (!_closedStates.Contains(client.State))
                             {
-                                try
-                                {
-                                    //Check if we think we are connected by the connection state is broken
-                                    if(IsConnected)
-                                    {
-                                        client.Close();
+                                continue;
+                            }
 
+                            try
+                            {
+                                //Check if we think we are connected by the connection state is broken
+                                if(IsConnected)
+                                {
+                                    client.Close();
+
+                                    IsConnected = false;
+                                }
+
+                                if(AvailableEndpoints.Count == 0)
+                                {
+                                    continue;
+                                }
+
+                                if (_connection == null)
+                                {
+                                    _connection = AvailableEndpoints.FirstOrDefault()?.Uri;
+                                }
+
+                                var connectionToAttempt = FindEndpoint(_connection);
+
+                                if (connectionToAttempt is null)
+                                {
+                                    //The connection doesn't exist.
+                                    _connection = null;
+                                }
+
+                                if (connectionToAttempt is object)
+                                {
+                                    try
+                                    {
+                                        client.Open(connectionToAttempt);
+
+                                        IsConnected = true;
+                                    }
+                                    catch (TimeoutException)
+                                    {
+                                        //Ignore and try again on the next pass
                                         IsConnected = false;
                                     }
-
-                                    if (_availableEndpoints.Count > 0)
+                                    catch (CommunicationException ex)
                                     {
-                                        if (_connection == null)
+                                        //Looks like the server is dead. Remove from the available list.
+                                        lock (_availableEndpoints)
                                         {
-                                            _connection = _availableEndpoints.FirstOrDefault()?.Uri;
+                                            _availableEndpoints.Remove(connectionToAttempt);
                                         }
 
-                                        var connectionToAttempt = FindEndpoint(_connection);
-
-                                        if (connectionToAttempt is null)
-                                        {
-                                            //The connection doesn't exist.
-                                            _connection = null;
-                                        }
-
-                                        if (connectionToAttempt is object)
-                                        {
-                                            try
-                                            {
-                                                client.Open(connectionToAttempt);
-
-                                                IsConnected = true;
-                                            }
-                                            catch(TimeoutException)
-                                            {
-                                                //Ignore and try again on the next pass
-                                                IsConnected = false;
-                                            }
-                                            catch(CommunicationException)
-                                            {
-                                                //Looks like the server is dead. Remove from the available list.
-                                                _availableEndpoints.Remove(connectionToAttempt);
-                                                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                                                IsConnected = false;
-                                            }
-                                            catch(Exception)
-                                            {
-                                                IsConnected = false;
-                                            }
-                                        }
+                                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                                        IsConnected = false;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        IsConnected = false;
                                     }
                                 }
-                                catch
-                                {
-                                    //Sink
-                                }
+                            }
+                            catch
+                            {
+                                //Sink
                             }
                         }
 
