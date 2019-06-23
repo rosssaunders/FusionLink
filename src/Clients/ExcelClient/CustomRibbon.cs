@@ -61,7 +61,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public static void Refresh()
         {
-            _ribbonUi?.Invalidate();
+            try
+            {
+                _ribbonUi?.Invalidate();
+            }
+            catch
+            {
+                //Sink
+            }
         }
 
         public override string GetCustomUI(string ribbonId)
@@ -201,7 +208,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if(_connectionMonitor.AvailableEndpoints.Count == 0)
                 {
-                    ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
+                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
                 }
                 else
                 {
@@ -213,13 +220,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
             });
         }
 
-
         public void OnCalculate(IRibbonControl control)
         {
             if(_connectionMonitor.IsConnected)
             {
                 _client.RequestCalculate();
-                ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 5);
+                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 3);
             }
         }
 
@@ -228,7 +234,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (_connectionMonitor.IsConnected)
             {
                 _client.LoadPositions();
-                ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 5);
+                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 3);
             }
         }
 

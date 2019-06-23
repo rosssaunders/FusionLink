@@ -25,6 +25,11 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
+                if(Error is object)
+                {
+                    return Error.Message;
+                }
+
                 if (Portfolio is null)
                 {
                     return string.Format(Resources.PortfolioNotFoundMessage, FolioId);

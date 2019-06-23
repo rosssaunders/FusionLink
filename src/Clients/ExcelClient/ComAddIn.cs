@@ -24,6 +24,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public override void OnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom)
         {
+            AddIn.IsShuttingDown = true;
+
             client.Close();
             client.Dispose();
 

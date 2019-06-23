@@ -16,6 +16,8 @@ namespace RxdSolutions.FusionLink
 
         public string ColumnName { get; }
 
+        public Exception Error { get; set; }
+
         protected CellValueBase(string columnName)
         {
             ColumnName = columnName;

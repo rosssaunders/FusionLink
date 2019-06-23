@@ -185,96 +185,98 @@ namespace RxdSolutions.FusionLink
         {
             var op = _context.InvokeAsync(() => {
 
+                _portfolioCellSubscriptions.Add(portfolioId, column);
+                var dp = _portfolioCellSubscriptions.Get(portfolioId, column);
+
                 try
                 {
-                    _portfolioCellSubscriptions.Add(portfolioId, column);
-
                     var da = new DataAvailableEventArgs();
-                    da.PortfolioValues.Add((portfolioId, column), _portfolioCellSubscriptions.Get(portfolioId, column).GetValue());
+                    da.PortfolioValues.Add((portfolioId, column), dp.GetValue());
 
                     DataAvailable?.Invoke(this, da);
+
+                    dp.Error = null;
                 }
                 catch(Exception ex)
                 {
+                    dp.Error = ex;
+
                     CSMLog.Write(_className, "SubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
 
             }, DispatcherPriority.Normal);
-
-            op.Wait();
         }
 
         public void SubscribeToPosition(int positionId, string column)
         {
             var op = _context.InvokeAsync(() => {
 
+                _positionCellSubscriptions.Add(positionId, column);
+                var dp = _positionCellSubscriptions.Get(positionId, column);
+
                 try
                 {
-                    _positionCellSubscriptions.Add(positionId, column);
-
                     var da = new DataAvailableEventArgs();
-                    da.PositionValues.Add((positionId, column), _positionCellSubscriptions.Get(positionId, column).GetValue());
+                    da.PositionValues.Add((positionId, column), dp.GetValue());
 
                     DataAvailable?.Invoke(this, da);
+
+                    dp.Error = null;
                 }
                 catch (Exception ex)
                 {
+                    dp.Error = ex;
+
                     CSMLog.Write(_className, "SubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
 
             }, DispatcherPriority.Normal);
-
-            op.Wait();
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
             var op = _context.InvokeAsync(() => {
 
+                _systemValueSubscriptions.Add(property, GetSystemValueProperty(property));
+                var dp = _systemValueSubscriptions[property];
+
                 try
                 {
-                    _systemValueSubscriptions.Add(property, GetSystemValueProperty(property));
-
                     var da = new DataAvailableEventArgs();
-                    da.SystemValues.Add(property, _systemValueSubscriptions[property].GetValue());
+                    da.SystemValues.Add(property, dp.GetValue());
 
                     DataAvailable?.Invoke(this, da);
                 }
                 catch (Exception ex)
                 {
+                    dp.Error = ex;
                     CSMLog.Write(_className, "SubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
 
             }, DispatcherPriority.Normal);
-
-            op.Wait();
         }
 
         public void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property)
         {
             var op = _context.InvokeAsync(() => {
 
+                _portfolioPropertySubscriptions.Add(portfolioId, property);
+                var dp = _portfolioPropertySubscriptions.Get(portfolioId, property);
+
                 try
                 {
-                    _portfolioPropertySubscriptions.Add(portfolioId, property);
-
                     var da = new DataAvailableEventArgs();
-                    da.PortfolioProperties.Add((portfolioId, property), _portfolioPropertySubscriptions.Get(portfolioId, property).GetValue());
+                    da.PortfolioProperties.Add((portfolioId, property), dp.GetValue());
 
                     DataAvailable?.Invoke(this, da);
                 }
                 catch (Exception ex)
                 {
+                    dp.Error = ex;
                     CSMLog.Write(_className, "SubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
 
             }, DispatcherPriority.Normal);
-
-            op.Wait();            
         }
 
         public void UnsubscribeFromPortfolio(int portfolioId, string column)
@@ -288,12 +290,9 @@ namespace RxdSolutions.FusionLink
                 catch (Exception ex)
                 {
                     CSMLog.Write(_className, "UnsubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
                 
             }, DispatcherPriority.ApplicationIdle);
-
-            op.Wait();
         }
 
         public void UnsubscribeFromPosition(int positionId, string column)
@@ -307,12 +306,9 @@ namespace RxdSolutions.FusionLink
                 catch (Exception ex)
                 {
                     CSMLog.Write(_className, "UnsubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
                 
             }, DispatcherPriority.ApplicationIdle);
-
-            op.Wait();
         }
 
         public void UnsubscribeFromSystemValue(SystemProperty property)
@@ -326,12 +322,9 @@ namespace RxdSolutions.FusionLink
                 catch (Exception ex)
                 {
                     CSMLog.Write(_className, "UnsubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
                 
             }, DispatcherPriority.ApplicationIdle);
-
-            op.Wait();
         }
 
         public void UnsubscribeFromPortfolioProperty(int portfolioId, PortfolioProperty property)
@@ -345,12 +338,9 @@ namespace RxdSolutions.FusionLink
                 catch (Exception ex)
                 {
                     CSMLog.Write(_className, "UnsubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
-                    throw;
                 }
 
             }, DispatcherPriority.ApplicationIdle);
-
-            op.Wait();
         }
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)

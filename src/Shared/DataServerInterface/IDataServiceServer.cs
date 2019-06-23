@@ -22,36 +22,28 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(ErrorFaultContract))]
         ServiceStatus GetServiceStatus();
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void SubscribeToPositionValue(int positionId, string column);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void SubscribeToPortfolioValue(int folioId, string column);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void SubscribeToSystemValue(SystemProperty systemValue);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPositionValue(int positionId, string column);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPortfolioValue(int folioId, string column);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void UnsubscribeFromSystemValue(SystemProperty systemValue);
 
-        [OperationContract]
-        [FaultContract(typeof(ErrorFaultContract))]
+        [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPortfolioProperty(int folioId, PortfolioProperty property);
 
         [OperationContract]

@@ -18,6 +18,8 @@ namespace RxdSolutions.FusionLink
 
         public PortfolioProperty Property { get; }
 
+        public Exception Error { get; set; }
+
         public PortfolioPropertyValue(int folioId, PortfolioProperty property)
         {
             FolioId = folioId;
@@ -30,6 +32,11 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
+                if (Error is object)
+                {
+                    return Error.Message;
+                }
+
                 if (Portfolio is null)
                 {
                     return string.Format(Resources.PortfolioNotFoundMessage, FolioId);
