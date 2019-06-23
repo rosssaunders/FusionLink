@@ -73,6 +73,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public Task FindAvailableServicesAsync()
         {
+            IsSearchingForEndPoints = true;
+
             return Task.Run(() => {
 
                 FindAvailableServices();
@@ -169,9 +171,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                 //Check if we think we are connected by the connection state is broken
                                 if(IsConnected)
                                 {
-                                    client.Close();
-
                                     IsConnected = false;
+
+                                    client.Close();
                                 }
 
                                 if(AvailableEndpoints.Count == 0)
@@ -188,6 +190,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                                 if (connectionToAttempt is null)
                                 {
+                                    IsConnected = false;
+
                                     //The connection doesn't exist.
                                     _connection = null;
                                 }
@@ -207,6 +211,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                     }
                                     catch (CommunicationException ex)
                                     {
+                                        IsConnected = false;
+
                                         //Looks like the server is dead. Remove from the available list.
                                         lock (_availableEndpoints)
                                         {
@@ -214,7 +220,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                         }
 
                                         AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                                        IsConnected = false;
                                     }
                                     catch (Exception)
                                     {
@@ -224,7 +229,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                             }
                             catch
                             {
-                                //Sink
+                                IsConnected = false;
                             }
                         }
 

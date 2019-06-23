@@ -61,6 +61,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A F9 calculation has been requested.
+        /// </summary>
+        internal static string ComputeRequestedMessage {
+            get {
+                return ResourceManager.GetString("ComputeRequestedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested curve could not be found.
         /// </summary>
         internal static string CurveNotFoundMessage {
@@ -93,6 +102,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         internal static string InstrumentNotFoundMessage {
             get {
                 return ResourceManager.GetString("InstrumentNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A F8 has been requested.
+        /// </summary>
+        internal static string LoadPortfoliosRequestedMessage {
+            get {
+                return ResourceManager.GetString("LoadPortfoliosRequestedMessage", resourceCulture);
             }
         }
         

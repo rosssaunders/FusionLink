@@ -35,10 +35,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             ConnectionMonitor.RegisterClient(Client);
             ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
 
+            app.StatusBar = Resources.SearchingForServersMessage;
+
             //Start the monitor
             ConnectionMonitor.FindAvailableServicesAsync().ContinueWith(result =>
             {
                 ConnectionMonitor.Start();
+
+                CustomRibbon.Refresh(); //Inform Excel to refresh the UI
+
+                app.StatusBar = false;
             });
         }
 

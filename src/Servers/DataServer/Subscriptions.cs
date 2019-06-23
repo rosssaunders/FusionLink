@@ -12,7 +12,7 @@ namespace RxdSolutions.FusionLink
 {
     public class Subscriptions<T>
     {
-        private readonly ConcurrentDictionary<T, (ObservableDataPoint<T> dataPoint, HashSet<string> subscribers)> _subscriptions;
+        private readonly ConcurrentDictionary<T, (ObservableDataPoint<T> DataPoint, HashSet<string> Subscribers)> _subscriptions;
 
         public event EventHandler<DataPointChangedEventArgs<T>> OnValueChanged;
 
@@ -40,7 +40,7 @@ namespace RxdSolutions.FusionLink
                 }
             }
 
-            _subscriptions[key].subscribers.Add(subscriber);
+            _subscriptions[key].Subscribers.Add(subscriber);
 
             return Get(key);
         }
@@ -49,12 +49,12 @@ namespace RxdSolutions.FusionLink
         {
             if (_subscriptions.ContainsKey(key))
             {
-                if(_subscriptions[key].subscribers.Contains(subscriber))
+                if(_subscriptions[key].Subscribers.Contains(subscriber))
                 {
-                    _subscriptions[key].subscribers.Remove(subscriber);
+                    _subscriptions[key].Subscribers.Remove(subscriber);
                 }
 
-                if (_subscriptions[key].subscribers.Count == 0)
+                if (_subscriptions[key].Subscribers.Count == 0)
                 {
                     if (_subscriptions.TryRemove(key, out (ObservableDataPoint<T> dp, HashSet<string> subscribers) value))
                     {

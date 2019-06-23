@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
@@ -18,9 +20,48 @@ namespace RxdSolutions.FusionLink.ExcelClient
     public class CustomRibbon : ExcelRibbon
     {
         private XNamespace customUINS = "http://schemas.microsoft.com/office/2006/01/customui";
+        private static IRibbonUI _ribbonUi;
+
+        private ConnectionMonitor _connectionMonitor;
+        private DataServiceClient _client;
+        private Microsoft.Office.Interop.Excel.Application _application;
 
         public CustomRibbon()
         {
+        }
+
+        public void Ribbon_Load(IRibbonUI sender)
+        {
+            _ribbonUi = sender;
+
+            _connectionMonitor = AddIn.ConnectionMonitor;
+            _client = AddIn.Client;
+            _application = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
+
+            _client.OnConnectionStatusChanged += (s,e) => Refresh();
+        }
+
+        public bool OnRefreshEnabled(IRibbonControl control)
+        {
+            return !_connectionMonitor.IsSearchingForEndPoints;
+        }
+
+        public bool OnConnectionsEnabled(IRibbonControl control)
+        {
+            if (_connectionMonitor.IsSearchingForEndPoints)
+                return false;
+
+            return _connectionMonitor.AvailableEndpoints.Count > 0;
+        }
+
+        public bool OnConnectionActionEnabled(IRibbonControl control)
+        {
+            return _connectionMonitor.IsConnected;
+        }
+
+        public static void Refresh()
+        {
+            _ribbonUi?.Invalidate();
         }
 
         public override string GetCustomUI(string ribbonId)
@@ -50,21 +91,31 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public string OnGetContent(IRibbonControl control)
         {
-            if (AddIn.ConnectionMonitor.IsSearchingForEndPoints)
+            if (_connectionMonitor.IsSearchingForEndPoints)
             {
                 return BuildMessage(Resources.SearchingForServersMessage).ToString();
             }
 
-            if(AddIn.ConnectionMonitor.AvailableEndpoints.Count == 0)
+            if(_connectionMonitor.AvailableEndpoints.Count == 0)
             {
                 return BuildMessage(Resources.NoEndPointsAvailableMessage).ToString();
             }
 
             var connections = GetAliveEndPoints().Select(endPoint =>
             {
+                string GetCurrentFlag()
+                {
+                    if(_client.Connection.Uri.Equals(endPoint.Uri))
+                    {
+                        return " (Current)";
+                    }
+
+                    return string.Empty;
+                }
+
                 var item = (Id: endPoint.Process.Id, MenuItem: new XElement(customUINS + "button",
                         new XAttribute("id", $"Process{endPoint.Process.Id}Button"),
-                        new XAttribute("label", ConnectionHelper.GetConnectionName(endPoint.Uri)),
+                        new XAttribute("label", ConnectionHelper.GetConnectionName(endPoint.Uri) + GetCurrentFlag()),
                         new XAttribute("tag", endPoint.Uri.ToString()),
                         new XAttribute("onAction", "OnConnect"),
                         new XAttribute("imageMso", "ServerConnection")));
@@ -84,7 +135,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private IEnumerable<(Uri Uri, Process Process)> GetAliveEndPoints()
         {
-            foreach (var endPoint in AddIn.ConnectionMonitor.AvailableEndpoints)
+            foreach (var endPoint in _connectionMonitor.AvailableEndpoints)
             {
                 var id = ConnectionHelper.GetConnectionId(endPoint.Uri);
 
@@ -135,29 +186,55 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (control.Tag == "0")
                 return;
 
-            AddIn.ConnectionMonitor.SetConnection(new Uri(control.Tag));
+            _connectionMonitor.SetConnection(new Uri(control.Tag));
         }
 
         public void OnRefresh(IRibbonControl control)
         {
-            RefreshAvailableConnections();
+            var task = RefreshAvailableConnections();
+
+            _application.StatusBar = Resources.SearchingForServersMessage;
+
+            Refresh();
+
+            task.ContinueWith(x =>
+            {
+                if(_connectionMonitor.AvailableEndpoints.Count == 0)
+                {
+                    ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
+                }
+                else
+                {
+                    _application.StatusBar = false;
+                }
+
+                Refresh();
+
+            });
         }
+
 
         public void OnCalculate(IRibbonControl control)
         {
-            if(AddIn.Client.State == System.ServiceModel.CommunicationState.Opened)
-                AddIn.Client.RequestCalculate();
+            if(_connectionMonitor.IsConnected)
+            {
+                _client.RequestCalculate();
+                ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 5);
+            }
         }
 
         public void OnLoadPositions(IRibbonControl control)
         {
-            if (AddIn.Client.State == System.ServiceModel.CommunicationState.Opened)
-                AddIn.Client.LoadPositions();
+            if (_connectionMonitor.IsConnected)
+            {
+                _client.LoadPositions();
+                ExcelStatusBarHelper2.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 5);
+            }
         }
 
-        private static void RefreshAvailableConnections()
+        private Task RefreshAvailableConnections()
         {
-            AddIn.ConnectionMonitor.FindAvailableServicesAsync();
+            return _connectionMonitor.FindAvailableServicesAsync();
         }
     }
 }

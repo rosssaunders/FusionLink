@@ -21,7 +21,6 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         private static CSMGlobalFunctions _globalFunctions;
-        private static AfterAllInitializationScenario afterAllInitializationScenario;
         private static PortfolioActionListener _portfolioActionListener;
         private static PortfolioEventListener _portfolioEventListener;
         private static ServiceHost _host;
@@ -45,9 +44,7 @@ namespace RxdSolutions.FusionLink
 
                 RegisterScenarios();
 
-                afterAllInitializationScenario = new AfterAllInitializationScenario();
-                afterAllInitializationScenario.AfterAllInitialization += AfterAllInitialization;
-                CSMScenario.Register("AfterAllInitialization", afterAllInitializationScenario);
+                LoadFusionLink();
             }
         }
 
@@ -63,11 +60,6 @@ namespace RxdSolutions.FusionLink
             {
                 CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
-        }
-
-        private void AfterAllInitialization(object sender, EventArgs e)
-        {
-            LoadFusionLink();
         }
 
         private void LoadFusionLink()
