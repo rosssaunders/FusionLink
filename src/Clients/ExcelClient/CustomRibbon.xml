@@ -1,24 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui"
+          onLoad='Ribbon_Load'>
   <ribbon>
     <tabs>
       <tab id="CustomRibbonTab"
            label="FusionLink">
         <group id="ConnectionGroup"
-               label="Connections">
+               label="Connection">
           <button id="refresh"
-                  label="Refresh"
+                  label="Search for Connections"
                   screentip="Refresh Available Connections"
-                  supertip="Refreshes the list of available FusionLink instances"
+                  supertip="Refreshes the list of available FusionLink instances."
                   size="large"
                   imageMso="Refresh"
+                  getEnabled='OnRefreshEnabled'
                   onAction="OnRefresh" />
           <dynamicMenu id="ConnectionsMenu"
                        label="Change connection"
                        screentip="Change connection"
-                       supertip="Displays a list of available FusionLink instances that can be connected to."
+                       supertip="Displays a list of available FusionLink instances that can be connected to. If none are available this button is disabled."
                        getContent="OnGetContent"
                        invalidateContentOnDrop="true"
+                       getEnabled='OnConnectionsEnabled'
                        size="large"
                        imageMso="DataOptionsMenu" />
         </group>
@@ -30,12 +33,14 @@
                   imageMso="DatabaseMoveToSharePoint"
                   onAction="OnLoadPositions"
                   screentip="Load Portfolios"
+                  getEnabled='OnConnectionActionEnabled'
                   supertip="Causes FusionLink to perform an F8 on the portfolios subscribed to via the GETPORTFOLIOVALUE function.&#13;&#13;See the Wiki for more information." />
           <button id="calculate"
                   label="Calculate"
                   size="large"
                   imageMso="CalculateNow"
                   onAction="OnCalculate"
+                  getEnabled='OnConnectionActionEnabled'
                   screentip="Calculate Portfolios"
                   supertip="Causes FusionLink to perform an F9 on the portfolios subscribed to via the GETPORTFOLIOVALUE and GETPOSITIONVALUE functions.&#13;&#13;Note: This will not trigger a calcution in this workbook when in manual calc mode.&#13;&#13;See the Wiki for more information."  />
         </group>
