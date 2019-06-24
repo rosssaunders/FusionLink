@@ -37,8 +37,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
             ConnectionMonitor.RegisterClient(Client);
             ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
 
-            //app.StatusBar = Resources.SearchingForServersMessage;
-
+            Client.OnConnectionStatusChanged += Client_OnConnectionStatusChanged;
+            
             //Start the monitor
             ConnectionMonitor.FindAvailableServicesAsync().ContinueWith(result =>
             {
@@ -47,10 +47,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                 ConnectionMonitor.Start();
 
-                CustomRibbon.Refresh(); //Inform Excel to refresh the UI
-
-                //ExcelStatusBarHelperAsync.ResetStatusBar();
+                CustomRibbon.Refresh();
             });
+        }
+
+        private void Client_OnConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
+        {
+            CustomRibbon.Refresh();
         }
 
         public void AutoClose()

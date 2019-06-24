@@ -43,32 +43,32 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public void Remove(int folioId, U column)
+        public void Remove(int id, U column)
         {
-            if (_subscriptions.ContainsKey(folioId))
+            if (_subscriptions.ContainsKey(id))
             {
-                var cv = _subscriptions[folioId][column];
+                var cv = _subscriptions[id][column];
                 cv.Dispose();
 
-                _subscriptions[folioId].Remove(column);
+                _subscriptions[id].Remove(column);
             }
         }
 
-        public IEnumerable<T> Get(int folioId)
+        public IEnumerable<T> Get(int id)
         {
-            if (_subscriptions.ContainsKey(folioId))
+            if (_subscriptions.ContainsKey(id))
             {
-                return _subscriptions[folioId].Values;
+                return _subscriptions[id].Values;
             }
 
             return Enumerable.Empty<T>();
         }
 
-        public T Get(int folioId, U property)
+        public T Get(int id, U property)
         {
-            if (_subscriptions.ContainsKey(folioId))
+            if (_subscriptions.ContainsKey(id))
             {
-                return _subscriptions[folioId][property];
+                return _subscriptions[id][property];
             }
 
             return null;

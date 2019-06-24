@@ -292,7 +292,7 @@ namespace RxdSolutions.FusionLink
                     CSMLog.Write(_className, "UnsubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
         }
 
         public void UnsubscribeFromPosition(int positionId, string column)
@@ -308,7 +308,7 @@ namespace RxdSolutions.FusionLink
                     CSMLog.Write(_className, "UnsubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
         }
 
         public void UnsubscribeFromSystemValue(SystemProperty property)
@@ -324,7 +324,7 @@ namespace RxdSolutions.FusionLink
                     CSMLog.Write(_className, "UnsubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
         }
 
         public void UnsubscribeFromPortfolioProperty(int portfolioId, PortfolioProperty property)
@@ -340,7 +340,7 @@ namespace RxdSolutions.FusionLink
                     CSMLog.Write(_className, "UnsubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Normal);
         }
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)

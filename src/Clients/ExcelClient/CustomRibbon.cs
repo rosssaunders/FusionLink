@@ -43,12 +43,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public bool OnRefreshEnabled(IRibbonControl control)
         {
+            if (_client.IsConnecting)
+                return false;
+
             return !_connectionMonitor.IsSearchingForEndPoints;
         }
 
         public bool OnConnectionsEnabled(IRibbonControl control)
         {
             if (_connectionMonitor.IsSearchingForEndPoints)
+                return false;
+
+            if (_client.IsConnecting)
                 return false;
 
             return _connectionMonitor.AvailableEndpoints.Count > 0;
@@ -222,19 +228,33 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void OnCalculate(IRibbonControl control)
         {
-            if(_connectionMonitor.IsConnected)
+            try
             {
-                _client.RequestCalculate();
-                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 3);
+                if (_connectionMonitor.IsConnected)
+                {
+                    _client.RequestCalculate();
+                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 3);
+                }
+            }
+            catch(Exception ex)
+            {
+                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(ex.Message, 5);
             }
         }
 
         public void OnLoadPositions(IRibbonControl control)
         {
-            if (_connectionMonitor.IsConnected)
+            try
             {
-                _client.LoadPositions();
-                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 3);
+                if (_connectionMonitor.IsConnected)
+                {
+                    _client.LoadPositions();
+                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 3);
+                }
+            }
+            catch(Exception ex)
+            {
+                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(ex.Message, 5);
             }
         }
 

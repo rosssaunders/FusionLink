@@ -13,6 +13,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         private IDataServiceServer _server;
         private DataServiceClientCallback _callback;
+        private EndpointAddress _connection;
+
+        private readonly object _connectionLock;
 
         private readonly HashSet<(int Id, string Column)> _positionCellValueSubscriptions;
         private readonly HashSet<(int Id, string Column)> _portfolioCellValueSubscriptions;
@@ -29,6 +32,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public DataServiceClient()
         {
+            _connectionLock = new object();
             _positionCellValueSubscriptions = new HashSet<(int, string)>();
             _portfolioCellValueSubscriptions = new HashSet<(int, string)>();
             _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
@@ -39,10 +43,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             get 
             {
-                if (_server is object)
-                    return ((ICommunicationObject)_server).State;
+                lock (_connectionLock)
+                {
+                    if (_server is object)
+                        return ((ICommunicationObject)_server).State;
 
-                return CommunicationState.Closed;
+                    return CommunicationState.Closed;
+                }
             }
         }
 
@@ -50,120 +57,164 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             get
             {
+                if(_callback == null)
+                {
+                    return DateTime.MinValue;
+                }
+
                 return _callback.LastReceivedMessageTimestamp;
             }
         }
 
-        public EndpointAddress Connection { get; private set; }
+        public EndpointAddress Connection
+        {
+            get
+            {
+                lock(_connectionLock)
+                {
+                    return _connection;
+                }
+            }
+            private set
+            {
+                _connection = value;
+            }
+        }
+
+        public bool IsConnecting { get; private set; }
 
         public void Open(EndpointAddress endpointAddress)
         {
-            var address = endpointAddress;
-           
-            var binding = new NetNamedPipeBinding();
-            binding.MaxReceivedMessageSize = int.MaxValue;
-            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
-            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
+            lock(_connectionLock)
+            {
+                IsConnecting = true;
 
-            _callback = new DataServiceClientCallback();
-            _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
-            _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
-            _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
-            _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
-            _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
+                try
+                {
+                    var address = endpointAddress;
 
-            _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
-            
-            _server.Register();
+                    var binding = new NetNamedPipeBinding();
+                    binding.MaxReceivedMessageSize = int.MaxValue;
+                    binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
+                    binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
 
-            //Subscribe to any topics in case this is a reconnection
-            foreach(var (Id, Column) in _positionCellValueSubscriptions)
-                _server.SubscribeToPositionValue(Id, Column);
+                    _callback = new DataServiceClientCallback();
+                    _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
+                    _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
+                    _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
+                    _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
+                    _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
 
-            foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
-                _server.SubscribeToPortfolioValue(Id, Column);
+                    _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
 
-            foreach (var (Id, Property) in _portfolioPropertySubscriptions)
-                _server.SubscribeToPortfolioProperty(Id, Property);
+                    _server.Register();
 
-            foreach (var ps in _systemSubscriptions)
-                _server.SubscribeToSystemValue(ps);
+                    //Subscribe to any topics in case this is a reconnection
+                    foreach (var (Id, Column) in _positionCellValueSubscriptions)
+                        _server.SubscribeToPositionValue(Id, Column);
 
-            Connection = address;
+                    foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
+                        _server.SubscribeToPortfolioValue(Id, Column);
 
-            OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
+                    foreach (var (Id, Property) in _portfolioPropertySubscriptions)
+                        _server.SubscribeToPortfolioProperty(Id, Property);
+
+                    foreach (var ps in _systemSubscriptions)
+                        _server.SubscribeToSystemValue(ps);
+
+                    Connection = address;
+
+                    OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
+                }
+                finally
+                {
+                    IsConnecting = false;
+                }
+            }
         }
 
         public void Close()
         {
-            if (_callback is object)
+            lock(_connectionLock)
             {
+                IsConnecting = true;
+
                 try
                 {
-                    _callback.OnSystemValueReceived -= CallBack_OnSystemValueReceived;
-                    _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
-                    _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
-                    _callback.OnPortfolioPropertyReceived -= Callback_OnPortfolioPropertyReceived;
-                    _callback = null;
-                }
-                catch
-                {
-                    //Sink
-                }
-            }
-
-            if (_server is object)
-            {
-                try
-                {
-                    var clientChannel = (IClientChannel)_server;
-
-                    if (State == CommunicationState.Opened)
+                    if (_callback is object)
                     {
-                        _server.Unregister();
-
-                        //Subscribe to any topics in case this is a reconnection
-                        foreach (var (Id, Column) in _positionCellValueSubscriptions)
-                            _server.UnsubscribeFromPositionValue(Id, Column);
-
-                        foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
-                            _server.UnsubscribeFromPortfolioValue(Id, Column);
-
-                        foreach (var ps in _systemSubscriptions)
-                            _server.UnsubscribeFromSystemValue(ps);
-
-                        foreach (var (Id, Property) in _portfolioPropertySubscriptions)
-                            _server.UnsubscribeFromPortfolioProperty(Id, Property);
-                    }
-
-                    try
-                    {
-                        if (State != CommunicationState.Faulted)
+                        try
                         {
-                            clientChannel.Close();
+                            _callback.OnSystemValueReceived -= CallBack_OnSystemValueReceived;
+                            _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
+                            _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
+                            _callback.OnPortfolioPropertyReceived -= Callback_OnPortfolioPropertyReceived;
+                            _callback = null;
                         }
-                    }
-                    finally
-                    {
-                        if (State != CommunicationState.Closed)
+                        catch
                         {
-                            clientChannel.Abort();
+                            //Sink
                         }
                     }
 
-                    clientChannel.Dispose();
+                    if (_server is object)
+                    {
+                        try
+                        {
+                            var clientChannel = (IClientChannel)_server;
+
+                            if (State == CommunicationState.Opened)
+                            {
+                                _server.Unregister();
+
+                                //Subscribe to any topics in case this is a reconnection
+                                foreach (var (Id, Column) in _positionCellValueSubscriptions)
+                                    _server.UnsubscribeFromPositionValue(Id, Column);
+
+                                foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
+                                    _server.UnsubscribeFromPortfolioValue(Id, Column);
+
+                                foreach (var ps in _systemSubscriptions)
+                                    _server.UnsubscribeFromSystemValue(ps);
+
+                                foreach (var (Id, Property) in _portfolioPropertySubscriptions)
+                                    _server.UnsubscribeFromPortfolioProperty(Id, Property);
+                            }
+
+                            try
+                            {
+                                if (State != CommunicationState.Faulted)
+                                {
+                                    clientChannel.Close();
+                                }
+                            }
+                            finally
+                            {
+                                if (State != CommunicationState.Closed)
+                                {
+                                    clientChannel.Abort();
+                                }
+                            }
+
+                            clientChannel.Dispose();
+                            _server = null;
+                        }
+                        catch
+                        {
+                            //Sink
+                        }
+                    }
+
                     _server = null;
+                    Connection = null;
+
+                    OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
                 }
-                catch
+                finally
                 {
-                    //Sink
+                    IsConnecting = false;
                 }
             }
-
-            _server = null;
-            Connection = null;
-
-            OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
         }
 
         internal void LoadPositions()
@@ -181,112 +232,104 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (_server is null)
                 return ServiceStatus.NotConnected;
 
-            return _server.GetServiceStatus();
+            try
+            {
+                return _server.GetServiceStatus();
+            }
+            catch (Exception)
+            {
+                return ServiceStatus.NotConnected;
+            }
         }
 
         public void SubscribeToPositionValue(int positionId, string column)
         {
-            if(!_positionCellValueSubscriptions.Contains((positionId, column)))
-                _positionCellValueSubscriptions.Add((positionId, column));
+            lock(_positionCellValueSubscriptions)
+            {
+                if (!_positionCellValueSubscriptions.Contains((positionId, column)))
+                    _positionCellValueSubscriptions.Add((positionId, column));
 
-            InvokeServerWithErrorHandling(() => _server.SubscribeToPositionValue(positionId, column));
+                InvokeServerWithErrorHandling(() => _server.SubscribeToPositionValue(positionId, column));
+            }
         }
 
         public void SubscribeToPortfolioValue(int folioId, string column)
         {
-            if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
-                _portfolioCellValueSubscriptions.Add((folioId, column));
+            lock(_portfolioCellValueSubscriptions)
+            {
+                if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
+                    _portfolioCellValueSubscriptions.Add((folioId, column));
 
-            InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioValue(folioId, column));
+                InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioValue(folioId, column));
+            }
         }
 
         public void SubscribeToSystemValue(SystemProperty property)
         {
-            if (!_systemSubscriptions.Contains(property))
-                _systemSubscriptions.Add(property);
+            lock(_systemSubscriptions)
+            {
+                if (!_systemSubscriptions.Contains(property))
+                    _systemSubscriptions.Add(property);
 
-            InvokeServerWithErrorHandling(() => _server.SubscribeToSystemValue(property));
+                InvokeServerWithErrorHandling(() => _server.SubscribeToSystemValue(property));
+            }
         }
 
         public void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
         {
-            if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
-                _portfolioPropertySubscriptions.Add((folioId, property));
+            lock(_portfolioPropertySubscriptions)
+            {
+                if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
+                    _portfolioPropertySubscriptions.Add((folioId, property));
 
-            InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioProperty(folioId, property));
+                InvokeServerWithErrorHandling(() => _server.SubscribeToPortfolioProperty(folioId, property));
+            }
         }
 
         public void UnsubscribeToPortfolioProperty(int folioId, PortfolioProperty property)
         {
-            if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
-                _portfolioPropertySubscriptions.Remove((folioId, property));
+            lock(_portfolioPropertySubscriptions)
+            {
+                if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
+                    _portfolioPropertySubscriptions.Remove((folioId, property));
 
-            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioProperty(folioId, property));
+                InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioProperty(folioId, property));
+            }
         }
 
         public void UnsubscribeToPositionValue(int positionId, string column)
         {
-            if (!_positionCellValueSubscriptions.Contains((positionId, column)))
-                _positionCellValueSubscriptions.Remove((positionId, column));
+            lock(_positionCellValueSubscriptions)
+            {
+                if (!_positionCellValueSubscriptions.Contains((positionId, column)))
+                    _positionCellValueSubscriptions.Remove((positionId, column));
 
-            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPositionValue(positionId, column));
+                InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPositionValue(positionId, column));
+            }
         }
 
         public void UnsubscribeToPortfolioValue(int folioId, string column)
         {
-            if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
-                _portfolioCellValueSubscriptions.Remove((folioId, column));
+            lock(_portfolioCellValueSubscriptions)
+            {
+                if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
+                    _portfolioCellValueSubscriptions.Remove((folioId, column));
 
-            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioValue(folioId, column));
+                InvokeServerWithErrorHandling(() => _server.UnsubscribeFromPortfolioValue(folioId, column));
+            }
         }
 
         public void UnsubscribeToSystemValue(SystemProperty property)
         {
-            if (!_systemSubscriptions.Contains(property))
-                _systemSubscriptions.Remove(property);
-
-            InvokeServerWithErrorHandling(() => _server.UnsubscribeFromSystemValue(property));
-        }
-
-        private void InvokeServerWithErrorHandling(Action action)
-        {
-            if (_server is object && State == CommunicationState.Opened)
+            lock(_systemSubscriptions)
             {
-                try
-                {
-                    action();
-                }
-                catch (FaultException<ErrorFaultContract> ex)
-                {
-                    throw new DataServiceException(ex.Detail.Message);
-                }
+                if (!_systemSubscriptions.Contains(property))
+                    _systemSubscriptions.Remove(property);
+
+                InvokeServerWithErrorHandling(() => _server.UnsubscribeFromSystemValue(property));
             }
         }
 
-        private void Callback_OnServiceStatusReceived(object sender, ServiceStatusReceivedEventArgs e)
-        {
-            OnServiceStatusReceived?.Invoke(sender, e);
-        }
-
-        private void CallBack_OnPortfolioValueReceived(object sender, PortfolioValueReceivedEventArgs e)
-        {
-            OnPortfolioValueReceived?.Invoke(sender, e);
-        }
-
-        private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
-        {
-            OnPositionValueReceived?.Invoke(sender, e);
-        }
-
-        private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
-        {
-            OnSystemValueReceived?.Invoke(sender, e);
-        }
-
-        private void Callback_OnPortfolioPropertyReceived(object sender, PortfolioPropertyReceivedEventArgs e)
-        {
-            OnPortfolioPropertyReceived?.Invoke(sender, e);
-        }
 
         public List<int> GetPositions(int portfolioId, PositionsToRequest positions)
         {
@@ -362,6 +405,47 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 throw new DataServiceException(ex.Message);
             }
+        }
+
+
+        private void InvokeServerWithErrorHandling(Action action)
+        {
+            if (_server is object && State == CommunicationState.Opened)
+            {
+                try
+                {
+                    action();
+                }
+                catch (FaultException<ErrorFaultContract> ex)
+                {
+                    throw new DataServiceException(ex.Detail.Message);
+                }
+            }
+        }
+
+        private void Callback_OnServiceStatusReceived(object sender, ServiceStatusReceivedEventArgs e)
+        {
+            OnServiceStatusReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPortfolioValueReceived(object sender, PortfolioValueReceivedEventArgs e)
+        {
+            OnPortfolioValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
+        {
+            OnPositionValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)
+        {
+            OnSystemValueReceived?.Invoke(sender, e);
+        }
+
+        private void Callback_OnPortfolioPropertyReceived(object sender, PortfolioPropertyReceivedEventArgs e)
+        {
+            OnPortfolioPropertyReceived?.Invoke(sender, e);
         }
 
         #region IDisposable Support

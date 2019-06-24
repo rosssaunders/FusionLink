@@ -542,8 +542,10 @@ namespace RxdSolutions.FusionLink
                     {
                         send.Invoke(key, c);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        System.Diagnostics.Debug.Print(ex.ToString());
+
                         Unregister(key);
                     }
                 }
