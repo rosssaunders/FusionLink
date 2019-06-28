@@ -13,9 +13,12 @@ namespace RxdSolutions.FusionLink
     {
         private static readonly string ServiceName = $"/";
 
-        private static Uri GetListeningAddress()
+        public static Uri GetListeningAddress()
         {
-            return new Uri($"net.pipe://localhost/SophisDataService_{System.Diagnostics.Process.GetCurrentProcess().Id}");
+            var processId = System.Diagnostics.Process.GetCurrentProcess().Id;
+            var sessionId = System.Diagnostics.Process.GetCurrentProcess().SessionId;
+
+            return new Uri($"net.pipe://{Environment.MachineName}/FusionLink/{sessionId}/{processId}");
         }
 
         public static ServiceHost Create(DataServer server)

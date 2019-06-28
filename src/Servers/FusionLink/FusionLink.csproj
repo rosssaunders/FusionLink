@@ -36,6 +36,9 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Client\DiagnosticsView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -45,6 +48,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Discovery" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -253,6 +257,10 @@
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
@@ -310,6 +318,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Client\DiagnosticsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />

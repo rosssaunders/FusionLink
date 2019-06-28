@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.Properties;
 using RxdSolutions.FusionLink.Services;
 using sophis;
@@ -21,13 +22,19 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         private static CSMGlobalFunctions _globalFunctions;
+
         private static PortfolioActionListener _portfolioActionListener;
         private static PortfolioEventListener _portfolioEventListener;
-        private static ServiceHost _host;
-        private static DataServer _dataServer;
+        private static PositionActionListener _positionActionListener;
+        private static PositionEventListener _positionEventListener;
+        private static TransactionActionListener _transactionActionListener;
+        private static TransactionEventListener _transactionEventListener;
 
+        private static ServiceHost _host;
+        
         private bool _displayDebugMessage = false;
 
+        public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
         public Dispatcher _context;
@@ -52,8 +59,8 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                _dataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-                _dataServer.Close();
+                DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
+                DataServer.Close();
                 _host?.Close();
             }
             catch (Exception ex)
@@ -97,12 +104,25 @@ namespace RxdSolutions.FusionLink
 
             _portfolioActionListener = new PortfolioActionListener();
             CSMPortfolioAction.Register("PortfolioActionListener", CSMPortfolioAction.eMOrder.M_oAfter, _portfolioActionListener);
+
+            _positionEventListener = new PositionEventListener();
+            CSMPositionEvent.Register("PositionEventListener", CSMPositionEvent.eMOrder.M_oAfter, _positionEventListener);
+
+            _positionActionListener = new PositionActionListener();
+            CSMPositionAction.Register("PositionActionListener", CSMPositionAction.eMOrder.M_oAfter, _positionActionListener);
+
+            _transactionEventListener = new TransactionEventListener();
+            CSMTransactionEvent.Register("TransactionEventListener", CSMTransactionEvent.eMOrder.M_oAfter, _transactionEventListener);
+
+            _transactionActionListener = new TransactionActionListener();
+            CSMTransactionAction.Register("TransactionActionListener", CSMTransactionAction.eMOrder.M_oSavingInDataBase, _transactionActionListener);
         }
 
         private void RegisterScenarios()
         {
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
             CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
+            CSMScenario.Register(Resources.ShowDiagnostics, new ShowDiagnosticsScenario());
         }
 
         private void RegisterUI()
@@ -125,15 +145,15 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                if (_dataServer == null)
+                if (DataServer == null)
                     return;
 
-                if (_dataServer.IsRunning)
-                    _dataServer.Stop();
+                if (DataServer.IsRunning)
+                    DataServer.Stop();
                 else
-                    _dataServer.Start();
+                    DataServer.Start();
 
-                CaptionBar.ButtonText = _dataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
+                CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
 
                 UpdateCaption();
             }
@@ -147,9 +167,14 @@ namespace RxdSolutions.FusionLink
 
         private Task RegisterServer()
         {
-            var aggregateListener = new AggregateListener(_portfolioActionListener, _portfolioEventListener);
-            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions, 
-                                                                    aggregateListener,
+            var aggregatePortfolioListener = new AggregatePortfolioListener(_portfolioActionListener, _portfolioEventListener);
+            var aggregatePositionListener = new AggregatePositionListener(_positionActionListener, _positionEventListener);
+            var aggregateTransactionListener = new AggregateTransactionListener(_transactionActionListener, _transactionEventListener);
+
+            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions,
+                                                                    aggregatePortfolioListener,
+                                                                    aggregatePositionListener,
+                                                                    aggregateTransactionListener,
                                                                     new PositionService(),
                                                                     new InstrumentService(),
                                                                     new CurveService());
@@ -160,7 +185,7 @@ namespace RxdSolutions.FusionLink
             {
                 try
                 {
-                    _host = DataServerHostFactory.Create(_dataServer);
+                    _host = DataServerHostFactory.Create(DataServer);
                     _host.Faulted += Host_Faulted;
                 }
                 catch (AddressAlreadyInUseException)
@@ -171,13 +196,13 @@ namespace RxdSolutions.FusionLink
                     _host = null;
                 }
 
-                _dataServer = _host.SingletonInstance as DataServer;
+                DataServer = _host.SingletonInstance as DataServer;
 
-                _dataServer.Start();
-                _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
+                DataServer.Start();
+                DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
 
                 if(_displayDebugMessage)
-                    _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
+                    DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
             });
         }
 
@@ -197,12 +222,12 @@ namespace RxdSolutions.FusionLink
 
         private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
         {
-            _dataServer = new DataServer(dataServiceProvider);
+            DataServer = new DataServer(dataServiceProvider);
 
             string defaultMessage = "";
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
-            _dataServer.DefaultMessage = defaultMessage;
+            DataServer.DefaultMessage = defaultMessage;
         }
 
         private void LoadConfig()
@@ -219,16 +244,16 @@ namespace RxdSolutions.FusionLink
             string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
 
-            if (_dataServer.ClientCount > 0)
+            if (DataServer.ClientCount > 0)
             {
                 string clientsConnectedCaption = "";
-                if (_dataServer.ClientCount == 1)
+                if (DataServer.ClientCount == 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, _dataServer.ClientCount);
+                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, DataServer.ClientCount);
                 }
-                else if (_dataServer.ClientCount > 1)
+                else if (DataServer.ClientCount > 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, _dataServer.ClientCount);
+                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, DataServer.ClientCount);
                 }
 
                 caption.Append(" / ");
@@ -237,7 +262,7 @@ namespace RxdSolutions.FusionLink
 
             if (_displayDebugMessage)
             {
-                var subs = $"(Subs = PortVal:{_dataServer.PortfolioValueSubscriptionCount},PortProp:{_dataServer.PortfolioPropertySubscriptionCount},Pos:{_dataServer.PositonValueSubscriptionCount},Sys:{_dataServer.SystemValueCount})";
+                var subs = $"(Subs = PortVal:{DataServer.PortfolioValueSubscriptionCount},PortProp:{DataServer.PortfolioPropertySubscriptionCount},Pos:{DataServer.PositonValueSubscriptionCount},Sys:{DataServer.SystemValueCount})";
                 caption.Append(" / ");
                 caption.Append(subs);
             }                

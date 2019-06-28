@@ -7,9 +7,9 @@ using sophis.tools;
 
 namespace RxdSolutions.FusionLink
 {
-    public class PortfolioActionListener : CSMPortfolioAction, IPortfolioListener
+    public class PortfolioActionListener : CSMPortfolioAction
     {
-        public event EventHandler<PortfolioChangedEventArgs> PortfolioChanged;
+        public static event EventHandler<PortfolioChangedEventArgs> PortfolioChanged;
 
         public override void NotifyCreated(CSMPortfolio portfolio, CSMEventVector message)
         {

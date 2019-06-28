@@ -14,6 +14,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         //The client needs to be static so the Excel functions (which must be static) can access it.
         public static DataServiceClient Client; 
         public static ConnectionMonitor ConnectionMonitor;
+        public static AvailableConnections AvailableConnections;
 
         public static bool IsShuttingDown;
 
@@ -32,15 +33,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
             var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
             app.RTD.ThrottleInterval = 100;
 
+            //Monitor for FusionLink connections
+            AvailableConnections = new AvailableConnections();
+
             //Open the client connection
-            ConnectionMonitor = new ConnectionMonitor();
+            ConnectionMonitor = new ConnectionMonitor(AvailableConnections);
             ConnectionMonitor.RegisterClient(Client);
-            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor));
+            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor, AvailableConnections));
 
             Client.OnConnectionStatusChanged += Client_OnConnectionStatusChanged;
-            
+
             //Start the monitor
-            ConnectionMonitor.FindAvailableServicesAsync().ContinueWith(result =>
+            AvailableConnections.FindAvailableServicesAsync().ContinueWith(result =>
             {
                 if (IsShuttingDown)
                     return;

@@ -163,6 +163,9 @@
   <data name="ScenarioShowCaptionBarMessage" xml:space="preserve">
     <value>Display FusionLink</value>
   </data>
+  <data name="ShowDiagnostics" xml:space="preserve">
+    <value>Display FusionLink Diagnostics</value>
+  </data>
   <data name="ShowFusionLinkScenarioName" xml:space="preserve">
     <value>Display FusionLink</value>
   </data>

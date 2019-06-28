@@ -15,11 +15,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         private readonly DataServiceClient client;
         private readonly ConnectionMonitor monitor;
+        private readonly AvailableConnections availableConnections;
 
-        public ComAddIn(DataServiceClient client, ConnectionMonitor monitor)
+        public ComAddIn(DataServiceClient client, ConnectionMonitor monitor, AvailableConnections availableConnections)
         {
             this.client = client;
             this.monitor = monitor;
+            this.availableConnections = availableConnections;
         }
 
         public override void OnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom)
@@ -30,7 +32,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             client.Dispose();
 
             monitor.Stop();
-            monitor.Dispose();
+            availableConnections.Dispose();
         }
     }
 }

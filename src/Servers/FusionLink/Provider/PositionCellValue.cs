@@ -14,7 +14,7 @@ namespace RxdSolutions.FusionLink
 
         public int PositionId { get; }
 
-        public PositionCellValue(int positionId, string column) : base(column)
+        public PositionCellValue(int positionId, string column, CSMExtraction extraction) : base(column, extraction)
         {
             PositionId = positionId;
             Position = CSMPosition.GetCSRPosition(positionId);
@@ -37,7 +37,7 @@ namespace RxdSolutions.FusionLink
 
                 if (Position is object)
                 {
-                    Column.GetPositionCell(Position, Position.GetPortfolioCode(), Position.GetPortfolioCode(), sophis.globals.CSMExtraction.gMain(), 0, Position.GetInstrumentCode(), ref CellValue, CellStyle, false);
+                    Column.GetPositionCell(Position, Position.GetPortfolioCode(), Position.GetPortfolioCode(), Extraction, 0, Position.GetInstrumentCode(), ref CellValue, CellStyle, false);
 
                     var value = CellValue.ExtractValueFromSophisCell(CellStyle);
 

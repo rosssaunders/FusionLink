@@ -35,6 +35,7 @@ namespace RxdSolutions.FusionLink
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
         public event EventHandler<EventArgs> OnSubscriptionChanged;
+        public event EventHandler<DataAvailableEventArgs> OnDataReceived;
 
         public int ClientCount
         {
@@ -626,6 +627,8 @@ namespace RxdSolutions.FusionLink
 
         private void DataService_DataAvailable(object sender, DataAvailableEventArgs e)
         {
+            OnDataReceived?.Invoke(this, e);
+
             _publishQueue.Add(e);
         }
 

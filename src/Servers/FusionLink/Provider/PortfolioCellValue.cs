@@ -14,7 +14,7 @@ namespace RxdSolutions.FusionLink
 
         public int FolioId { get; }
 
-        public PortfolioCellValue(int folioId, string column) : base(column)
+        public PortfolioCellValue(int folioId, string column, CSMExtraction extraction) : base(column, extraction)
         {
             FolioId = folioId;
             Portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
@@ -45,7 +45,7 @@ namespace RxdSolutions.FusionLink
                     return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
                 }
 
-                Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), sophis.globals.CSMExtraction.gMain(), ref CellValue, CellStyle, false);
+                Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), Extraction, ref CellValue, CellStyle, false);
 
                 var value = CellValue.ExtractValueFromSophisCell(CellStyle);
 

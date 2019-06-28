@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="RxdSolutions.FusionLink.Client.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RxdSolutions.FusionLink.Client"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="White">
+
+    <UserControl.Resources>
+        <Style x:Key="SubscriptionCount" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="30" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding PortfolioSubscriptionCount}" Style="{StaticResource SubscriptionCount}"></TextBlock>
+        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PositionSubscriptionCount}" Style="{StaticResource SubscriptionCount}"></TextBlock>
+        <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding SystemSubscriptionCount}" Style="{StaticResource SubscriptionCount}"></TextBlock>
+        <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding PortfolioPropertySubscriptionCount}" Style="{StaticResource SubscriptionCount}"></TextBlock>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding ClientCount}" Style="{StaticResource SubscriptionCount}" />
+
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerUri}" />
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding IsTerminalServices}" />
+
+        <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding LastTimeTaken}" />
+
+    </Grid>
+
+</UserControl>

@@ -197,6 +197,15 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Display FusionLink Diagnostics.
+        /// </summary>
+        internal static string ShowDiagnostics {
+            get {
+                return ResourceManager.GetString("ShowDiagnostics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display FusionLink.
         /// </summary>
         internal static string ShowFusionLinkScenarioName {
