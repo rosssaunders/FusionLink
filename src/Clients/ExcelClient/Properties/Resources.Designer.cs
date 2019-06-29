@@ -167,5 +167,14 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
                 return ResourceManager.GetString("StartDateGreaterThanEndDateMessage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subscribing... please wait.
+        /// </summary>
+        internal static string SubscribingToData {
+            get {
+                return ResourceManager.GetString("SubscribingToData", resourceCulture);
+            }
+        }
     }
 }
