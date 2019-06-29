@@ -9,7 +9,7 @@ using Sophis.Windows.Integration;
 
 namespace RxdSolutions.FusionLink.Client
 {
-    public class ShowDiagnosticsScenario : CSMScenario
+    public class ShowDashboardScenario : CSMScenario
     {
         public override eMProcessingType GetProcessingType()
         {
@@ -23,7 +23,7 @@ namespace RxdSolutions.FusionLink.Client
 
         public override CMString GetName()
         {
-            return Resources.ShowDiagnostics;
+            return Resources.ShowDashboard;
         }
 
         public override void Run()
@@ -37,7 +37,7 @@ namespace RxdSolutions.FusionLink.Client
             else
             {
                 var fwkElement = new DiagnosticsView(new DiagnosticsViewModel(Main.DataServer));
-                WPFAdapter.Instance.OpenWindow(fwkElement, "FusionLink", wndKey, false);
+                WPFAdapter.Instance.OpenWindow(fwkElement, Resources.DashboardWindowCaption, wndKey, false);
             }
 
             base.Run();

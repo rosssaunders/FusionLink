@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is compatible with Silverlight-->
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg4362" Width="1250" Height="652">
+  <Canvas.RenderTransform>
+    <TranslateTransform X="0" Y="0"/>
+  </Canvas.RenderTransform>
+  <Canvas.Resources/>
+  <!--Unknown tag: metadata-->
+  <!--Unknown tag: sodipodi:namedview-->
+  <Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="0" Canvas.Top="0" Width="1250" Height="651.25" Name="rect4066" Fill="#FFFFFFFF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Opacity="0.5"/>
+  <Canvas Name="g4072" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4068" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M397.958 706.579l0 -74.488l-61.709 25.56l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4070" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M403.388 706.579l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+  </Canvas>
+  <Canvas Name="g4078" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4074" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M531.754 706.579l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4076" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M537.184 706.579l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+  </Canvas>
+  <Canvas Name="g4086" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4080" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M531.67 490.386l0 -74.489l-61.708 25.561l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4082" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M537.101 490.386l0 -74.489l61.708 25.561l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4084" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M595.847 520.024l-61.708 -25.472l-60.455 25.127l61.709 25.472l60.454 -25.127Z"/>
+  </Canvas>
+  <Canvas Name="g4098" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4088" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M464.532 598.167l0 -74.489l-61.709 25.56l0 74.489l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4090" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M469.962 598.167l0 -74.489l61.708 25.56l0 74.489l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4092" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M528.708 627.804l-61.708 -25.472l-60.454 25.128l61.708 25.472l60.454 -25.128Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4094" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M335.375 598.11l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4096" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M394.121 627.748l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4104" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4100" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M263.5 706.204l0 -74.489l-61.709 25.561l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4102" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M268.93 706.204l0 -74.489l61.709 25.561l0 74.489l-61.709 -25.561Z"/>
+  </Canvas>
+  <Canvas Name="g4112" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4106" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M397.213 490.011l0 -74.489l-61.709 25.561l0 74.488l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4108" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M402.643 490.011l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4110" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M461.39 519.648l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4116" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4114" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M0.86 706.441l0 -74.489l61.708 25.56l0 74.489l-61.708 -25.56Z"/>
+  </Canvas>
+  <Canvas Name="g4122" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4118" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M129.226 706.441l0 -74.489l-61.709 25.56l0 74.489l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4120" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M134.656 706.441l0 -74.489l61.709 25.56l0 74.489l-61.709 -25.56Z"/>
+  </Canvas>
+  <Canvas Name="g4130" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4124" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M129.142 490.247l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4126" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M134.573 490.247l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4128" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M193.319 519.885l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4138" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4132" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M196.281 598.028l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4134" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M201.712 598.028l0 -74.489l61.708 25.561l0 74.488l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4136" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M260.458 627.665l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4146" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4140" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M62.004 598.028l0 -74.489l-61.709 25.561l0 74.488l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4142" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M67.434 598.028l0 -74.489l61.708 25.561l0 74.488l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4144" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M126.18 627.665l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4154" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4148" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M262.939 490.247l0 -74.488l-61.709 25.56l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4150" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M268.369 490.247l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4152" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M327.116 519.885l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4160" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4156" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M0.115 489.872l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4158" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M58.862 519.509l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4168" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4162" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M530.882 274.797l0 -74.489l-61.708 25.561l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4164" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M536.313 274.797l0 -74.489l61.708 25.561l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4166" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M595.059 304.435l-61.708 -25.472l-60.455 25.127l61.709 25.472l60.454 -25.127Z"/>
+  </Canvas>
+  <Canvas Name="g4176" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4170" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M463.744 382.578l0 -74.489l-61.709 25.56l0 74.489l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4172" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M469.174 382.578l0 -74.489l61.708 25.56l0 74.489l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4174" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M527.92 412.215l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4190" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4178" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M664.679 274.797l0 -74.489l-61.709 25.561l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4180" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M664.679 274.797l0 -74.489l-61.709 25.561l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4182" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M670.109 274.797l0 -74.489l61.709 25.561l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4184" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M728.856 304.435l-61.709 -25.472l-60.454 25.127l61.708 25.472l60.455 -25.127Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4186" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M598.336 383.584l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4188" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M663.436 412.812l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4198" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4192" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M664.595 58.604l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4194" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M670.026 58.604l0 -74.489l61.708 25.561l0 74.488l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4196" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M728.772 88.241l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4206" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4200" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M731.734 166.384l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4202" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M737.164 166.384l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4204" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M795.911 196.022l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4214" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4208" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M597.456 166.384l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4210" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M602.887 166.384l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4212" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M661.633 196.022l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4222" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4216" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M798.392 58.604l0 -74.489l-61.709 25.561l0 74.488l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4218" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M803.822 58.604l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4220" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M862.569 88.241l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4230" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4224" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M329.767 382.202l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4226" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M335.197 382.202l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4228" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M393.944 411.84l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4238" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4232" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M396.425 274.422l0 -74.489l-61.709 25.561l0 74.488l61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4234" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M401.855 274.422l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4236" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M460.602 304.059l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4246" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4240" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M463.48 166.009l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4242" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M468.91 166.009l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4244" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M527.657 195.646l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4254" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4248" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M128.354 274.658l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4250" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M133.785 274.658l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4252" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M192.531 304.296l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4262" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4256" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M195.493 382.439l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4258" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M200.923 382.439l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4260" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M259.67 412.076l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4270" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4264" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M61.215 382.439l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4266" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M66.646 382.439l0 -74.489l61.708 25.561l0 74.488l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4268" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M125.392 412.076l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4278" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4272" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M262.151 274.658l0 -74.488l-61.709 25.56l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4274" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M267.581 274.658l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4276" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M326.328 304.296l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4286" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4280" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M262.067 58.465l0 -74.489l-61.708 25.561l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4282" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M267.498 58.465l0 -74.489l61.708 25.561l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4284" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M326.244 88.103l-61.708 -25.472l-60.455 25.127l61.709 25.472l60.454 -25.127Z"/>
+  </Canvas>
+  <Canvas Name="g4294" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4288" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M329.206 166.246l0 -74.489l-61.708 25.56l0 74.489l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4290" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M334.636 166.246l0 -74.489l61.709 25.56l0 74.489l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4292" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M393.383 195.883l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4302" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4296" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M194.928 166.246l0 -74.489l-61.708 25.56l0 74.489l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4298" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M200.359 166.246l0 -74.489l61.708 25.56l0 74.489l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4300" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M259.105 195.883l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4310" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4304" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M395.864 58.465l0 -74.489l-61.709 25.561l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4306" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M401.294 58.465l0 -74.489l61.709 25.561l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4308" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M460.041 88.103l-61.709 -25.472l-60.454 25.127l61.708 25.472l60.455 -25.127Z"/>
+  </Canvas>
+  <Canvas Name="g4318" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4312" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M60.952 165.87l0 -74.488l-61.708 25.56l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4314" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M66.382 165.87l0 -74.488l61.709 25.56l0 74.489l-61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4316" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M125.129 195.508l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4324" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4320" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1123.79 495.908l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4322" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1182.53 525.546l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4332" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4326" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1185.49 603.689l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4328" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1190.92 603.689l0 -74.489l61.709 25.561l0 74.488l-61.709 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4330" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1249.67 633.326l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4340" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4334" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1051.21 603.689l0 -74.489l-61.708 25.561l0 74.488l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4336" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1056.65 603.689l0 -74.489l61.708 25.561l0 74.488l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4338" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1115.39 633.326l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4346" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4342" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1252.15 495.908l0 -74.488l-61.709 25.56l0 74.489l61.709 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4344" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1316.33 525.546l-61.709 -25.472l-60.454 25.128l61.708 25.472l60.455 -25.128Z"/>
+  </Canvas>
+  <Canvas Name="g4352" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4348" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1252.07 279.715l0 -74.489l-61.708 25.561l0 74.489l61.708 -25.561Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4350" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1316.24 309.353l-61.708 -25.472l-60.455 25.127l61.709 25.472l60.454 -25.127Z"/>
+  </Canvas>
+  <Canvas Name="g4360" Opacity="0.5">
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4354" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1184.93 387.496l0 -74.489l-61.708 25.56l0 74.489l61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4356" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1190.36 387.496l0 -74.489l61.708 25.56l0 74.489l-61.708 -25.56Z"/>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4358" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M1249.11 417.133l-61.708 -25.472l-60.455 25.128l61.709 25.472l60.454 -25.128Z"/>
+  </Canvas>
+</Canvas>

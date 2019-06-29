@@ -34,8 +34,10 @@ namespace RxdSolutions.FusionLink
         private BlockingCollection<DataAvailableEventArgs> _publishQueue;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
+        public event EventHandler<EventArgs> OnStatusChanged;
         public event EventHandler<EventArgs> OnSubscriptionChanged;
         public event EventHandler<DataAvailableEventArgs> OnDataReceived;
+        public event EventHandler<EventArgs> OnPublishQueueChanged;
 
         public int ClientCount
         {
@@ -101,6 +103,8 @@ namespace RxdSolutions.FusionLink
                 StartPublisher();
 
                 _dataServiceProvider.Start();
+
+                OnStatusChanged?.Invoke(this, new EventArgs());
             }
 
             SendServiceStatus();
@@ -125,6 +129,8 @@ namespace RxdSolutions.FusionLink
                 _dataPublisher = null;
 
                 _dataServiceProvider.Stop();
+
+                OnStatusChanged?.Invoke(this, new EventArgs());
             }
 
             SendServiceStatus();
@@ -456,6 +462,10 @@ namespace RxdSolutions.FusionLink
             get => _systemSubscriptions.Count;
         }
 
+        public int PublishQueueCount
+        {
+            get => _publishQueue.Count;
+        }
 
         private void StartPublisher()
         {
@@ -469,6 +479,8 @@ namespace RxdSolutions.FusionLink
                             return;
 
                         MergeData(e);
+
+                        OnPublishQueueChanged?.Invoke(this, new EventArgs());
                     }
                 }
                 catch (Exception ex)
@@ -629,7 +641,11 @@ namespace RxdSolutions.FusionLink
         {
             OnDataReceived?.Invoke(this, e);
 
-            _publishQueue.Add(e);
+            if(!_publishQueue.IsAddingCompleted)
+            {
+                _publishQueue.Add(e);
+                OnPublishQueueChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)

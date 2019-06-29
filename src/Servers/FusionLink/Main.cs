@@ -32,8 +32,6 @@ namespace RxdSolutions.FusionLink
 
         private static ServiceHost _host;
         
-        private bool _displayDebugMessage = false;
-
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
@@ -44,8 +42,6 @@ namespace RxdSolutions.FusionLink
             if (UserRight.CanOpen())
             {
                 _context = Dispatcher.CurrentDispatcher;
-
-                LoadConfig();
 
                 RegisterListeners();
 
@@ -122,7 +118,7 @@ namespace RxdSolutions.FusionLink
         {
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
             CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
-            CSMScenario.Register(Resources.ShowDiagnostics, new ShowDiagnosticsScenario());
+            CSMScenario.Register(Resources.ShowDashboard, new ShowDashboardScenario());
         }
 
         private void RegisterUI()
@@ -131,38 +127,10 @@ namespace RxdSolutions.FusionLink
             CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
             CaptionBar = new CaptionBar();
-            CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
-            CaptionBar.DisplayButton = true;
-            CaptionBar.ButtonText = Resources.StopButtonText;
-            CaptionBar.ButtonToolTip = Resources.StartStopButtonTooltip;
             CaptionBar.Image = Resources.InfoIcon;
             CaptionBar.Show();
 
             CaptionBar.Text = Resources.LoadingMessage;
-        }
-
-        private void OnCaptionBarButtonClicked(object sender, EventArgs e)
-        {
-            try
-            {
-                if (DataServer == null)
-                    return;
-
-                if (DataServer.IsRunning)
-                    DataServer.Stop();
-                else
-                    DataServer.Start();
-
-                CaptionBar.ButtonText = DataServer.IsRunning ? Resources.StopButtonText : Resources.StartButtonText;
-
-                UpdateCaption();
-            }
-            catch (Exception ex)
-            {
-                CSMLog.Write("Main", "OnCaptionBarButtonClicked", CSMLog.eMVerbosity.M_error, ex.ToString());
-
-                MessageBox.Show(ex.Message, Resources.ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private Task RegisterServer()
@@ -200,9 +168,7 @@ namespace RxdSolutions.FusionLink
 
                 DataServer.Start();
                 DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
-
-                if(_displayDebugMessage)
-                    DataServer.OnSubscriptionChanged += OnSubscriptionChanged;
+                DataServer.OnStatusChanged += OnStatusChanged; ;
             });
         }
 
@@ -230,11 +196,6 @@ namespace RxdSolutions.FusionLink
             DataServer.DefaultMessage = defaultMessage;
         }
 
-        private void LoadConfig()
-        {
-            CSMConfigurationFile.getEntryValue("FusionLink", "ShowDebug", ref _displayDebugMessage, false);
-        }
-
         private void UpdateCaption()
         {
             var caption = new StringBuilder();
@@ -260,12 +221,11 @@ namespace RxdSolutions.FusionLink
                 caption.Append(clientsConnectedCaption);
             }
 
-            if (_displayDebugMessage)
+            if (!DataServer.IsRunning)
             {
-                var subs = $"(Subs = PortVal:{DataServer.PortfolioValueSubscriptionCount},PortProp:{DataServer.PortfolioPropertySubscriptionCount},Pos:{DataServer.PositonValueSubscriptionCount},Sys:{DataServer.SystemValueCount})";
                 caption.Append(" / ");
-                caption.Append(subs);
-            }                
+                caption.Append(Resources.DataServerStopped);
+            }
 
             CaptionBar.Text = caption.ToString();
         }
@@ -273,6 +233,15 @@ namespace RxdSolutions.FusionLink
         private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
         {
             _context.InvokeAsync(() => 
+            {
+                UpdateCaption();
+
+            }, DispatcherPriority.ApplicationIdle);
+        }
+
+        private void OnStatusChanged(object sender, EventArgs e)
+        {
+            _context.InvokeAsync(() =>
             {
                 UpdateCaption();
 

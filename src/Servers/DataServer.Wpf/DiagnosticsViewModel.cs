@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using RxdSolutions.FusionLink.Properties;
 
 namespace RxdSolutions.FusionLink.Client
 {
@@ -12,43 +14,31 @@ namespace RxdSolutions.FusionLink.Client
         private int _portfolioPropertySubscriptionCount;
         private int _clientCount;
         private TimeSpan _lastTimeTaken;
-
         private readonly DataServer _dataServer;
 
+        private TimeSpan _refreshTimeTaken;
+        private int _numberOfRefreshes;
+        
         public DiagnosticsViewModel(DataServer dataServer)
         {
             _dataServer = dataServer;
             _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
             _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
             _dataServer.OnDataReceived += OnDataReceived;
+            _dataServer.OnPublishQueueChanged += OnPublishQueueChanged;
             
             PortfolioSubscriptionCount = _dataServer.PortfolioValueSubscriptionCount;
             SystemSubscriptionCount = _dataServer.SystemValueCount;
             PositionSubscriptionCount = _dataServer.PositonValueSubscriptionCount;
             PortfolioPropertySubscriptionCount = _dataServer.PortfolioPropertySubscriptionCount;
             ClientCount = _dataServer.ClientCount;
-            
-        }
 
-        private void OnDataReceived(object sender, DataAvailableEventArgs e)
-        {
-            LastTimeTaken = e.TimeTaken;
-        }
-
-        private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
-        {
-            ClientCount = _dataServer.ClientCount;
-        }
-
-        private void OnSubscriptionChanged(object sender, EventArgs e)
-        {
-            PortfolioSubscriptionCount = _dataServer.PortfolioValueSubscriptionCount;
-            SystemSubscriptionCount = _dataServer.SystemValueCount;
-            PositionSubscriptionCount = _dataServer.PositonValueSubscriptionCount;
-            PortfolioPropertySubscriptionCount = _dataServer.PortfolioPropertySubscriptionCount;
+            ToggleDataServer = new DelegateCommand(ExecuteToggleDataServer);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public DelegateCommand ToggleDataServer { get; }
 
         public int ClientCount
         {
@@ -60,6 +50,11 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public bool IsRunning
+        {
+            get { return _dataServer.IsRunning; }
+        }
+
         public TimeSpan LastTimeTaken
         {
             get { return _lastTimeTaken; }
@@ -67,6 +62,25 @@ namespace RxdSolutions.FusionLink.Client
             {
                 _lastTimeTaken = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public TimeSpan AverageTimeTaken
+        {
+            get
+            {
+                if (_numberOfRefreshes == 0)
+                    return new TimeSpan(0);
+
+                return new TimeSpan(0, 0, 0, 0, Convert.ToInt32(_refreshTimeTaken.TotalMilliseconds / _numberOfRefreshes));
+            }
+        }
+
+        public int PublishQueueCount
+        {
+            get
+            {
+                return _dataServer.PublishQueueCount;
             }
         }
 
@@ -123,9 +137,62 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
-        public void OnPropertyChanged([CallerMemberName] string callerMemberName = "")
+        public string ToggleDataServerLabel
+        {
+            get { return IsRunning ? Resources.StopButtonText : Resources.StartButtonText; }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string callerMemberName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(callerMemberName));
+        }
+
+        private void OnDataReceived(object sender, DataAvailableEventArgs e)
+        {
+            LastTimeTaken = e.TimeTaken;
+            _refreshTimeTaken += e.TimeTaken;
+            _numberOfRefreshes++;
+
+            OnPropertyChanged(nameof(AverageTimeTaken));            
+        }
+
+        private void OnPublishQueueChanged(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(PublishQueueCount));
+        }
+
+        private void OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)
+        {
+            ClientCount = _dataServer.ClientCount;
+        }
+
+        private void OnSubscriptionChanged(object sender, EventArgs e)
+        {
+            PortfolioSubscriptionCount = _dataServer.PortfolioValueSubscriptionCount;
+            SystemSubscriptionCount = _dataServer.SystemValueCount;
+            PositionSubscriptionCount = _dataServer.PositonValueSubscriptionCount;
+            PortfolioPropertySubscriptionCount = _dataServer.PortfolioPropertySubscriptionCount;
+        }
+
+        private void ExecuteToggleDataServer(object sender)
+        {
+            try
+            {
+                if (_dataServer == null)
+                    return;
+
+                if (_dataServer.IsRunning)
+                    _dataServer.Stop();
+                else
+                    _dataServer.Start();
+
+                OnPropertyChanged(nameof(IsRunning));
+                OnPropertyChanged(nameof(ToggleDataServerLabel));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, Resources.ErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

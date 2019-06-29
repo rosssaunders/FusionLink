@@ -14,7 +14,7 @@ namespace RxdSolutions.FusionLink
 
         public CSMExtraction Extraction { get; }
 
-        public CSMPortfolioColumn Column { get; }
+        public CSMPortfolioColumn Column { get; protected set; }
 
         public string ColumnName { get; }
 

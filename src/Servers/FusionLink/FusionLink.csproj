@@ -36,9 +36,6 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Client\DiagnosticsView.xaml" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -320,12 +317,8 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Client\DiagnosticsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
+    <ProjectReference Include="..\DataServer.Wpf\DataServer.Wpf.csproj" />
     <ProjectReference Include="..\DataServer\DataServer.csproj" />
   </ItemGroup>
   <ItemGroup>

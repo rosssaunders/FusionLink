@@ -97,6 +97,24 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FusionLink Dashboard.
+        /// </summary>
+        internal static string DashboardWindowCaption {
+            get {
+                return ResourceManager.GetString("DashboardWindowCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped.
+        /// </summary>
+        internal static string DataServerStopped {
+            get {
+                return ResourceManager.GetString("DataServerStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Getting data... please wait.
         /// </summary>
         internal static string DefaultDataLoadingMessage {
@@ -197,11 +215,11 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Display FusionLink Diagnostics.
+        ///   Looks up a localized string similar to Display FusionLink Dashboard.
         /// </summary>
-        internal static string ShowDiagnostics {
+        internal static string ShowDashboard {
             get {
-                return ResourceManager.GetString("ShowDiagnostics", resourceCulture);
+                return ResourceManager.GetString("ShowDashboard", resourceCulture);
             }
         }
         

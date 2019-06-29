@@ -13,21 +13,21 @@ namespace RxdSolutions.FusionLink
 
         public override void NotifyCreated(CSMTransaction transaction, CSMEventVector message, int event_id)
         {
-            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), false));
+            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), true));
 
             base.NotifyCreated(transaction, message, event_id);
         }
 
         public override void NotifyDeleted(CSMTransaction transaction, CSMEventVector message, int event_id)
         {
-            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), false));
+            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), true));
 
             base.NotifyDeleted(transaction, message, event_id);
         }
 
         public override void NotifyModified(CSMTransaction original, CSMTransaction transaction, CSMEventVector message, int event_id)
         {
-            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), false));
+            TransactionChanged?.Invoke(this, new TransactionChangedEventArgs(transaction.GetTransactionCode(), transaction.GetPositionID(), true));
 
             base.NotifyModified(original, transaction, message, event_id);
         }

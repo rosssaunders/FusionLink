@@ -23,7 +23,7 @@ namespace RxdSolutions.FusionLink
         [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
-            try
+            object GetValueInternal()
             {
                 if (Position is null)
                 {
@@ -48,9 +48,27 @@ namespace RxdSolutions.FusionLink
                     return string.Format(Resources.PositionNotLoadedOrMissingMessage, PositionId);
                 }
             }
-            catch(Exception ex)
+
+            try
             {
-                return ex.Message;
+                return GetValueInternal();
+            }
+            catch
+            {
+                try
+                {
+                    Position?.Dispose();
+                    Column?.Dispose();
+
+                    Position = CSMPosition.GetCSRPosition(PositionId);
+                    Column = CSMPortfolioColumn.GetCSRPortfolioColumn(ColumnName);
+
+                    return GetValueInternal();
+                }
+                catch(Exception ex)
+                {
+                    return ex.Message;
+                }
             }
         }
 

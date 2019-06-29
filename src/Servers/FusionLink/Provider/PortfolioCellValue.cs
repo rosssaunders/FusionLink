@@ -10,7 +10,7 @@ namespace RxdSolutions.FusionLink
 {
     internal class PortfolioCellValue : CellValueBase
     {
-        public CSMPortfolio Portfolio { get; }
+        public CSMPortfolio Portfolio { get; private set; }
 
         public int FolioId { get; }
 
@@ -23,9 +23,9 @@ namespace RxdSolutions.FusionLink
         [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
-            try
+            object GetValueInternal()
             {
-                if(Error is object)
+                if (Error is object)
                 {
                     return Error.Message;
                 }
@@ -51,9 +51,27 @@ namespace RxdSolutions.FusionLink
 
                 return value;
             }
-            catch(Exception ex)
+
+            try
             {
-                return ex.Message;
+                return GetValueInternal();
+            }
+            catch
+            {
+                Portfolio?.Dispose();
+                Portfolio = CSMPortfolio.GetCSRPortfolio(FolioId);
+
+                Column?.Dispose();
+                Column = CSMPortfolioColumn.GetCSRPortfolioColumn(ColumnName);
+
+                try
+                {
+                    return GetValueInternal();
+                }
+                catch(Exception ex)
+                {
+                    return ex.Message;
+                }
             }
         }
 
