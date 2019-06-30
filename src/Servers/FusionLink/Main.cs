@@ -31,7 +31,7 @@ namespace RxdSolutions.FusionLink
         private static TransactionEventListener _transactionEventListener;
 
         private static ServiceHost _host;
-        
+    
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 

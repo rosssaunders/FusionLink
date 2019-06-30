@@ -14,6 +14,11 @@ namespace RxdSolutions.FusionLink.Client
             DataContext = viewModel;
         }
 
+        private void Help_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/rxdsolutions/fusionlink/wiki");
+        }
+
         private void Logo_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             System.Diagnostics.Process.Start("http://www.rxdsolutions.co.uk/FusionLink");

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class ConnectionMonitor
+    public class ConnectionMonitor : IDisposable
     {
         private readonly List<DataServiceClient> _clients;
 
@@ -161,5 +161,37 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             return _connection;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (var client in _clients)
+                    {
+                        client.Dispose();
+                    }
+
+                    _clients.Clear();
+
+                    _resetEvent.Set();
+                    _resetEvent.Dispose();
+                    _monitor.Wait();
+                    _monitor.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }

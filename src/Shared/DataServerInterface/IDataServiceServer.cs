@@ -26,31 +26,49 @@ namespace RxdSolutions.FusionLink.Interface
         void SubscribeToPositionValue(int positionId, string column);
 
         [OperationContract(IsOneWay = true)]
-        void SubscribeToPortfolioValue(int folioId, string column);
+        void SubscribeToPositionValues(List<(int positionId, string column)> items);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToPortfolioValue(int portfolioId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToPortfolioValues(List<(int portfolioId, string column)> items);
 
         [OperationContract(IsOneWay = true)]
         void SubscribeToSystemValue(SystemProperty systemValue);
 
         [OperationContract(IsOneWay = true)]
-        void SubscribeToPortfolioProperty(int folioId, PortfolioProperty property);
+        void SubscribeToPortfolioProperty(int portfolioId, PortfolioProperty property);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToPortfolioProperties(List<(int portfolioId, PortfolioProperty property)> items);
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPositionValue(int positionId, string column);
 
         [OperationContract(IsOneWay = true)]
-        void UnsubscribeFromPortfolioValue(int folioId, string column);
+        void UnsubscribeFromPositionValues(List<(int positionId, string column)> items);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromPortfolioValue(int portfolioId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromPortfolioValues(List<(int portfolioId, string column)> items);
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeFromSystemValue(SystemProperty systemValue);
 
         [OperationContract(IsOneWay = true)]
-        void UnsubscribeFromPortfolioProperty(int folioId, PortfolioProperty property);
+        void UnsubscribeFromPortfolioProperty(int portfolioId, PortfolioProperty property);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromPortfolioProperties(List<(int portfolioId, PortfolioProperty property)> items);
 
         [OperationContract]
         [FaultContract(typeof(PortfolioNotLoadedFaultContract))]
         [FaultContract(typeof(PortfolioNotFoundFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
-        List<int> GetPositions(int folioId, PositionsToRequest position);
+        List<int> GetPositions(int portfolioId, PositionsToRequest position);
 
         [OperationContract(Name = "GetPriceHistoryById")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]

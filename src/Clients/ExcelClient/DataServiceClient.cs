@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
@@ -110,14 +111,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     _server.Register();
 
                     //Subscribe to any topics in case this is a reconnection
-                    foreach (var (Id, Column) in _positionCellValueSubscriptions)
-                        _server.SubscribeToPositionValue(Id, Column);
-
-                    foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
-                        _server.SubscribeToPortfolioValue(Id, Column);
-
-                    foreach (var (Id, Property) in _portfolioPropertySubscriptions)
-                        _server.SubscribeToPortfolioProperty(Id, Property);
+                    _server.SubscribeToPositionValues(_positionCellValueSubscriptions.ToList());
+                    _server.SubscribeToPortfolioValues(_portfolioCellValueSubscriptions.ToList());
+                    _server.SubscribeToPortfolioProperties(_portfolioPropertySubscriptions.ToList());
 
                     foreach (var ps in _systemSubscriptions)
                         _server.SubscribeToSystemValue(ps);
@@ -165,20 +161,15 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                             if (State == CommunicationState.Opened)
                             {
-                                _server.Unregister();
-
                                 //Subscribe to any topics in case this is a reconnection
-                                foreach (var (Id, Column) in _positionCellValueSubscriptions)
-                                    _server.UnsubscribeFromPositionValue(Id, Column);
-
-                                foreach (var (Id, Column) in _portfolioCellValueSubscriptions)
-                                    _server.UnsubscribeFromPortfolioValue(Id, Column);
+                                _server.UnsubscribeFromPositionValues(_positionCellValueSubscriptions.ToList());
+                                _server.UnsubscribeFromPortfolioValues(_portfolioCellValueSubscriptions.ToList());
+                                _server.UnsubscribeFromPortfolioProperties(_portfolioPropertySubscriptions.ToList());
 
                                 foreach (var ps in _systemSubscriptions)
                                     _server.UnsubscribeFromSystemValue(ps);
 
-                                foreach (var (Id, Property) in _portfolioPropertySubscriptions)
-                                    _server.UnsubscribeFromPortfolioProperty(Id, Property);
+                                _server.Unregister();
                             }
 
                             try

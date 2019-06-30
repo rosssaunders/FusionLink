@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
     <AssemblyName>FusionLink</AssemblyName>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>x64</Platforms>
     <Configurations>Develop_713;Develop_72;Debug_713;Debug_72;Release_713;Release_72</Configurations>
@@ -312,9 +312,6 @@
       <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />

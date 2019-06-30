@@ -8,15 +8,15 @@ namespace RxdSolutions.FusionLink.Client
 {
     public class DiagnosticsViewModel : INotifyPropertyChanged
     {
+        private readonly DataServer _dataServer;
+
         private int _portfolioSubscriptionCount;
         private int _systemSubscriptionCount;
         private int _positionSubscriptionCount;
         private int _portfolioPropertySubscriptionCount;
         private int _clientCount;
-        private TimeSpan _lastTimeTaken;
-        private readonly DataServer _dataServer;
-
-        private TimeSpan _refreshTimeTaken;
+        private int _lastTimeTaken;
+        private long _refreshTimeTaken;
         private int _numberOfRefreshes;
         
         public DiagnosticsViewModel(DataServer dataServer)
@@ -55,7 +55,7 @@ namespace RxdSolutions.FusionLink.Client
             get { return _dataServer.IsRunning; }
         }
 
-        public TimeSpan LastTimeTaken
+        public int LastTimeTaken
         {
             get { return _lastTimeTaken; }
             set
@@ -65,14 +65,14 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
-        public TimeSpan AverageTimeTaken
+        public long AverageTimeTaken
         {
             get
             {
                 if (_numberOfRefreshes == 0)
-                    return new TimeSpan(0);
+                    return 0;
 
-                return new TimeSpan(0, 0, 0, 0, Convert.ToInt32(_refreshTimeTaken.TotalMilliseconds / _numberOfRefreshes));
+                return Convert.ToInt64(_refreshTimeTaken / _numberOfRefreshes);
             }
         }
 
@@ -149,8 +149,8 @@ namespace RxdSolutions.FusionLink.Client
 
         private void OnDataReceived(object sender, DataAvailableEventArgs e)
         {
-            LastTimeTaken = e.TimeTaken;
-            _refreshTimeTaken += e.TimeTaken;
+            LastTimeTaken = Convert.ToInt32(e.TimeTaken.TotalMilliseconds);
+            _refreshTimeTaken += Convert.ToInt32(e.TimeTaken.TotalMilliseconds);
             _numberOfRefreshes++;
 
             OnPropertyChanged(nameof(AverageTimeTaken));            

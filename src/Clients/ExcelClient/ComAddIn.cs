@@ -28,10 +28,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             AddIn.IsShuttingDown = true;
 
-            client.Close();
-            client.Dispose();
-
             monitor.Stop();
+            monitor.Dispose();
+
             availableConnections.Dispose();
         }
     }
