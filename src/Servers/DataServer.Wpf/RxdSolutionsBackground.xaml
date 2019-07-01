@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--This file is compatible with Silverlight-->
-<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg4362">
-  <Canvas.RenderTransform>
-    <TranslateTransform X="0" Y="0"/>
-  </Canvas.RenderTransform>
-  <Canvas.Resources/>
-  <!--Unknown tag: metadata-->
-  <!--Unknown tag: sodipodi:namedview-->
-  <Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="0" Canvas.Top="0" Name="rect4066" Fill="#FFFFFFFF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Opacity="0.5"/>
-  <Canvas Name="g4072" Opacity="0.5">
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        Name="svg4362">
+    <Canvas Name="g4072" Opacity="0.5">
     <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4068" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M397.958 706.579l0 -74.488l-61.709 25.56l0 74.489l61.709 -25.561Z"/>
     <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4070" Fill="#FFEFEFEF" StrokeMiterLimit="1.41421" StrokeLineJoin="Round" Data="M403.388 706.579l0 -74.488l61.708 25.56l0 74.489l-61.708 -25.561Z"/>
   </Canvas>
