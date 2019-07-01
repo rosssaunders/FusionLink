@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophis.Windows.Widgets.Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophis.Core.Data", "Sophis.Core.Data\Sophis.Core.Data.csproj", "{BB3F6D14-3787-41D4-BC97-1F73B4357809}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sophis.Windows", "Sophis.Windows\Sophis.Windows.csproj", "{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_7_1|Any CPU = Debug_7_1|Any CPU
@@ -121,6 +123,14 @@ Global
 		{BB3F6D14-3787-41D4-BC97-1F73B4357809}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB3F6D14-3787-41D4-BC97-1F73B4357809}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB3F6D14-3787-41D4-BC97-1F73B4357809}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug_7_1|Any CPU.ActiveCfg = Debug_7_1|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug_7_1|Any CPU.Build.0 = Debug_7_1|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug_7_2|Any CPU.ActiveCfg = Debug_7_2|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug_7_2|Any CPU.Build.0 = Debug_7_2|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45D3074A-8D08-4E33-AD38-FBCBEAF554E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

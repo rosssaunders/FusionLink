@@ -1,5 +1,6 @@
 Get-ChildItem DevExpress.XtraTreeList.v18.1\bin\Debug\net40\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem Sophis.API.Configuration\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
+Get-ChildItem Sophis.Windows\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem Sophis.Windows.Widgets.Core\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem Sophis.Windows.Widgets\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
 Get-ChildItem SophisConfiguration\bin\Debug_7_2\net462\*.* | Copy-Item -Destination ..\..\libs\RXDSolutions\7_2
