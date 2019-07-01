@@ -106,6 +106,24 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Automatic.
+        /// </summary>
+        internal static string DataRefreshModeAutomatic {
+            get {
+                return ResourceManager.GetString("DataRefreshModeAutomatic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On F9.
+        /// </summary>
+        internal static string DataRefreshModeManual {
+            get {
+                return ResourceManager.GetString("DataRefreshModeManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stopped.
         /// </summary>
         internal static string DataServerStopped {

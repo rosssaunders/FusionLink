@@ -7,7 +7,7 @@ using DevExpress.XtraTreeList.Columns;
 using Sophis.Data.Utils;
 using Sophis.Portfolios;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Client
 {
     public static class PortfolioViewHelper
     {

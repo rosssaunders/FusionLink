@@ -4,7 +4,7 @@
 using System;
 using sophisTools;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Helpers
 {
     public static class DataTypeExtensions
     {

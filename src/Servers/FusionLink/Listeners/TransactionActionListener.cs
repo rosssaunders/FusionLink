@@ -5,7 +5,7 @@ using System;
 using sophis.portfolio;
 using sophis.tools;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Listeners
 {
     public class TransactionActionListener : CSMTransactionAction
     {

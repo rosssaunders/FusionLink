@@ -14,6 +14,7 @@
     <Product>FusionLink</Product>
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "E:\PRODUCTION_SOPHIS\CLIENT\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -94,6 +95,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Release_72'">
     <Reference Include="MFCCaptionBar">
@@ -140,6 +145,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_713'">
     <Reference Include="MFCCaptionBar">
@@ -176,6 +185,10 @@
     </Reference>
     <Reference Include="Sophis.Core.Data">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -222,6 +235,10 @@
     </Reference>
     <Reference Include="Sophis.Core.Data">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -294,6 +311,10 @@
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">

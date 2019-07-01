@@ -8,7 +8,7 @@ using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
 using sophis.utils;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class PortfolioPropertyValue : IDisposable
     {

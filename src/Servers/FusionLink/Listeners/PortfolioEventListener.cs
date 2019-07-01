@@ -4,7 +4,7 @@
 using System;
 using sophis.portfolio;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Listeners
 {
     public class PortfolioEventListener : CSMPortfolioEvent
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Listeners
 {
     public class AggregatePositionListener : IPositionListener
     {

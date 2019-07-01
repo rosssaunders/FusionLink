@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using RxdSolutions.FusionLink.Client;
+using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Properties;
+using RxdSolutions.FusionLink.Provider;
 using RxdSolutions.FusionLink.Services;
 using sophis;
 using sophis.misc;
@@ -55,6 +57,8 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
+                AutomaticComputatingPreferenceChangeListener.Stop();
+
                 DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 DataServer.Close();
                 _host?.Close();
@@ -112,6 +116,9 @@ namespace RxdSolutions.FusionLink
 
             _transactionActionListener = new TransactionActionListener();
             CSMTransactionAction.Register("TransactionActionListener", CSMTransactionAction.eMOrder.M_oSavingInDataBase, _transactionActionListener);
+
+            AutomaticComputatingPreferenceChangeListener.Start();
+            AutomaticComputatingPreferenceChangeListener.AutomaticComputatingChanged += AutomaticComputatingChanged;
         }
 
         private void RegisterScenarios()
@@ -200,7 +207,6 @@ namespace RxdSolutions.FusionLink
         {
             var caption = new StringBuilder();
 
-            //Listening
             int processId = Process.GetCurrentProcess().Id;
             string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
@@ -219,6 +225,22 @@ namespace RxdSolutions.FusionLink
 
                 caption.Append(" / ");
                 caption.Append(clientsConnectedCaption);
+            }
+
+            caption.Append(" / ");
+            switch (CSMPreference.GetAutomaticComputatingType())
+            {
+                case eMAutomaticComputingType.M_acQuotation:
+                case eMAutomaticComputingType.M_acLast:
+                case eMAutomaticComputingType.M_acNothing:
+                    caption.Append(Resources.DataRefreshModeManual);
+                    break;
+
+                case eMAutomaticComputingType.M_acPortfolioWithoutPNL:
+                case eMAutomaticComputingType.M_acPortfolioOnlyPNL:
+                case eMAutomaticComputingType.M_acFolio:
+                    caption.Append(Resources.DataRefreshModeAutomatic);
+                    break;
             }
 
             if (!DataServer.IsRunning)
@@ -240,6 +262,15 @@ namespace RxdSolutions.FusionLink
         }
 
         private void OnStatusChanged(object sender, EventArgs e)
+        {
+            _context.InvokeAsync(() =>
+            {
+                UpdateCaption();
+
+            }, DispatcherPriority.ApplicationIdle);
+        }
+
+        private void AutomaticComputatingChanged(object sender, EventArgs e)
         {
             _context.InvokeAsync(() =>
             {

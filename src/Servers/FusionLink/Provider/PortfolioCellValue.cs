@@ -3,10 +3,11 @@
 
 using System;
 using System.Runtime.ExceptionServices;
+using RxdSolutions.FusionLink.Helpers;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class PortfolioCellValue : CellValueBase
     {

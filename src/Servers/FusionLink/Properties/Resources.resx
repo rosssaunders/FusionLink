@@ -132,6 +132,12 @@
   <data name="DashboardWindowCaption" xml:space="preserve">
     <value>FusionLink Dashboard</value>
   </data>
+  <data name="DataRefreshModeAutomatic" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="DataRefreshModeManual" xml:space="preserve">
+    <value>On F9</value>
+  </data>
   <data name="DataServerStopped" xml:space="preserve">
     <value>Stopped</value>
   </data>

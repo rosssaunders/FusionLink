@@ -7,12 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Threading;
 using RxdSolutions.FusionLink.Interface;
+using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Services;
 using sophis.instrument;
 using sophis.portfolio;
 using sophis.utils;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     public class FusionDataServiceProvider : IDataServerProvider, IDisposable
     {
@@ -33,12 +34,6 @@ namespace RxdSolutions.FusionLink
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
         private readonly CSMExtraction _mainExtraction;
-
-        //Avoid infinite loops
-        private int _computeCount;
-
-        //Optimize the data refreshing
-        private int _dataRefreshRequests = 0;
 
         public bool IsRunning { get; private set; }
 
@@ -361,18 +356,15 @@ namespace RxdSolutions.FusionLink
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
-            if (_computeCount > 0)
-            {
-                //It was us that triggered this compute
-                _computeCount--;
-                return;
-            }
+            bool refreshData = false;
 
             if (IsRunning && HasSubscriptions)
             {
                 switch (e.InPortfolioCalculation)
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
+
+                        refreshData = true;
 
                         try
                         {
@@ -404,7 +396,7 @@ namespace RxdSolutions.FusionLink
 
                                     if (id == 1)
                                     {
-                                        _dataRefreshRequests++;
+                                        refreshData = true;
                                     }
                                 }
                                 catch (Exception ex)
@@ -420,17 +412,17 @@ namespace RxdSolutions.FusionLink
 
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcNotInPortfolio:
                         return;
-                        
                 }
+            }
 
-                try
-                {
+            try
+            {
+                if (refreshData)
                     RefreshData();
-                }
-                catch(Exception ex)
-                {
-                    CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -490,25 +482,13 @@ namespace RxdSolutions.FusionLink
 
                 using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
                 {
-                    _computeCount++;
-
                     portfolio.Compute();
                 }
             }
-
-            _dataRefreshRequests++;
         }
 
         private void RefreshData()
         {
-            if (_computeCount > 0)
-                return;
-
-            if (_dataRefreshRequests == 0)
-                return;
-
-            _dataRefreshRequests = 0;
-
             var args = new DataAvailableEventArgs();
 
             void RefreshPortfolioCells()
