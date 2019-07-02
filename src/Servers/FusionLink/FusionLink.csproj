@@ -14,7 +14,6 @@
     <Product>FusionLink</Product>
     <PackageProjectUrl>https://rxdsolutions.github.io/FusionLink/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RXDSolutions/FusionLink</RepositoryUrl>
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "E:\PRODUCTION_SOPHIS\CLIENT\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
