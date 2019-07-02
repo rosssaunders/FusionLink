@@ -153,4 +153,7 @@
   <data name="StartDateGreaterThanEndDateMessage" xml:space="preserve">
     <value>Start date must be before the end date</value>
   </data>
+  <data name="SubscribingToData" xml:space="preserve">
+    <value>Subscribing... please wait</value>
+  </data>
 </root>

@@ -4,7 +4,7 @@
 using System;
 using sophis.portfolio;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal abstract class CellValueBase : IDisposable
     {
@@ -12,17 +12,21 @@ namespace RxdSolutions.FusionLink
 
         public SSMCellStyle CellStyle = new SSMCellStyle();
 
-        public CSMPortfolioColumn Column { get; }
+        public CSMExtraction Extraction { get; }
+
+        public CSMPortfolioColumn Column { get; protected set; }
 
         public string ColumnName { get; }
 
         public Exception Error { get; set; }
 
-        protected CellValueBase(string columnName)
+        protected CellValueBase(string columnName, CSMExtraction extraction)
         {
             ColumnName = columnName;
 
             Column = CSMPortfolioColumn.GetCSRPortfolioColumn(columnName);
+
+            Extraction = extraction;
         }
 
         public abstract object GetValue();

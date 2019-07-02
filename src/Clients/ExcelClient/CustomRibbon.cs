@@ -25,6 +25,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private ConnectionMonitor _connectionMonitor;
         private DataServiceClient _client;
         private Microsoft.Office.Interop.Excel.Application _application;
+        private AvailableConnections _availableConnections;
 
         public CustomRibbon()
         {
@@ -35,6 +36,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _ribbonUi = sender;
 
             _connectionMonitor = AddIn.ConnectionMonitor;
+            _availableConnections = AddIn.AvailableConnections;
+
             _client = AddIn.Client;
             _application = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
 
@@ -46,18 +49,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (_client.IsConnecting)
                 return false;
 
-            return !_connectionMonitor.IsSearchingForEndPoints;
+            return !_availableConnections.IsSearchingForEndPoints;
         }
 
         public bool OnConnectionsEnabled(IRibbonControl control)
         {
-            if (_connectionMonitor.IsSearchingForEndPoints)
+            if (_availableConnections.IsSearchingForEndPoints)
                 return false;
 
             if (_client.IsConnecting)
                 return false;
 
-            return _connectionMonitor.AvailableEndpoints.Count > 0;
+            return _availableConnections.AvailableEndpoints.Count > 0;
         }
 
         public bool OnConnectionActionEnabled(IRibbonControl control)
@@ -104,12 +107,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public string OnGetContent(IRibbonControl control)
         {
-            if (_connectionMonitor.IsSearchingForEndPoints)
+            if (_availableConnections.IsSearchingForEndPoints)
             {
                 return BuildMessage(Resources.SearchingForServersMessage).ToString();
             }
 
-            if(_connectionMonitor.AvailableEndpoints.Count == 0)
+            if(_availableConnections.AvailableEndpoints.Count == 0)
             {
                 return BuildMessage(Resources.NoEndPointsAvailableMessage).ToString();
             }
@@ -148,7 +151,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private IEnumerable<(Uri Uri, Process Process)> GetAliveEndPoints()
         {
-            foreach (var endPoint in _connectionMonitor.AvailableEndpoints)
+            foreach (var endPoint in _availableConnections.AvailableEndpoints)
             {
                 var id = ConnectionHelper.GetConnectionId(endPoint.Uri);
 
@@ -212,7 +215,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             task.ContinueWith(x =>
             {
-                if(_connectionMonitor.AvailableEndpoints.Count == 0)
+                if(_availableConnections.AvailableEndpoints.Count == 0)
                 {
                     ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
                 }
@@ -260,7 +263,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private Task RefreshAvailableConnections()
         {
-            return _connectionMonitor.FindAvailableServicesAsync();
+            return _availableConnections.FindAvailableServicesAsync();
         }
     }
 }

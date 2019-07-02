@@ -4,65 +4,41 @@
 using namespace System;
 using namespace System::Drawing;
 
-delegate LRESULT GetMsgProcDelegate(int nCode, WPARAM wParam, LPARAM lParam);
-
-public ref class CaptionBar
+namespace RxdSolutions
 {
-private:
-	System::Boolean^ _isCreated;
-
-	System::String^ _messageText;
-	Bitmap^ _image;
-	
-	System::Boolean^ _displayButton; 
-	System::String^ _buttonText;
-	System::String^ _buttonToolTip;
-	
-	HHOOK hook;
-	LRESULT WINAPI GetMsgProc(int, WPARAM, LPARAM);
-	GetMsgProcDelegate^ del;
-
-	void Create();
-	void Update();
-
-public:
-	CaptionBar();
-
-	event EventHandler^ OnButtonClicked;
-
-	void Show();
-
-	property Bitmap^ Image
+namespace FusionLink
+{
+	public ref class CaptionBar
 	{
-		Bitmap^ get();
-		void set(Bitmap^ value);
-	}
+	private:
+		System::Boolean^ _isCreated;
 
-	property System::String^ Text
-	{
-		System::String^ get();
-		void set(System::String^ value);
-	}
+		System::String^ _messageText;
+		Bitmap^ _image;
 
-	property System::String^ ButtonText
-	{
-		System::String^ get();
-		void set(System::String^ value);
-	}
+		void Create();
+		void Update();
 
-	property System::String^ ButtonToolTip
-	{
-		System::String^ get();
-		void set(System::String^ value);
-	}
+	public:
 
-	property System::Boolean^ DisplayButton
-	{
-		System::Boolean^ get();
-		void set(System::Boolean^ value);
-	}
+		void Show();
 
-protected:
+		property Bitmap^ Image
+		{
+			Bitmap^ get();
+			void set(Bitmap^ value);
+		}
 
-};
+		property System::String^ Text
+		{
+			System::String^ get();
+			void set(System::String^ value);
+		}
+
+	protected:
+
+	};
+}
+}
+
 

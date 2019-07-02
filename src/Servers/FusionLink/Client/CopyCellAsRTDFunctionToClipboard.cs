@@ -7,10 +7,10 @@ using System.Text;
 using System.Windows.Forms;
 using sophis.portfolio;
 using sophis.utils;
-using static RxdSolutions.FusionLink.ExcelHelper;
-using static RxdSolutions.FusionLink.PortfolioViewHelper;
+using static RxdSolutions.FusionLink.Client.ExcelHelper;
+using static RxdSolutions.FusionLink.Client.PortfolioViewHelper;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Client
 {
     public class CopyCellAsRTDFunctionToClipboard : CSMPositionCtxMenu
     {

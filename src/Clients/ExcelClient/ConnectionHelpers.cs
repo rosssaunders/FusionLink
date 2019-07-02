@@ -14,7 +14,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         public static int GetConnectionId(Uri uri)
         {
-            return Convert.ToInt32(uri.ToString().Split('_')[1]);
+            return Convert.ToInt32(uri.Segments[3].Replace("/", ""));
         }
 
         public static string GetConnectionName(Uri uri)

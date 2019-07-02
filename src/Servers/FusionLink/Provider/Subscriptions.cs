@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class Subscriptions<T, U> where T : class, IDisposable 
     {

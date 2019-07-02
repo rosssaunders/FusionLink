@@ -4,8 +4,8 @@
     <ProjectGuid>{1D5FF3ED-123D-41FC-A6ED-C2C763A71168}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
-    <AssemblyName>FusionLinkDataServer</AssemblyName>
-    <TargetFramework>net452</TargetFramework>
+    <AssemblyName>DataServer</AssemblyName>
+    <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release;</Configurations>
@@ -36,9 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />

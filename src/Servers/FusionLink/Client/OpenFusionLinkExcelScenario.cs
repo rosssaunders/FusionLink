@@ -9,7 +9,7 @@ using sophis.misc;
 using sophis.scenario;
 using sophis.utils;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Client
 {
     public class OpenFusionLinkExcelScenario : CSMScenario
     {

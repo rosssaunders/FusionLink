@@ -34,7 +34,10 @@ namespace RxdSolutions.FusionLink
         private BlockingCollection<DataAvailableEventArgs> _publishQueue;
 
         public event EventHandler<ClientConnectionChangedEventArgs> OnClientConnectionChanged;
+        public event EventHandler<EventArgs> OnStatusChanged;
         public event EventHandler<EventArgs> OnSubscriptionChanged;
+        public event EventHandler<DataAvailableEventArgs> OnDataReceived;
+        public event EventHandler<EventArgs> OnPublishQueueChanged;
 
         public int ClientCount
         {
@@ -43,7 +46,7 @@ namespace RxdSolutions.FusionLink
                 return _clients.Count;
             }
         }
-    
+
         public string DefaultMessage { get; set; } = Resources.DefaultGettingDataMessage;
 
         public bool IsRunning { get; private set; }
@@ -59,7 +62,7 @@ namespace RxdSolutions.FusionLink
             _positionSubscriptions.SubscriptionAdded += PositionSubscriptionAdded;
             _positionSubscriptions.SubscriptionRemoved += PositionSubscriptionRemoved;
 
-            _portfolioSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage }; 
+            _portfolioSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage };
             _portfolioSubscriptions.OnValueChanged += PortfolioDataPointChanged;
             _portfolioSubscriptions.SubscriptionAdded += PortfolioSubscriptionAdded;
             _portfolioSubscriptions.SubscriptionRemoved += PortfolioSubscriptionRemoved;
@@ -100,6 +103,8 @@ namespace RxdSolutions.FusionLink
                 StartPublisher();
 
                 _dataServiceProvider.Start();
+
+                OnStatusChanged?.Invoke(this, new EventArgs());
             }
 
             SendServiceStatus();
@@ -124,6 +129,8 @@ namespace RxdSolutions.FusionLink
                 _dataPublisher = null;
 
                 _dataServiceProvider.Stop();
+
+                OnStatusChanged?.Invoke(this, new EventArgs());
             }
 
             SendServiceStatus();
@@ -154,7 +161,7 @@ namespace RxdSolutions.FusionLink
 
                 SendServiceStatus();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
             }
@@ -174,7 +181,7 @@ namespace RxdSolutions.FusionLink
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
             }
         }
-    
+
         public ServiceStatus GetServiceStatus()
         {
             try
@@ -195,7 +202,8 @@ namespace RxdSolutions.FusionLink
 
                 OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                SendMessageToAllClients((s, c) => {
+                SendMessageToAllClients((s, c) =>
+                {
 
                     if (_positionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
                     {
@@ -210,6 +218,14 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void SubscribeToPositionValues(List<(int positionId, string column)> items)
+        {
+            foreach (var (positionId, column) in items)
+            {
+                SubscribeToPositionValue(positionId, column);
+            }
+        }
+
         public void SubscribeToPortfolioValue(int portfolioId, string column)
         {
             try
@@ -218,7 +234,8 @@ namespace RxdSolutions.FusionLink
 
                 OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                SendMessageToAllClients((s, c) => {
+                SendMessageToAllClients((s, c) =>
+                {
 
                     if (_portfolioSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
                     {
@@ -233,6 +250,14 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void SubscribeToPortfolioValues(List<(int portfolioId, string column)> items)
+        {
+            foreach (var (positionId, column) in items)
+            {
+                SubscribeToPortfolioValue(positionId, column);
+            }
+        }
+
         public void SubscribeToSystemValue(SystemProperty property)
         {
             try
@@ -241,7 +266,8 @@ namespace RxdSolutions.FusionLink
 
                 OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                SendMessageToAllClients((s, c) => {
+                SendMessageToAllClients((s, c) =>
+                {
 
                     if (_systemSubscriptions.IsSubscribed(OperationContext.Current.SessionId, dp.Key))
                     {
@@ -264,7 +290,8 @@ namespace RxdSolutions.FusionLink
 
                 OnSubscriptionChanged?.Invoke(this, new EventArgs());
 
-                SendMessageToAllClients((s, c) => {
+                SendMessageToAllClients((s, c) =>
+                {
 
                     if (_portfolioPropertySubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Property)))
                     {
@@ -276,6 +303,14 @@ namespace RxdSolutions.FusionLink
             catch (Exception ex)
             {
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void SubscribeToPortfolioProperties(List<(int portfolioId, PortfolioProperty property)> items)
+        {
+            foreach (var (positionId, property) in items)
+            {
+                SubscribeToPortfolioProperty(positionId, property);
             }
         }
 
@@ -293,6 +328,14 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void UnsubscribeFromPositionValues(List<(int positionId, string column)> items)
+        {
+            foreach(var (positionId, column) in items)
+            {
+                UnsubscribeFromPositionValue(positionId, column);
+            }
+        }
+
         public void UnsubscribeFromPortfolioValue(int portfolioId, string column)
         {
             try
@@ -304,6 +347,14 @@ namespace RxdSolutions.FusionLink
             catch (Exception ex)
             {
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void UnsubscribeFromPortfolioValues(List<(int portfolioId, string column)> items)
+        {
+            foreach (var (portfolioId, column) in items)
+            {
+                UnsubscribeFromPortfolioValue(portfolioId, column);
             }
         }
 
@@ -335,6 +386,14 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void UnsubscribeFromPortfolioProperties(List<(int portfolioId, PortfolioProperty property)> items)
+        {
+            foreach (var (portfolioId, property) in items)
+            {
+                UnsubscribeFromPortfolioProperty(portfolioId, property);
+            }
+        }
+
         public List<int> GetPositions(int folioId, PositionsToRequest position)
         {
             try
@@ -349,7 +408,7 @@ namespace RxdSolutions.FusionLink
             {
                 throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = folioId });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
             }
@@ -361,7 +420,7 @@ namespace RxdSolutions.FusionLink
             {
                 return _dataServiceProvider.GetPriceHistory(instrumentId, startDate, endDate);
             }
-            catch(InstrumentNotFoundException)
+            catch (InstrumentNotFoundException)
             {
                 throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract() { Instrument = instrumentId.ToString() });
             }
@@ -420,7 +479,7 @@ namespace RxdSolutions.FusionLink
             catch (Exception ex)
             {
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
-            }   
+            }
         }
 
         public void LoadPositions()
@@ -455,6 +514,10 @@ namespace RxdSolutions.FusionLink
             get => _systemSubscriptions.Count;
         }
 
+        public int PublishQueueCount
+        {
+            get => _publishQueue.Count;
+        }
 
         private void StartPublisher()
         {
@@ -468,6 +531,8 @@ namespace RxdSolutions.FusionLink
                             return;
 
                         MergeData(e);
+
+                        OnPublishQueueChanged?.Invoke(this, new EventArgs());
                     }
                 }
                 catch (Exception ex)
@@ -528,7 +593,7 @@ namespace RxdSolutions.FusionLink
 
         private void SendMessageToAllClients(Action<string, IDataServiceClient> send)
         {
-            lock(_clients)
+            lock (_clients)
             {
                 if (_clients.Count == 0)
                     return;
@@ -554,7 +619,8 @@ namespace RxdSolutions.FusionLink
 
         private void SystemDataPointChanged(object sender, DataPointChangedEventArgs<SystemProperty> e)
         {
-            SendMessageToAllClients((s, c) => {
+            SendMessageToAllClients((s, c) =>
+            {
 
                 if (_systemSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
@@ -564,7 +630,8 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients((s, c) => {
+            SendMessageToAllClients((s, c) =>
+            {
 
                 if (_portfolioSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
@@ -574,7 +641,8 @@ namespace RxdSolutions.FusionLink
 
         private void PositionDataPointChanged(object sender, DataPointChangedEventArgs<(int Id, string Column)> e)
         {
-            SendMessageToAllClients((s, c) => {
+            SendMessageToAllClients((s, c) =>
+            {
 
                 if (_positionSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
@@ -584,7 +652,8 @@ namespace RxdSolutions.FusionLink
 
         private void PortfolioPropertyPointChanged(object sender, DataPointChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
-            SendMessageToAllClients((s, c) => {
+            SendMessageToAllClients((s, c) =>
+            {
 
                 if (_portfolioPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPortfolioProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
@@ -599,7 +668,7 @@ namespace RxdSolutions.FusionLink
         {
             if (_clients.ContainsKey(sessionId))
                 _clients.Remove(sessionId);
-            
+
             foreach (var (Id, Column) in _portfolioSubscriptions.GetKeys())
                 _portfolioSubscriptions.Remove(sessionId, (Id, Column));
 
@@ -617,7 +686,8 @@ namespace RxdSolutions.FusionLink
 
         private void SendServiceStatus()
         {
-            SendMessageToAllClients((id, client) => {
+            SendMessageToAllClients((id, client) =>
+            {
 
                 client.SendServiceStaus(GetServiceStatus());
 
@@ -626,7 +696,13 @@ namespace RxdSolutions.FusionLink
 
         private void DataService_DataAvailable(object sender, DataAvailableEventArgs e)
         {
-            _publishQueue.Add(e);
+            OnDataReceived?.Invoke(this, e);
+
+            if (!_publishQueue.IsAddingCompleted)
+            {
+                _publishQueue.Add(e);
+                OnPublishQueueChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)

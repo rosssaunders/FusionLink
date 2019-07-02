@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.ExceptionServices;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class IsRealTimeEnabledValue : SystemValue
     {

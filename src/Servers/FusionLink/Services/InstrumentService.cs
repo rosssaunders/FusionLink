@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using RxdSolutions.FusionLink.Helpers;
 using RxdSolutions.FusionLink.Interface;
 using sophis.gui;
 using sophis.instrument;

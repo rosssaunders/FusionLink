@@ -3,18 +3,19 @@
 
 using System;
 using System.Runtime.ExceptionServices;
+using RxdSolutions.FusionLink.Helpers;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class PortfolioCellValue : CellValueBase
     {
-        public CSMPortfolio Portfolio { get; }
+        public CSMPortfolio Portfolio { get; private set; }
 
         public int FolioId { get; }
 
-        public PortfolioCellValue(int folioId, string column) : base(column)
+        public PortfolioCellValue(int folioId, string column, CSMExtraction extraction) : base(column, extraction)
         {
             FolioId = folioId;
             Portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
@@ -23,9 +24,9 @@ namespace RxdSolutions.FusionLink
         [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
-            try
+            object GetValueInternal()
             {
-                if(Error is object)
+                if (Error is object)
                 {
                     return Error.Message;
                 }
@@ -45,15 +46,33 @@ namespace RxdSolutions.FusionLink
                     return string.Format(Resources.ColumnNotFoundMessage, ColumnName);
                 }
 
-                Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), sophis.globals.CSMExtraction.gMain(), ref CellValue, CellStyle, false);
+                Column.GetPortfolioCell(Portfolio.GetCode(), Portfolio.GetCode(), Extraction, ref CellValue, CellStyle, false);
 
                 var value = CellValue.ExtractValueFromSophisCell(CellStyle);
 
                 return value;
             }
-            catch(Exception ex)
+
+            try
             {
-                return ex.Message;
+                return GetValueInternal();
+            }
+            catch
+            {
+                Portfolio?.Dispose();
+                Portfolio = CSMPortfolio.GetCSRPortfolio(FolioId);
+
+                Column?.Dispose();
+                Column = CSMPortfolioColumn.GetCSRPortfolioColumn(ColumnName);
+
+                try
+                {
+                    return GetValueInternal();
+                }
+                catch(Exception ex)
+                {
+                    return ex.Message;
+                }
             }
         }
 

@@ -17,6 +17,8 @@ namespace RxdSolutions.FusionLink
             SystemValues = new Dictionary<SystemProperty, object>();
         }
 
+        public TimeSpan TimeTaken { get; set; }
+
         public IDictionary<(int folioId, string column), object> PortfolioValues { get; }
 
         public IDictionary<(int positionId, string column), object> PositionValues { get; }

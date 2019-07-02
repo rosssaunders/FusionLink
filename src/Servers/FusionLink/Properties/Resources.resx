@@ -129,6 +129,18 @@
   <data name="CopyTableAsExcelReference" xml:space="preserve">
     <value>Copy Row(s) as Excel FusionLink References</value>
   </data>
+  <data name="DashboardWindowCaption" xml:space="preserve">
+    <value>FusionLink Dashboard</value>
+  </data>
+  <data name="DataRefreshModeAutomatic" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="DataRefreshModeManual" xml:space="preserve">
+    <value>On F9</value>
+  </data>
+  <data name="DataServerStopped" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
   <data name="DefaultDataLoadingMessage" xml:space="preserve">
     <value>Getting data... please wait</value>
   </data>
@@ -162,6 +174,9 @@
   </data>
   <data name="ScenarioShowCaptionBarMessage" xml:space="preserve">
     <value>Display FusionLink</value>
+  </data>
+  <data name="ShowDashboard" xml:space="preserve">
+    <value>Display FusionLink Dashboard</value>
   </data>
   <data name="ShowFusionLinkScenarioName" xml:space="preserve">
     <value>Display FusionLink</value>

@@ -3,22 +3,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Threading;
 using RxdSolutions.FusionLink.Interface;
+using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Services;
 using sophis.instrument;
 using sophis.portfolio;
 using sophis.utils;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
-    public class FusionDataServiceProvider : IDataServerProvider
+    public class FusionDataServiceProvider : IDataServerProvider, IDisposable
     {
         private readonly string _className = nameof(FusionDataServiceProvider);
 
         private readonly Dispatcher _context;
         private readonly IGlobalFunctions _globalFunctions;
         private readonly IPortfolioListener _portfolioListener;
+        private readonly IPositionListener _positionListener;
+        private readonly ITransactionListener _transactionListener;
         private readonly PositionService _positionService;
         private readonly InstrumentService _instrumentService;
         private readonly CurveService _curveService;
@@ -28,11 +33,7 @@ namespace RxdSolutions.FusionLink
         private readonly Subscriptions<PositionCellValue, string> _positionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
-        //Avoid infinite loops
-        private int _computeCount;
-
-        //Optimize the data refreshing
-        private int _dataRefreshRequests = 0;
+        private readonly CSMExtraction _mainExtraction;
 
         public bool IsRunning { get; private set; }
 
@@ -42,12 +43,17 @@ namespace RxdSolutions.FusionLink
         {
             get 
             {
-                return _portfolioCellSubscriptions.Count > 0 || _positionCellSubscriptions.Count > 0 || _systemValueSubscriptions.Count > 0;
+                return _portfolioCellSubscriptions.Count > 0 || 
+                       _positionCellSubscriptions.Count > 0 || 
+                       _systemValueSubscriptions.Count > 0 ||
+                       _portfolioPropertySubscriptions.Count > 0;
             }
         }
 
         public FusionDataServiceProvider(IGlobalFunctions globalFunctions, 
                                          IPortfolioListener portfolioListener,
+                                         IPositionListener positionListener,
+                                         ITransactionListener transactionListener,
                                          PositionService positionService,
                                          InstrumentService instrumentService,
                                          CurveService curveService)
@@ -55,17 +61,22 @@ namespace RxdSolutions.FusionLink
             _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
             _portfolioListener = portfolioListener;
+            _positionListener = positionListener;
+            _transactionListener = transactionListener;
             _positionService = positionService;
             _instrumentService = instrumentService;
             _curveService = curveService;
+            _mainExtraction = sophis.globals.CSMExtraction.gMain();
 
-            _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s));
-            _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s));
+            _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s, _mainExtraction));
+            _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s, _mainExtraction));
             _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
 
             _globalFunctions.PortfolioCalculationEnded += GlobalFunctions_PortfolioCalculationEnded;
             _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
+            _positionListener.PositionChanged += PositionListener_PositionChanged;
+            _transactionListener.TransactionChanged += TransactionListener_TransactionChanged;
         }
 
         public void Start()
@@ -345,18 +356,15 @@ namespace RxdSolutions.FusionLink
 
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
-            if (_computeCount > 0)
-            {
-                //It was us that triggered this compute
-                _computeCount--;
-                return;
-            }
+            bool refreshData = false;
 
             if (IsRunning && HasSubscriptions)
             {
                 switch (e.InPortfolioCalculation)
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
+
+                        refreshData = true;
 
                         try
                         {
@@ -388,7 +396,7 @@ namespace RxdSolutions.FusionLink
 
                                     if (id == 1)
                                     {
-                                        _dataRefreshRequests++;
+                                        refreshData = true;
                                     }
                                 }
                                 catch (Exception ex)
@@ -404,17 +412,17 @@ namespace RxdSolutions.FusionLink
 
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcNotInPortfolio:
                         return;
-                        
                 }
+            }
 
-                try
-                {
+            try
+            {
+                if (refreshData)
                     RefreshData();
-                }
-                catch(Exception ex)
-                {
-                    CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -474,25 +482,13 @@ namespace RxdSolutions.FusionLink
 
                 using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
                 {
-                    _computeCount++;
-
                     portfolio.Compute();
                 }
             }
-
-            _dataRefreshRequests++;
         }
 
         private void RefreshData()
         {
-            if (_computeCount > 0)
-                return;
-
-            if (_dataRefreshRequests == 0)
-                return;
-
-            _dataRefreshRequests = 0;
-
             var args = new DataAvailableEventArgs();
 
             void RefreshPortfolioCells()
@@ -519,50 +515,136 @@ namespace RxdSolutions.FusionLink
                 }
             }
 
+            var sw = Stopwatch.StartNew();
+
             RefreshPortfolioCells();
 
             RefreshPositionCells();
 
             RefreshSystemValues();
 
+            sw.Stop();
+
+            args.TimeTaken = sw.Elapsed;
+
             DataAvailable?.Invoke(this, args);
         }
 
         private void PortfolioListener_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
         {
+            RefreshPortfolio(e.PortfolioId, e.IsLocal);
+        }
+
+        private void PositionListener_PositionChanged(object sender, PositionChangedEventArgs e)
+        {
+            RefreshPosition(e.PositionId, e.IsLocal);
+        }
+
+        private void TransactionListener_TransactionChanged(object sender, TransactionChangedEventArgs e)
+        {
+            RefreshPosition(e.PositionId, e.IsLocal);
+        }
+
+        private void RefreshPortfolio(int portfolioId, bool isLocal)
+        {
             try
             {
-                if (e.IsLocal)
+                void NotifyDataChanged()
                 {
-                    //There must be a Sophis API call which does the same work without the risk of deadlock.
-                    var yield = Dispatcher.Yield();
-                    yield.GetAwaiter().OnCompleted(() =>
+                    foreach (var cell in _portfolioCellSubscriptions.GetCells().ToList())
                     {
-                        var args = new DataAvailableEventArgs();
-
-                        foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                        if (cell.FolioId == portfolioId)
                         {
-                            args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
+                            _portfolioCellSubscriptions.Remove(cell.FolioId, cell.ColumnName);
+                            _portfolioCellSubscriptions.Add(portfolioId, cell.ColumnName);
                         }
+                    }
 
-                        DataAvailable?.Invoke(this, args);
-                    });
-                }
-                else
-                {
+                    foreach (var cell in _portfolioPropertySubscriptions.GetCells().ToList())
+                    {
+                        if (cell.FolioId == portfolioId)
+                        {
+                            _portfolioPropertySubscriptions.Remove(cell.FolioId, cell.Property);
+                            _portfolioPropertySubscriptions.Add(portfolioId, cell.Property);
+                        }
+                    }
+
                     var args = new DataAvailableEventArgs();
 
-                    foreach (var value in _portfolioPropertySubscriptions.GetCells())
+                    foreach (var value in _portfolioCellSubscriptions.Get(portfolioId))
+                    {
+                        args.PortfolioValues.Add((value.FolioId, value.ColumnName), value.GetValue());
+                    }
+
+                    foreach (var value in _portfolioPropertySubscriptions.Get(portfolioId))
                     {
                         args.PortfolioProperties.Add((value.FolioId, value.Property), value.GetValue());
                     }
 
                     DataAvailable?.Invoke(this, args);
                 }
+
+                if (isLocal)
+                {
+                    //There must be a Sophis API call which does the same work without the risk of deadlock.
+                    var yield = Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        NotifyDataChanged();
+                    });
+                }
+                else
+                {
+                    NotifyDataChanged();
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                CSMLog.Write(_className, "PortfolioListener_PortfolioChanged", CSMLog.eMVerbosity.M_error, ex.ToString());
+                CSMLog.Write(_className, "RefreshPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+            }
+        }
+
+        private void RefreshPosition(int positionId, bool isLocal)
+        {
+            try
+            {
+                void NotifyDataChanged()
+                {
+                    foreach (var cell in _positionCellSubscriptions.GetCells().ToList())
+                    {
+                        if (cell.PositionId == positionId)
+                        {
+                            _positionCellSubscriptions.Remove(cell.PositionId, cell.ColumnName);
+                            _positionCellSubscriptions.Add(positionId, cell.ColumnName);
+                        }
+                    }
+
+                    var args = new DataAvailableEventArgs();
+
+                    foreach (var value in _positionCellSubscriptions.Get(positionId))
+                    {
+                        args.PositionValues.Add((value.PositionId, value.ColumnName), value.GetValue());
+                    }
+
+                    DataAvailable?.Invoke(this, args);
+                }
+
+                if (isLocal)
+                {
+                    var yield = Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        NotifyDataChanged();
+                    });
+                }
+                else
+                {
+                    NotifyDataChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write(_className, "RefreshPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -632,5 +714,29 @@ namespace RxdSolutions.FusionLink
 
             }, DispatcherPriority.ApplicationIdle);
         }
+
+        #region IDisposable Support
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _mainExtraction.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }

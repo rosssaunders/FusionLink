@@ -3,6 +3,7 @@
 
 using System;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
@@ -28,7 +29,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             try
             {
-                _observer.OnNext(ExcelEmpty.Value);
+                _observer.OnNext(Resources.SubscribingToData);
                 _rtdClient.SubscribeToSystemValue(SystemProperty);
             }
             catch(Exception ex)

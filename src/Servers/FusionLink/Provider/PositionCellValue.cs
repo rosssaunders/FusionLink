@@ -3,10 +3,11 @@
 
 using System;
 using System.Runtime.ExceptionServices;
+using RxdSolutions.FusionLink.Helpers;
 using RxdSolutions.FusionLink.Properties;
 using sophis.portfolio;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Provider
 {
     internal class PositionCellValue : CellValueBase
     {
@@ -14,7 +15,7 @@ namespace RxdSolutions.FusionLink
 
         public int PositionId { get; }
 
-        public PositionCellValue(int positionId, string column) : base(column)
+        public PositionCellValue(int positionId, string column, CSMExtraction extraction) : base(column, extraction)
         {
             PositionId = positionId;
             Position = CSMPosition.GetCSRPosition(positionId);
@@ -23,7 +24,7 @@ namespace RxdSolutions.FusionLink
         [HandleProcessCorruptedStateExceptions]
         public override object GetValue()
         {
-            try
+            object GetValueInternal()
             {
                 if (Position is null)
                 {
@@ -37,7 +38,7 @@ namespace RxdSolutions.FusionLink
 
                 if (Position is object)
                 {
-                    Column.GetPositionCell(Position, Position.GetPortfolioCode(), Position.GetPortfolioCode(), sophis.globals.CSMExtraction.gMain(), 0, Position.GetInstrumentCode(), ref CellValue, CellStyle, false);
+                    Column.GetPositionCell(Position, Position.GetPortfolioCode(), Position.GetPortfolioCode(), Extraction, 0, Position.GetInstrumentCode(), ref CellValue, CellStyle, false);
 
                     var value = CellValue.ExtractValueFromSophisCell(CellStyle);
 
@@ -48,9 +49,27 @@ namespace RxdSolutions.FusionLink
                     return string.Format(Resources.PositionNotLoadedOrMissingMessage, PositionId);
                 }
             }
-            catch(Exception ex)
+
+            try
             {
-                return ex.Message;
+                return GetValueInternal();
+            }
+            catch
+            {
+                try
+                {
+                    Position?.Dispose();
+                    Column?.Dispose();
+
+                    Position = CSMPosition.GetCSRPosition(PositionId);
+                    Column = CSMPortfolioColumn.GetCSRPortfolioColumn(ColumnName);
+
+                    return GetValueInternal();
+                }
+                catch(Exception ex)
+                {
+                    return ex.Message;
+                }
             }
         }
 

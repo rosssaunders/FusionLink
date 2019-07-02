@@ -3,22 +3,22 @@
 
 using System;
 
-namespace RxdSolutions.FusionLink
+namespace RxdSolutions.FusionLink.Listeners
 {
-    public class AggregateListener : IPortfolioListener
+    public class AggregatePortfolioListener : IPortfolioListener
     {
         private readonly PortfolioActionListener _actionListener;
         private readonly PortfolioEventListener _eventListener;
 
         public event EventHandler<PortfolioChangedEventArgs> PortfolioChanged;
 
-        public AggregateListener(PortfolioActionListener actionListener, PortfolioEventListener eventListener)
+        public AggregatePortfolioListener(PortfolioActionListener actionListener, PortfolioEventListener eventListener)
         {
             _actionListener = actionListener;
             _eventListener = eventListener;
 
-            _actionListener.PortfolioChanged += OnPortfolioChanged;
-            _eventListener.PortfolioChanged += OnPortfolioChanged;
+            PortfolioActionListener.PortfolioChanged += OnPortfolioChanged;
+            PortfolioEventListener.PortfolioChanged += OnPortfolioChanged;
         }
 
         private void OnPortfolioChanged(object sender, PortfolioChangedEventArgs e)

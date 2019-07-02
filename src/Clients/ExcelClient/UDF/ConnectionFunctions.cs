@@ -20,7 +20,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Available-Connections")]
         public static object GetAvailableConnections()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsExcelObservable(AddIn.ConnectionMonitor));
+            return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsExcelObservable(AddIn.AvailableConnections));
         }
 
         [ExcelFunction(Name = "GETCONNECTION", 
@@ -28,7 +28,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Connection")]
         public static object GetConnection()
         {
-            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionNameExcelObservable(AddIn.Client, AddIn.ConnectionMonitor));
+            return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionNameExcelObservable(AddIn.Client, AddIn.ConnectionMonitor, AddIn.AvailableConnections));
         }
 
         [ExcelFunction(Name = "GETCONNECTIONID", 

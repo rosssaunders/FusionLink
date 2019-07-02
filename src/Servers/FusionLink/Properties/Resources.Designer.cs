@@ -97,6 +97,42 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FusionLink Dashboard.
+        /// </summary>
+        internal static string DashboardWindowCaption {
+            get {
+                return ResourceManager.GetString("DashboardWindowCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatic.
+        /// </summary>
+        internal static string DataRefreshModeAutomatic {
+            get {
+                return ResourceManager.GetString("DataRefreshModeAutomatic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On F9.
+        /// </summary>
+        internal static string DataRefreshModeManual {
+            get {
+                return ResourceManager.GetString("DataRefreshModeManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped.
+        /// </summary>
+        internal static string DataServerStopped {
+            get {
+                return ResourceManager.GetString("DataServerStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Getting data... please wait.
         /// </summary>
         internal static string DefaultDataLoadingMessage {
@@ -193,6 +229,15 @@ namespace RxdSolutions.FusionLink.Properties {
         internal static string ScenarioShowCaptionBarMessage {
             get {
                 return ResourceManager.GetString("ScenarioShowCaptionBarMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display FusionLink Dashboard.
+        /// </summary>
+        internal static string ShowDashboard {
+            get {
+                return ResourceManager.GetString("ShowDashboard", resourceCulture);
             }
         }
         

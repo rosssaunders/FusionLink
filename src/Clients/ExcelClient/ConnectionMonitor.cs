@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
-using System.ServiceModel.Discovery;
 using System.Threading;
 using System.Threading.Tasks;
-using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
@@ -20,50 +18,22 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private Uri _connection;
 
-        private readonly AnnouncementService _announcementService;
-        private readonly List<EndpointAddress> _availableEndpoints;
-        private readonly ServiceHost _announcementServiceHost;
-
         private bool _running = false;
         private readonly AutoResetEvent _resetEvent;
         private Task _monitor;
 
         private readonly object _monitorLock = new object();
-
-        public event EventHandler<EventArgs> AvailableEndpointsChanged;
-
-        public bool IsSearchingForEndPoints { get; private set; }
-
-        public IReadOnlyList<EndpointAddress> AvailableEndpoints
-        {
-            get
-            {
-                lock(_availableEndpoints)
-                {
-                    return _availableEndpoints.ToList();
-                }
-            }
-        }
+        private readonly AvailableConnections _connections;
 
         public bool IsConnected { get; private set; }
 
-        public ConnectionMonitor()
+        public ConnectionMonitor(AvailableConnections connections)
         {
             _clients = new List<DataServiceClient>();
 
             _resetEvent = new AutoResetEvent(false);
 
-            _availableEndpoints = new List<EndpointAddress>();
-
-            // Subscribe the announcement events
-            _announcementService = new AnnouncementService();
-            _announcementService.OnlineAnnouncementReceived += OnOnlineEvent;
-            _announcementService.OfflineAnnouncementReceived += OnOfflineEvent;
-
-            // Create ServiceHost for the AnnouncementService
-            _announcementServiceHost = new ServiceHost(_announcementService);
-            _announcementServiceHost.AddServiceEndpoint(new UdpAnnouncementEndpoint());
-            _announcementServiceHost.Open();
+            _connections = connections;
         }
 
         public void RegisterClient(DataServiceClient client)
@@ -71,81 +41,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _clients.Add(client);
         }
 
-        public Task FindAvailableServicesAsync()
-        {
-            IsSearchingForEndPoints = true;
-
-            return Task.Run(() => {
-
-                FindAvailableServices();
-
-            });
-        }
         
-        public void FindAvailableServices()
-        {
-            try
-            {
-                IsSearchingForEndPoints = true;
-
-                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-
-                var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)) { Duration = TimeSpan.FromSeconds(3) });
-
-                foreach (var endPoints in findResponse.Endpoints)
-                {
-                    var found = false;
-
-                    foreach (var knownEndpoint in AvailableEndpoints)
-                    {
-                        if (knownEndpoint.Uri == endPoints.Address.Uri)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                    {
-                        lock (_availableEndpoints)
-                        {
-                            _availableEndpoints.Add(endPoints.Address);
-                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                        }
-                    }
-                }
-
-                foreach (var knownEndpoint in AvailableEndpoints)
-                {
-                    var found = false;
-                    foreach (var endPoints in findResponse.Endpoints)
-                    {
-                        if (knownEndpoint.Uri == endPoints.Address.Uri)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                    {
-                        lock (_availableEndpoints)
-                        {
-                            _availableEndpoints.Remove(knownEndpoint);
-                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                IsSearchingForEndPoints = false;
-
-                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-            }
-        }
-
         public void Start()
         {
             lock(_monitorLock)
@@ -176,17 +72,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                     client.Close();
                                 }
 
-                                if(AvailableEndpoints.Count == 0)
+                                if(_connections.AvailableEndpoints.Count == 0)
                                 {
                                     continue;
                                 }
 
                                 if (_connection == null)
                                 {
-                                    _connection = AvailableEndpoints.FirstOrDefault()?.Uri;
+                                    _connection = _connections.AvailableEndpoints.FirstOrDefault()?.Uri;
                                 }
 
-                                var connectionToAttempt = FindEndpoint(_connection);
+                                var connectionToAttempt = _connections.FindEndpoint(_connection);
 
                                 if (connectionToAttempt is null)
                                 {
@@ -214,12 +110,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                         IsConnected = false;
 
                                         //Looks like the server is dead. Remove from the available list.
-                                        lock (_availableEndpoints)
-                                        {
-                                            _availableEndpoints.Remove(connectionToAttempt);
-                                        }
-
-                                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                                        _connections.Remove(connectionToAttempt);
                                     }
                                     catch (Exception)
                                     {
@@ -271,29 +162,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
             return _connection;
         }
 
-        private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
-        {
-            _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
-            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-        }
-
-        private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
-        {
-            _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
-            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-        }
-
-        private EndpointAddress FindEndpoint(Uri connection)
-        {
-            lock (_availableEndpoints)
-            {
-                return _availableEndpoints.SingleOrDefault(x => x.Uri == connection);
-            }
-        }
-
         #region IDisposable Support
-
-        private bool disposedValue = false;
+        private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
@@ -301,7 +171,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if (disposing)
                 {
-                    _announcementServiceHost.Close();
+                    foreach (var client in _clients)
+                    {
+                        client.Dispose();
+                    }
+
+                    _clients.Clear();
+
+                    _resetEvent.Set();
+                    _resetEvent.Dispose();
+                    _monitor.Wait();
+                    _monitor.Dispose();
                 }
 
                 disposedValue = true;
@@ -312,7 +192,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             Dispose(true);
         }
-
         #endregion
     }
 }
