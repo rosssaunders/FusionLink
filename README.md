@@ -65,7 +65,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* [DG Partners](http://www.dgpartners.co.uk/) for generously providing RXD Solutions access to their development environment.
 * [Philippe Bonneau](http://www.it-quants.com/Blogs.aspx) for the inspiration on using the MFC Caption Bar within Sophis.
 
 ## Build Status
