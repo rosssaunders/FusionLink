@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CaptionBarButtonTooltip" xml:space="preserve">
+    <value>Click here to open the FusionLink dashboard</value>
+  </data>
   <data name="ColumnNotFoundMessage" xml:space="preserve">
     <value>The requested Portfolio Column '{0}' cannot be found</value>
   </data>
@@ -178,6 +181,9 @@
   <data name="ShowDashboard" xml:space="preserve">
     <value>Display FusionLink Dashboard</value>
   </data>
+  <data name="ShowDashboardShort" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
   <data name="ShowFusionLinkScenarioName" xml:space="preserve">
     <value>Display FusionLink</value>
   </data>
@@ -186,9 +192,6 @@
   </data>
   <data name="StartButtonText" xml:space="preserve">
     <value>Start</value>
-  </data>
-  <data name="StartStopButtonTooltip" xml:space="preserve">
-    <value>Click here to Start / Stop FusionLink</value>
   </data>
   <data name="StopButtonText" xml:space="preserve">
     <value>Stop</value>

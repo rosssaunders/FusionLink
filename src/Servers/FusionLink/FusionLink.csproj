@@ -357,10 +357,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_713'">
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_72'">
+  <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v726_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
