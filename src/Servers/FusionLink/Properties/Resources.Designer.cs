@@ -287,6 +287,15 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start / Stop FusionLink.
+        /// </summary>
+        internal static string StartStopButtonMessage {
+            get {
+                return ResourceManager.GetString("StartStopButtonMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stop.
         /// </summary>
         internal static string StopButtonText {

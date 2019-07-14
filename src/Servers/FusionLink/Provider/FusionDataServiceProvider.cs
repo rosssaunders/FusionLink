@@ -35,6 +35,9 @@ namespace RxdSolutions.FusionLink.Provider
 
         private readonly CSMExtraction _mainExtraction;
 
+        private readonly List<int> _portfolioComputedIds;
+        private int _portfolioRefreshCount = 0;
+
         public bool IsRunning { get; private set; }
 
         public event EventHandler<DataAvailableEventArgs> DataAvailable;
@@ -72,6 +75,7 @@ namespace RxdSolutions.FusionLink.Provider
             _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s, _mainExtraction));
             _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
+            _portfolioComputedIds = new List<int>();
 
             _globalFunctions.PortfolioCalculationEnded += GlobalFunctions_PortfolioCalculationEnded;
             _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
@@ -354,26 +358,36 @@ namespace RxdSolutions.FusionLink.Provider
             }, DispatcherPriority.Normal);
         }
 
+        
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
-            bool refreshData = false;
-
             if (IsRunning && HasSubscriptions)
             {
                 switch (e.InPortfolioCalculation)
                 {
                     case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
 
-                        refreshData = true;
+                        _portfolioComputedIds.Add(e.FolioId);
 
-                        try
+                        _context.InvokeAsync(() =>
                         {
-                            ComputePortfolios(e.FolioId);
-                        }
-                        catch(Exception ex)
-                        {
-                            CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
-                        }
+                            try
+                            {
+                                if (_portfolioComputedIds.Count == 0)
+                                    return;
+
+                                ComputePortfolios(_portfolioComputedIds);
+
+                                _portfolioComputedIds.Clear();
+
+                                RefreshData();
+                            }
+                            catch (Exception ex)
+                            {
+                                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                            }
+
+                        }, DispatcherPriority.ApplicationIdle);
 
                         break;
 
@@ -396,7 +410,25 @@ namespace RxdSolutions.FusionLink.Provider
 
                                     if (id == 1)
                                     {
-                                        refreshData = true;
+                                        _portfolioRefreshCount++;
+
+                                        _context.InvokeAsync(() =>
+                                        {
+                                            try
+                                            {
+                                                if (_portfolioRefreshCount == 0)
+                                                    return;
+
+                                                RefreshData();
+
+                                                _portfolioRefreshCount = 0;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                                            }
+
+                                        }, DispatcherPriority.ApplicationIdle);
                                     }
                                 }
                                 catch (Exception ex)
@@ -414,19 +446,9 @@ namespace RxdSolutions.FusionLink.Provider
                         return;
                 }
             }
-
-            try
-            {
-                if (refreshData)
-                    RefreshData();
-            }
-            catch (Exception ex)
-            {
-                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
-            }
         }
 
-        private void ComputePortfolios(int skipPortfolio)
+        private void ComputePortfolios(List<int> skipPortfolio)
         {
             var portfolios = new HashSet<int>();
 
@@ -448,8 +470,15 @@ namespace RxdSolutions.FusionLink.Provider
 
             int FindRootLoadedPortfolio(CSMPortfolio portfolio)
             {
-                var parentCode = portfolio.GetParentCode();
-                
+                int code = portfolio.GetCode();
+                int parentCode = portfolio.GetParentCode();
+
+                if (code == parentCode)
+                    return code;
+
+                if (parentCode == 1 || parentCode == 0)
+                    return 1;
+
                 using (var parentPortfolio = CSMPortfolio.GetCSRPortfolio(parentCode))
                 {
                     if(parentPortfolio.IsLoaded())
@@ -464,7 +493,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
 
             var rootPortfolios = new HashSet<int>();
-            foreach(var id in portfolios)
+            foreach(int id in portfolios)
             {
                 using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
                 {
@@ -475,9 +504,9 @@ namespace RxdSolutions.FusionLink.Provider
                 }
             }
 
-            foreach (var id in rootPortfolios)
+            foreach (int id in rootPortfolios)
             {
-                if (id == skipPortfolio)
+                if (skipPortfolio.Contains(id))
                     continue;
 
                 using (var portfolio = CSMPortfolio.GetCSRPortfolio(id))
@@ -669,7 +698,7 @@ namespace RxdSolutions.FusionLink.Provider
 
                 try
                 {
-                    ComputePortfolios(-1);
+                    ComputePortfolios(new List<int>() { -1 });
 
                     RefreshData();
                 }

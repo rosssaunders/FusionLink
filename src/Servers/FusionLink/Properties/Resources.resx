@@ -193,6 +193,9 @@
   <data name="StartButtonText" xml:space="preserve">
     <value>Start</value>
   </data>
+  <data name="StartStopButtonMessage" xml:space="preserve">
+    <value>Start / Stop FusionLink</value>
+  </data>
   <data name="StopButtonText" xml:space="preserve">
     <value>Stop</value>
   </data>

@@ -26,6 +26,7 @@ namespace RxdSolutions.FusionLink.Client
             _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
             _dataServer.OnDataReceived += OnDataReceived;
             _dataServer.OnPublishQueueChanged += OnPublishQueueChanged;
+            _dataServer.OnStatusChanged += OnStatusChanged;
             
             PortfolioSubscriptionCount = _dataServer.PortfolioValueSubscriptionCount;
             SystemSubscriptionCount = _dataServer.SystemValueCount;
@@ -193,6 +194,12 @@ namespace RxdSolutions.FusionLink.Client
             {
                 MessageBox.Show(ex.Message, Resources.ErrorCaption, MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void OnStatusChanged(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(IsRunning));
+            OnPropertyChanged(nameof(ToggleDataServerLabel));
         }
     }
 }

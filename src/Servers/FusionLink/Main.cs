@@ -13,6 +13,7 @@ using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Properties;
 using RxdSolutions.FusionLink.Provider;
 using RxdSolutions.FusionLink.Services;
+using RxdSolutions.Windows.MFC;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
@@ -35,7 +36,6 @@ namespace RxdSolutions.FusionLink
         private static ServiceHost _host;
 
         private ShowDashboardScenario _showDashboardScenario;
-
 
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
@@ -131,6 +131,7 @@ namespace RxdSolutions.FusionLink
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
             CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
             CSMScenario.Register(Resources.ShowDashboard, _showDashboardScenario);
+            CSMScenario.Register(Resources.StartStopButtonMessage, new StartStopDataServerScenario());
         }
 
         private void RegisterUI()
@@ -138,22 +139,25 @@ namespace RxdSolutions.FusionLink
             CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyCellAsRTDFunctionToClipboard());
             CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
-            CaptionBar = new CaptionBar();
-            CaptionBar.Image = Resources.InfoIcon;
-            CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
-            CaptionBar.DisplayButton = true;
-            CaptionBar.ButtonText = Resources.ShowDashboardShort;
-            CaptionBar.ButtonToolTip = Resources.CaptionBarButtonTooltip;
-            CaptionBar.Show();
+            IntPtr windowHandle = Process.GetCurrentProcess().MainWindowHandle;
+            CaptionBar = new CaptionBar(windowHandle)
+            {
+                Image = Resources.InfoIcon,
+                DisplayButton = true,
+                ButtonText = Resources.ShowDashboardShort,
+                ButtonToolTip = Resources.CaptionBarButtonTooltip,
+                Text = Resources.LoadingMessage
+            };
 
-            CaptionBar.Text = Resources.LoadingMessage;
+            CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
+            CaptionBar.Show();
         }
 
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
         {
             try
             {
-                _showDashboardScenario.Run();
+                this._showDashboardScenario.Run();
             }
             catch (Exception ex)
             {
