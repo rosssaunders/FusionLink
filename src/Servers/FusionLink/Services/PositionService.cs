@@ -28,7 +28,7 @@ namespace RxdSolutions.FusionLink.Services
                     var allChildren = new ArrayList();
                     portfolio.GetChildren(allChildren);
 
-                    for (var i = 0; i < allChildren.Count; i++)
+                    for (int i = 0; i < allChildren.Count; i++)
                     {
                         var current = allChildren[i] as CSMPortfolio;
 
@@ -54,7 +54,7 @@ namespace RxdSolutions.FusionLink.Services
             {
                 using (var position = portfolio.GetNthTreeViewPosition(i))
                 {
-                    if (position.GetIdentifier() > 0) //Exclude Virtual FX positions
+                    if (position.GetIdentifier() > 0) //Exclude Virtual positions
                     {
                         switch (positions)
                         {

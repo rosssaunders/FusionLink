@@ -58,9 +58,9 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Release_713'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
-      <Private>true</Private>
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
@@ -150,9 +150,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_713'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
-      <Private>true</Private>
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
@@ -242,9 +242,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar10.dll</HintPath>
-      <Private>true</Private>
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
@@ -357,10 +357,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_713'">
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_72'">
+  <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v726_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

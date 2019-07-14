@@ -61,6 +61,15 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Click here to open the FusionLink dashboard.
+        /// </summary>
+        internal static string CaptionBarButtonTooltip {
+            get {
+                return ResourceManager.GetString("CaptionBarButtonTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested Portfolio Column &apos;{0}&apos; cannot be found.
         /// </summary>
         internal static string ColumnNotFoundMessage {
@@ -242,6 +251,15 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dashboard.
+        /// </summary>
+        internal static string ShowDashboardShort {
+            get {
+                return ResourceManager.GetString("ShowDashboardShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display FusionLink.
         /// </summary>
         internal static string ShowFusionLinkScenarioName {
@@ -269,11 +287,11 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Click here to Start / Stop FusionLink.
+        ///   Looks up a localized string similar to Start / Stop FusionLink.
         /// </summary>
-        internal static string StartStopButtonTooltip {
+        internal static string StartStopButtonMessage {
             get {
-                return ResourceManager.GetString("StartStopButtonTooltip", resourceCulture);
+                return ResourceManager.GetString("StartStopButtonMessage", resourceCulture);
             }
         }
         

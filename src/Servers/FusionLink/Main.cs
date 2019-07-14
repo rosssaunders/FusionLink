@@ -13,6 +13,7 @@ using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Properties;
 using RxdSolutions.FusionLink.Provider;
 using RxdSolutions.FusionLink.Services;
+using RxdSolutions.Windows.MFC;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
@@ -33,7 +34,9 @@ namespace RxdSolutions.FusionLink
         private static TransactionEventListener _transactionEventListener;
 
         private static ServiceHost _host;
-    
+
+        private ShowDashboardScenario _showDashboardScenario;
+
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
 
@@ -123,9 +126,12 @@ namespace RxdSolutions.FusionLink
 
         private void RegisterScenarios()
         {
+            _showDashboardScenario = new ShowDashboardScenario();
+
             CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
             CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
-            CSMScenario.Register(Resources.ShowDashboard, new ShowDashboardScenario());
+            CSMScenario.Register(Resources.ShowDashboard, _showDashboardScenario);
+            CSMScenario.Register(Resources.StartStopButtonMessage, new StartStopDataServerScenario());
         }
 
         private void RegisterUI()
@@ -133,11 +139,32 @@ namespace RxdSolutions.FusionLink
             CSMPositionCtxMenu.Register(Resources.CopyCellAsExcelReference, new CopyCellAsRTDFunctionToClipboard());
             CSMPositionCtxMenu.Register(Resources.CopyTableAsExcelReference, new CopyRowAsRTDTableToClipboard());
 
-            CaptionBar = new CaptionBar();
-            CaptionBar.Image = Resources.InfoIcon;
-            CaptionBar.Show();
+            IntPtr windowHandle = Process.GetCurrentProcess().MainWindowHandle;
+            CaptionBar = new CaptionBar(windowHandle)
+            {
+                Image = Resources.InfoIcon,
+                DisplayButton = true,
+                ButtonText = Resources.ShowDashboardShort,
+                ButtonToolTip = Resources.CaptionBarButtonTooltip,
+                Text = Resources.LoadingMessage
+            };
 
-            CaptionBar.Text = Resources.LoadingMessage;
+            CaptionBar.OnButtonClicked += OnCaptionBarButtonClicked;
+            CaptionBar.Show();
+        }
+
+        private void OnCaptionBarButtonClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                this._showDashboardScenario.Run();
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write("Main", "OnCaptionBarButtonClicked", CSMLog.eMVerbosity.M_error, ex.ToString());
+
+                MessageBox.Show(ex.Message, Resources.ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private Task RegisterServer()
@@ -175,7 +202,7 @@ namespace RxdSolutions.FusionLink
 
                 DataServer.Start();
                 DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
-                DataServer.OnStatusChanged += OnStatusChanged; ;
+                DataServer.OnStatusChanged += OnStatusChanged;
             });
         }
 
