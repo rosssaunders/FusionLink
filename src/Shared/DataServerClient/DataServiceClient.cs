@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
-using RxdSolutions.FusionLink.ExcelClient.Properties;
+using RxdSolutions.FusionLink.Client.Properties;
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.ExcelClient
+namespace RxdSolutions.FusionLink.Client
 {
     public class DataServiceClient : IDisposable
     {
@@ -208,12 +208,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
-        internal void LoadPositions()
+        public void LoadPositions()
         {
             _server.LoadPositions();
         }
 
-        internal void RequestCalculate()
+        public void RequestCalculate()
         {
             _server.RequestCalculate();
         }

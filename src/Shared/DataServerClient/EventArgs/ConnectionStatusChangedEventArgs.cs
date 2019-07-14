@@ -3,7 +3,7 @@
 
 using System;
 
-namespace RxdSolutions.FusionLink.ExcelClient
+namespace RxdSolutions.FusionLink.Client
 {
     public class ConnectionStatusChangedEventArgs : EventArgs
     {

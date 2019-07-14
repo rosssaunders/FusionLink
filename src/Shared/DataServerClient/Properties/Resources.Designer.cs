@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RxdSolutions.FusionLink.ExcelClient.Properties {
+namespace RxdSolutions.FusionLink.Client.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RxdSolutions.FusionLink.ExcelClient.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RxdSolutions.FusionLink.Client.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,83 +61,38 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A F9 calculation has been requested.
+        ///   Looks up a localized string similar to The requested curve could not be found.
         /// </summary>
-        internal static string ComputeRequestedMessage {
+        internal static string CurveNotFoundMessage {
             get {
-                return ResourceManager.GetString("ComputeRequestedMessage", resourceCulture);
+                return ResourceManager.GetString("CurveNotFoundMessage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/RXDSolutions/FusionLink/wiki/.
+        ///   Looks up a localized string similar to Instrument not found.
         /// </summary>
-        internal static string DocumentationBaseAddress {
+        internal static string InstrumentNotFoundMessage {
             get {
-                return ResourceManager.GetString("DocumentationBaseAddress", resourceCulture);
+                return ResourceManager.GetString("InstrumentNotFoundMessage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FusionLink.
+        ///   Looks up a localized string similar to The requested portfolio could not be found.
         /// </summary>
-        internal static string ExcelHelpCategory {
+        internal static string PortfolioNotFoundMessage {
             get {
-                return ResourceManager.GetString("ExcelHelpCategory", resourceCulture);
+                return ResourceManager.GetString("PortfolioNotFoundMessage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A F8 has been requested.
+        ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
         /// </summary>
-        internal static string LoadPortfoliosRequestedMessage {
+        internal static string PortfolioNotLoadedMessage {
             get {
-                return ResourceManager.GetString("LoadPortfoliosRequestedMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No FusionLink connections available.
-        /// </summary>
-        internal static string NoEndPointsAvailableMessage {
-            get {
-                return ResourceManager.GetString("NoEndPointsAvailableMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not connected.
-        /// </summary>
-        internal static string NotConnectedMessage {
-            get {
-                return ResourceManager.GetString("NotConnectedMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Searching for available FusionLink servers. Please wait....
-        /// </summary>
-        internal static string SearchingForServersMessage {
-            get {
-                return ResourceManager.GetString("SearchingForServersMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Start date must be before the end date.
-        /// </summary>
-        internal static string StartDateGreaterThanEndDateMessage {
-            get {
-                return ResourceManager.GetString("StartDateGreaterThanEndDateMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Subscribing... please wait.
-        /// </summary>
-        internal static string SubscribingToData {
-            get {
-                return ResourceManager.GetString("SubscribingToData", resourceCulture);
+                return ResourceManager.GetString("PortfolioNotLoadedMessage", resourceCulture);
             }
         }
     }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient
@@ -53,10 +54,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                     return ExcelRangeResizer.TransformToExcelRange(array);
                 }
-            }
-            catch (CurveNotFoundException)
-            {
-                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.CurveNotFoundMessage));
             }
             catch (Exception ex)
             {

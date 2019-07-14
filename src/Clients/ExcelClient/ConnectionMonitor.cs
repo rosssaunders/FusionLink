@@ -7,6 +7,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
+using RxdSolutions.FusionLink.Client;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {

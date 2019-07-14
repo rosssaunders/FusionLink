@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
 using ExcelDna.Integration.Extensibility;
+using RxdSolutions.FusionLink.Client;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {

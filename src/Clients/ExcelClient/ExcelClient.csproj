@@ -73,6 +73,7 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\DataServerClient\DataServiceClient.csproj" />
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -80,10 +80,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     return ExcelRangeResizer.TransformToExcelRange(array);
                 }
             }
-            catch(InstrumentNotFoundException)
-            {
-                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.InstrumentNotFoundMessage));
-            }
             catch (Exception ex)
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));

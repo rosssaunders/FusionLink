@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient

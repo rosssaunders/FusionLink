@@ -3,7 +3,7 @@
 
 using RxdSolutions.FusionLink.Interface;
 
-namespace RxdSolutions.FusionLink.ExcelClient
+namespace RxdSolutions.FusionLink.Client
 {
     public class PositionValueReceivedEventArgs : ValueSentEventArgs
     {
