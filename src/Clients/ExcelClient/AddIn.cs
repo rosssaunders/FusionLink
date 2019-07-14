@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using ExcelDna.Integration;
 using ExcelDna.Registration;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient

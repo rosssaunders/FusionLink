@@ -42,14 +42,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     return ExcelRangeResizer.TransformToExcelRange(array);
                 }
             }
-            catch (PortfolioNotFoundException)
-            {
-                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotFoundMessage));
-            }
-            catch (PortfolioNotLoadedException)
-            {
-                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotLoadedMessage));
-            }
             catch(Exception ex)
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));

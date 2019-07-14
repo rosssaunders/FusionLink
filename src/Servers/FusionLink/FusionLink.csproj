@@ -36,6 +36,9 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -242,10 +245,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
-    <Reference Include="MFCCaptionBar10">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>

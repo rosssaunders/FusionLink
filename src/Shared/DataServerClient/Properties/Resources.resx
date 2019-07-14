@@ -117,31 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ComputeRequestedMessage" xml:space="preserve">
-    <value>A F9 calculation has been requested</value>
+  <data name="CurveNotFoundMessage" xml:space="preserve">
+    <value>The requested curve could not be found</value>
   </data>
-  <data name="DocumentationBaseAddress" xml:space="preserve">
-    <value>https://github.com/RXDSolutions/FusionLink/wiki/</value>
+  <data name="InstrumentNotFoundMessage" xml:space="preserve">
+    <value>Instrument not found</value>
   </data>
-  <data name="ExcelHelpCategory" xml:space="preserve">
-    <value>FusionLink</value>
+  <data name="PortfolioNotFoundMessage" xml:space="preserve">
+    <value>The requested portfolio could not be found</value>
   </data>
-  <data name="LoadPortfoliosRequestedMessage" xml:space="preserve">
-    <value>A F8 has been requested</value>
-  </data>
-  <data name="NoEndPointsAvailableMessage" xml:space="preserve">
-    <value>No FusionLink connections available</value>
-  </data>
-  <data name="NotConnectedMessage" xml:space="preserve">
-    <value>Not connected</value>
-  </data>
-  <data name="SearchingForServersMessage" xml:space="preserve">
-    <value>Searching for available FusionLink servers. Please wait...</value>
-  </data>
-  <data name="StartDateGreaterThanEndDateMessage" xml:space="preserve">
-    <value>Start date must be before the end date</value>
-  </data>
-  <data name="SubscribingToData" xml:space="preserve">
-    <value>Subscribing... please wait</value>
+  <data name="PortfolioNotLoadedMessage" xml:space="preserve">
+    <value>The requested positions cannot be found as the portfolio is not loaded.</value>
   </data>
 </root>

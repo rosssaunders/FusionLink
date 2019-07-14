@@ -3,6 +3,7 @@
 
 using System;
 using ExcelDna.Integration;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
 
