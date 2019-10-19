@@ -25,6 +25,7 @@ namespace RxdSolutions.FusionLink
     public class Main : IMain
     {
         private static CSMGlobalFunctions _globalFunctions;
+        private static CSMApi _api;
 
         private static PortfolioActionListener _portfolioActionListener;
         private static PortfolioEventListener _portfolioEventListener;
@@ -44,15 +45,45 @@ namespace RxdSolutions.FusionLink
 
         public void EntryPoint()
         {
-            if (UserRight.CanOpen())
+            try
             {
-                _context = Dispatcher.CurrentDispatcher;
+                if (UserRight.CanOpen())
+                {
+                    _api = sophis.globals.CSMApi.gApi();
 
-                RegisterListeners();
+                    _context = Dispatcher.CurrentDispatcher;
 
-                RegisterScenarios();
+                    RegisterListeners();
 
-                LoadFusionLink();
+                    RegisterScenarios();
+
+                    var serverRegistrationTask = RegisterServer();
+
+                    if (_api.IsInGUIMode())
+                    {
+                        serverRegistrationTask.ContinueWith(t => {
+
+                            if (t.Exception == null)
+                            {
+                                RegisterUI();
+
+                                UpdateCaption();
+                            }
+                            else
+                            {
+                                MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + t.Exception.ToString(), Resources.ErrorCaption);
+                            }
+
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                CSMLog.Write("Main", "OnCaptionBarButtonClicked", CSMLog.eMVerbosity.M_error, ex.ToString());
+
+                if(_api.IsInGUIMode())
+                    MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + ex.ToString(), Resources.ErrorCaption);
             }
         }
 
@@ -60,7 +91,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                AutomaticComputatingPreferenceChangeListener.Stop();
+                AutomaticComputingPreferenceChangeListener.Stop();
 
                 DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 DataServer.Close();
@@ -69,32 +100,7 @@ namespace RxdSolutions.FusionLink
             catch (Exception ex)
             {
                 CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
-            }
-        }
-
-        private void LoadFusionLink()
-        {
-            try
-            {
-                var startupTask = RegisterServer().ContinueWith(t => {
-
-                    if(t.Exception == null)
-                    {
-                        RegisterUI();
-
-                        UpdateCaption();
-                    }
-                    else
-                    {
-                        MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + t.Exception.ToString(), Resources.ErrorCaption);
-                    }
-
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(Resources.LoadFailureMessage + Environment.NewLine + Environment.NewLine + ex.ToString(), Resources.ErrorCaption);
-            }
+            } 
         }
 
         private void RegisterListeners()
@@ -120,8 +126,8 @@ namespace RxdSolutions.FusionLink
             _transactionActionListener = new TransactionActionListener();
             CSMTransactionAction.Register("TransactionActionListener", CSMTransactionAction.eMOrder.M_oSavingInDataBase, _transactionActionListener);
 
-            AutomaticComputatingPreferenceChangeListener.Start();
-            AutomaticComputatingPreferenceChangeListener.AutomaticComputatingChanged += AutomaticComputatingChanged;
+            AutomaticComputingPreferenceChangeListener.Start();
+            AutomaticComputingPreferenceChangeListener.AutomaticComputatingChanged += AutomaticComputatingChanged;
         }
 
         private void RegisterScenarios()

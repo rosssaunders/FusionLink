@@ -5,7 +5,7 @@ using System.Windows.Threading;
 
 namespace RxdSolutions.FusionLink.Listeners
 {
-    public class AutomaticComputatingPreferenceChangeListener
+    public class AutomaticComputingPreferenceChangeListener
     {
         private static bool _running;
         private static Task _monitor;

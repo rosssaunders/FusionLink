@@ -155,7 +155,7 @@
   <ItemGroup Condition="'$(Configuration)'=='Debug_713'">
     <Reference Include="MFCCaptionBar10">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
-      <Private>false</Private>
+      <Private>true</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
@@ -359,4 +359,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v726_x64)\Toolkits" /y</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(OutDir)*.* C:\UAT_SOPHIS\CLIENT\Toolkits" />
+  </Target>
 </Project>

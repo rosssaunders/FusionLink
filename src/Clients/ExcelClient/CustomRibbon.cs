@@ -28,6 +28,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private Microsoft.Office.Interop.Excel.Application _application;
         private AvailableConnections _availableConnections;
 
+        private static HashSet<string> _processNames = new HashSet<string>() { "sophisvalue.exe", "sophisrisque.exe" };
+
         public CustomRibbon()
         {
         }
@@ -167,7 +169,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 }
 
                 if (process != null)
-                    yield return (endPoint.Uri, process);
+                {
+                    if (_processNames.Contains(process.ProcessName.ToLower()))
+                    {
+                        yield return (endPoint.Uri, process);
+                    }
+                }
             };
         }
                
