@@ -120,6 +120,15 @@
   <data name="ErrorCaption" xml:space="preserve">
     <value>FusionLink</value>
   </data>
+  <data name="RxdSolutionsFusionLinkHelpPage" xml:space="preserve">
+    <value>https://github.com/rxdsolutions/fusionlinkdocs/wiki</value>
+  </data>
+  <data name="RxdSolutionsFusionLinkProductPage" xml:space="preserve">
+    <value>http://www.rxdsolutions.co.uk/FusionLink</value>
+  </data>
+  <data name="RxdSolutionsHomepage" xml:space="preserve">
+    <value>http://www.rxdsolutions.co.uk/</value>
+  </data>
   <data name="StartButtonText" xml:space="preserve">
     <value>Start</value>
   </data>

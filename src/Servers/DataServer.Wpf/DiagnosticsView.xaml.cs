@@ -16,12 +16,12 @@ namespace RxdSolutions.FusionLink.Client
 
         private void Help_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/rxdsolutions/fusionlink/wiki");
+            System.Diagnostics.Process.Start(Properties.Resources.RxdSolutionsFusionLinkHelpPage);
         }
 
         private void Logo_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.rxdsolutions.co.uk/FusionLink");
+            System.Diagnostics.Process.Start(Properties.Resources.RxdSolutionsHomepage);
         }
     }
 }

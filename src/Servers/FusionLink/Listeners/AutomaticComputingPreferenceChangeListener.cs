@@ -13,7 +13,7 @@ namespace RxdSolutions.FusionLink.Listeners
         private static eMAutomaticComputingType _currentPreference;
         private static Dispatcher Dispatcher;
 
-        public static event EventHandler AutomaticComputatingChanged;
+        public static event EventHandler AutomaticComputingChanged;
 
         public static void Start()
         {
@@ -31,7 +31,7 @@ namespace RxdSolutions.FusionLink.Listeners
                         {
                             _currentPreference = CSMPreference.GetAutomaticComputatingType();
 
-                            AutomaticComputatingChanged?.Invoke(new object(), new EventArgs());
+                            AutomaticComputingChanged?.Invoke(new object(), new EventArgs());
                         }
 
                     }, DispatcherPriority.ApplicationIdle);

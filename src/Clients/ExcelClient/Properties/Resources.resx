@@ -121,7 +121,7 @@
     <value>A F9 calculation has been requested</value>
   </data>
   <data name="DocumentationBaseAddress" xml:space="preserve">
-    <value>https://github.com/RXDSolutions/FusionLink/wiki/</value>
+    <value>https://github.com/RXDSolutions/FusionLinkDocs/wiki/</value>
   </data>
   <data name="ExcelHelpCategory" xml:space="preserve">
     <value>FusionLink</value>

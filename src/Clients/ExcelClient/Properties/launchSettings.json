@@ -3,7 +3,7 @@
     "ExcelClient": {
       "commandName": "Executable",
       "executablePath": "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\EXCEL.EXE",
-      "commandLineArgs": "/x \"E:\\Code\\GitHub\\RXDSolutions\\FusionLink\\src\\Clients\\ExcelClient\\bin\\Debug\\net472\\FusionLink-AddIn.xll\""
+      "commandLineArgs": "/x \"C:\\Code\\RXD\\FusionLink\\src\\Clients\\ExcelClient\\bin\\Debug\\net472\\FusionLink-AddIn.xll\""
     }
   }
 }

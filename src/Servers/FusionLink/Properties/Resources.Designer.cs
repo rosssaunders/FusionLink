@@ -61,20 +61,92 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Click here to open the FusionLink dashboard.
-        /// </summary>
-        internal static string CaptionBarButtonTooltip {
-            get {
-                return ResourceManager.GetString("CaptionBarButtonTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The requested Portfolio Column &apos;{0}&apos; cannot be found.
         /// </summary>
         internal static string ColumnNotFoundMessage {
             get {
                 return ResourceManager.GetString("ColumnNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLinkDashboard.
+        /// </summary>
+        internal static string CommandDisplayDashboardName {
+            get {
+                return ResourceManager.GetString("CommandDisplayDashboardName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dashboard.
+        /// </summary>
+        internal static string CommandDisplayDashboardText {
+            get {
+                return ResourceManager.GetString("CommandDisplayDashboardText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click here to open the FusionLink dashboard.
+        /// </summary>
+        internal static string CommandDisplayDashboardTooltip {
+            get {
+                return ResourceManager.GetString("CommandDisplayDashboardTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLinkExcel.
+        /// </summary>
+        internal static string CommandOpenFusionLinkExcelName {
+            get {
+                return ResourceManager.GetString("CommandOpenFusionLinkExcelName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Excel.
+        /// </summary>
+        internal static string CommandOpenFusionLinkExcelText {
+            get {
+                return ResourceManager.GetString("CommandOpenFusionLinkExcelText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLinkCaptionBar.
+        /// </summary>
+        internal static string CommandShowFusionLinkScenarioName {
+            get {
+                return ResourceManager.GetString("CommandShowFusionLinkScenarioName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display FusionLink.
+        /// </summary>
+        internal static string CommandShowFusionLinkScenarioText {
+            get {
+                return ResourceManager.GetString("CommandShowFusionLinkScenarioText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FusionLinkStopStart.
+        /// </summary>
+        internal static string CommandStartStopButtonName {
+            get {
+                return ResourceManager.GetString("CommandStartStopButtonName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start / Stop.
+        /// </summary>
+        internal static string CommandStartStopButtonText {
+            get {
+                return ResourceManager.GetString("CommandStartStopButtonText", resourceCulture);
             }
         }
         
@@ -197,15 +269,6 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Excel with FusionLink.
-        /// </summary>
-        internal static string OpenFusionLinkExcel {
-            get {
-                return ResourceManager.GetString("OpenFusionLinkExcel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The requested Portfolio &apos;{0}&apos; cannot be found.
         /// </summary>
         internal static string PortfolioNotFoundMessage {
@@ -242,33 +305,6 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Display FusionLink Dashboard.
-        /// </summary>
-        internal static string ShowDashboard {
-            get {
-                return ResourceManager.GetString("ShowDashboard", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Dashboard.
-        /// </summary>
-        internal static string ShowDashboardShort {
-            get {
-                return ResourceManager.GetString("ShowDashboardShort", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Display FusionLink.
-        /// </summary>
-        internal static string ShowFusionLinkScenarioName {
-            get {
-                return ResourceManager.GetString("ShowFusionLinkScenarioName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} client connected.
         /// </summary>
         internal static string SingleClientConnectedMessage {
@@ -283,15 +319,6 @@ namespace RxdSolutions.FusionLink.Properties {
         internal static string StartButtonText {
             get {
                 return ResourceManager.GetString("StartButtonText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Start / Stop FusionLink.
-        /// </summary>
-        internal static string StartStopButtonMessage {
-            get {
-                return ResourceManager.GetString("StartStopButtonMessage", resourceCulture);
             }
         }
         

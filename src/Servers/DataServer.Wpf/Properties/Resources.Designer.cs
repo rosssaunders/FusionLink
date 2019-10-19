@@ -70,6 +70,33 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://github.com/rxdsolutions/fusionlinkdocs/wiki.
+        /// </summary>
+        internal static string RxdSolutionsFusionLinkHelpPage {
+            get {
+                return ResourceManager.GetString("RxdSolutionsFusionLinkHelpPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://www.rxdsolutions.co.uk/FusionLink.
+        /// </summary>
+        internal static string RxdSolutionsFusionLinkProductPage {
+            get {
+                return ResourceManager.GetString("RxdSolutionsFusionLinkProductPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://www.rxdsolutions.co.uk/.
+        /// </summary>
+        internal static string RxdSolutionsHomepage {
+            get {
+                return ResourceManager.GetString("RxdSolutionsHomepage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start.
         /// </summary>
         internal static string StartButtonText {

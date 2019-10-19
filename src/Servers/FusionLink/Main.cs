@@ -1,5 +1,5 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-//  FusionLink is licensed under the MIT license. See LICENSE.txt for details.
+
 
 using System;
 using System.Diagnostics;
@@ -12,13 +12,15 @@ using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Properties;
 using RxdSolutions.FusionLink.Provider;
+using RxdSolutions.FusionLink.Ribbon;
 using RxdSolutions.FusionLink.Services;
 using RxdSolutions.Windows.MFC;
 using sophis;
 using sophis.misc;
 using sophis.portfolio;
-using sophis.scenario;
 using sophis.utils;
+using Sophis.Windows;
+using Sophis.Windows.Ribbon;
 
 namespace RxdSolutions.FusionLink
 {
@@ -36,10 +38,10 @@ namespace RxdSolutions.FusionLink
 
         private static ServiceHost _host;
 
-        private ShowDashboardScenario _showDashboardScenario;
-
         public static DataServer DataServer;
         public static CaptionBar CaptionBar;
+
+        private static DisplayDashboardCommand _displayDashboardCommand;
 
         public Dispatcher _context;
 
@@ -68,6 +70,8 @@ namespace RxdSolutions.FusionLink
                                 RegisterUI();
 
                                 UpdateCaption();
+
+                                InitialiseMenu();
                             }
                             else
                             {
@@ -127,17 +131,16 @@ namespace RxdSolutions.FusionLink
             CSMTransactionAction.Register("TransactionActionListener", CSMTransactionAction.eMOrder.M_oSavingInDataBase, _transactionActionListener);
 
             AutomaticComputingPreferenceChangeListener.Start();
-            AutomaticComputingPreferenceChangeListener.AutomaticComputatingChanged += AutomaticComputatingChanged;
+            AutomaticComputingPreferenceChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
         }
 
         private void RegisterScenarios()
         {
-            _showDashboardScenario = new ShowDashboardScenario();
+            _displayDashboardCommand = DisplayDashboardCommand.Register();
 
-            CSMScenario.Register(Resources.ScenarioShowCaptionBarMessage, new ShowFusionLinkScenario());
-            CSMScenario.Register(Resources.OpenFusionLinkExcel, new OpenFusionLinkExcelScenario());
-            CSMScenario.Register(Resources.ShowDashboard, _showDashboardScenario);
-            CSMScenario.Register(Resources.StartStopButtonMessage, new StartStopDataServerScenario());
+            ShowFusionLinkCommand.Register();
+            OpenFusionLinkExcelCommand.Register();
+            StartStopDataServerCommand.Register();
         }
 
         private void RegisterUI()
@@ -150,8 +153,8 @@ namespace RxdSolutions.FusionLink
             {
                 Image = Resources.InfoIcon,
                 DisplayButton = true,
-                ButtonText = Resources.ShowDashboardShort,
-                ButtonToolTip = Resources.CaptionBarButtonTooltip,
+                ButtonText = Resources.CommandDisplayDashboardText,
+                ButtonToolTip = Resources.CommandDisplayDashboardTooltip,
                 Text = Resources.LoadingMessage
             };
 
@@ -159,11 +162,21 @@ namespace RxdSolutions.FusionLink
             CaptionBar.Show();
         }
 
+        private static void InitialiseMenu()
+        {
+            Dispatcher.CurrentDispatcher.InvokeAsync(new Action(() =>
+            {
+                var ribbon = RibbonBuilder.Instance.GetRibbon();
+                RibbonBuilder.Instance.BuildRibbon(ribbon);
+
+            }), DispatcherPriority.ApplicationIdle);
+        }
+
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
         {
             try
             {
-                this._showDashboardScenario.Run();
+                _displayDashboardCommand.Execute(null, SophisApplication.MainCommandTarget);
             }
             catch (Exception ex)
             {
@@ -303,7 +316,7 @@ namespace RxdSolutions.FusionLink
             }, DispatcherPriority.ApplicationIdle);
         }
 
-        private void AutomaticComputatingChanged(object sender, EventArgs e)
+        private void AutomaticComputingChanged(object sender, EventArgs e)
         {
             _context.InvokeAsync(() =>
             {

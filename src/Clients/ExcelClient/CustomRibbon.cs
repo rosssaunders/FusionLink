@@ -28,7 +28,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private Microsoft.Office.Interop.Excel.Application _application;
         private AvailableConnections _availableConnections;
 
-        private static HashSet<string> _processNames = new HashSet<string>() { "sophisvalue.exe", "sophisrisque.exe" };
+        private static HashSet<string> _processNames = new HashSet<string>() { "sophisvalue", "sophisrisque" };
 
         public CustomRibbon()
         {
@@ -225,7 +225,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if(_availableConnections.AvailableEndpoints.Count == 0)
                 {
-                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
+                    _application.SetStatusBarWithResetDelay(Resources.NoEndPointsAvailableMessage, 5);
                 }
                 else
                 {
@@ -244,12 +244,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 if (_connectionMonitor.IsConnected)
                 {
                     _client.RequestCalculate();
-                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 3);
+                    _application.SetStatusBarWithResetDelay(Resources.ComputeRequestedMessage, 3);
                 }
             }
             catch(Exception ex)
             {
-                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(ex.Message, 5);
+                _application.SetStatusBarWithResetDelay(ex.Message, 5);
             }
         }
 
@@ -260,12 +260,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 if (_connectionMonitor.IsConnected)
                 {
                     _client.LoadPositions();
-                    ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 3);
+                    _application.SetStatusBarWithResetDelay(Resources.LoadPortfoliosRequestedMessage, 3);
                 }
             }
             catch(Exception ex)
             {
-                ExcelStatusBarHelperAsync.SetStatusBarWithResetDelay(ex.Message, 5);
+                _application.SetStatusBarWithResetDelay(ex.Message, 5);
             }
         }
 

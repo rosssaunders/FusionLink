@@ -7,24 +7,28 @@ using ExcelDna.Integration;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class ExcelStatusBarHelperAsync
+    public static class ExcelStatusBarHelpers
     {
-        public static void SetStatusBarWithResetDelay(string message, int delayInSeconds)
+        public static void SetStatusBarWithResetDelay(this Microsoft.Office.Interop.Excel.Application app, string message, int delayInSeconds)
         {
-            var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
-            app.StatusBar = message;
-            Task.Delay(TimeSpan.FromSeconds(delayInSeconds))
-                .ContinueWith(_ => {
+            if(app != null)
+            {
+                app.StatusBar = message;
+                Task.Delay(TimeSpan.FromSeconds(delayInSeconds))
+                    .ContinueWith(_ => {
 
-                    ExcelAsyncUtil.QueueAsMacro(() => app.StatusBar = false);
-                    
-                });
+                        ExcelAsyncUtil.QueueAsMacro(() => app.StatusBar = false);
+
+                    });
+            }
         }
 
-        public static void ResetStatusBar()
+        public static void ResetStatusBar(this Microsoft.Office.Interop.Excel.Application app)
         {
-            var app = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
-            ExcelAsyncUtil.QueueAsMacro(() => app.StatusBar = false);
+            if(app != null)
+            {
+                ExcelAsyncUtil.QueueAsMacro(() => app.StatusBar = false);
+            }
         }
     }
 }

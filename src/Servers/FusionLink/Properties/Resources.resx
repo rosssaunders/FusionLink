@@ -117,11 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CaptionBarButtonTooltip" xml:space="preserve">
-    <value>Click here to open the FusionLink dashboard</value>
-  </data>
   <data name="ColumnNotFoundMessage" xml:space="preserve">
     <value>The requested Portfolio Column '{0}' cannot be found</value>
+  </data>
+  <data name="CommandDisplayDashboardName" xml:space="preserve">
+    <value>FusionLinkDashboard</value>
+  </data>
+  <data name="CommandDisplayDashboardText" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="CommandDisplayDashboardTooltip" xml:space="preserve">
+    <value>Click here to open the FusionLink dashboard</value>
+  </data>
+  <data name="CommandOpenFusionLinkExcelName" xml:space="preserve">
+    <value>FusionLinkExcel</value>
+  </data>
+  <data name="CommandOpenFusionLinkExcelText" xml:space="preserve">
+    <value>Open Excel</value>
+  </data>
+  <data name="CommandShowFusionLinkScenarioName" xml:space="preserve">
+    <value>FusionLinkCaptionBar</value>
+  </data>
+  <data name="CommandShowFusionLinkScenarioText" xml:space="preserve">
+    <value>Display FusionLink</value>
+  </data>
+  <data name="CommandStartStopButtonName" xml:space="preserve">
+    <value>FusionLinkStopStart</value>
+  </data>
+  <data name="CommandStartStopButtonText" xml:space="preserve">
+    <value>Start / Stop</value>
   </data>
   <data name="ConnectionIdMessage" xml:space="preserve">
     <value>FusionLink Connection Id is {0}</value>
@@ -163,9 +187,6 @@
   <data name="MultipleClientsConnectedMessage" xml:space="preserve">
     <value>{0} clients connected</value>
   </data>
-  <data name="OpenFusionLinkExcel" xml:space="preserve">
-    <value>Open Excel with FusionLink</value>
-  </data>
   <data name="PortfolioNotFoundMessage" xml:space="preserve">
     <value>The requested Portfolio '{0}' cannot be found</value>
   </data>
@@ -178,23 +199,11 @@
   <data name="ScenarioShowCaptionBarMessage" xml:space="preserve">
     <value>Display FusionLink</value>
   </data>
-  <data name="ShowDashboard" xml:space="preserve">
-    <value>Display FusionLink Dashboard</value>
-  </data>
-  <data name="ShowDashboardShort" xml:space="preserve">
-    <value>Dashboard</value>
-  </data>
-  <data name="ShowFusionLinkScenarioName" xml:space="preserve">
-    <value>Display FusionLink</value>
-  </data>
   <data name="SingleClientConnectedMessage" xml:space="preserve">
     <value>{0} client connected</value>
   </data>
   <data name="StartButtonText" xml:space="preserve">
     <value>Start</value>
-  </data>
-  <data name="StartStopButtonMessage" xml:space="preserve">
-    <value>Start / Stop FusionLink</value>
   </data>
   <data name="StopButtonText" xml:space="preserve">
     <value>Stop</value>

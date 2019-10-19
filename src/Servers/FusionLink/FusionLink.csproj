@@ -81,6 +81,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Ribbon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetTools">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
@@ -129,6 +133,10 @@
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
@@ -193,6 +201,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Ribbon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_72'">
     <Reference Include="MFCCaptionBar">
@@ -243,6 +255,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Ribbon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
     <Reference Include="SophisDotNetToolkit">
@@ -279,6 +295,10 @@
     </Reference>
     <Reference Include="Sophis.Core.Data">
       <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -329,6 +349,10 @@
     </Reference>
     <Reference Include="Sophis.Core.Data">
       <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

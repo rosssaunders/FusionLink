@@ -70,7 +70,7 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/RXDSolutions/FusionLink/wiki/.
+        ///   Looks up a localized string similar to https://github.com/RXDSolutions/FusionLinkDocs/wiki/.
         /// </summary>
         internal static string DocumentationBaseAddress {
             get {

@@ -70,11 +70,13 @@
                     Value="10" />
             <Setter Property="BorderBrush"
                     Value="Black" />
-            <Setter Property="Background"
-                    Value="WhiteSmoke" />
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="WhiteSmoke" Opacity="0.75" />
+                </Setter.Value>
+            </Setter>
             <Setter Property="BorderThickness"
                     Value="1" />
-
         </Style>
 
         <Canvas x:Key="RxdSolutionsBackground">
@@ -986,8 +988,6 @@
                    FontSize="15"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Center"
-                   Cursor="Hand"
-                   MouseDown="Help_MouseDown"
                    Grid.Row="1">Subscriptions</TextBlock>
 
         <Grid Grid.Column="3"
@@ -1038,19 +1038,21 @@
                    Text="{Binding PortfolioPropertySubscriptionCount}"
                    Style="{StaticResource SubscriptionCount}"></TextBlock>
 
-
         <TextBlock Grid.Column="0"
                    Grid.Row="3"
                    Text="Portfolio"
                    Style="{StaticResource SubscriptionLabel}" />
+        
         <TextBlock Grid.Column="1"
                    Grid.Row="3"
                    Text="Position"
                    Style="{StaticResource SubscriptionLabel}" />
+        
         <TextBlock Grid.Column="2"
                    Grid.Row="3"
                    Text="System"
                    Style="{StaticResource SubscriptionLabel}" />
+        
         <TextBlock Grid.Column="3"
                    Grid.Row="3"
                    Text="Portfolio Property"
@@ -1059,6 +1061,7 @@
         <TextBlock Grid.Row="5"
                    Grid.Column="0"
                    Style="{StaticResource FieldLabel}">Clients connected:</TextBlock>
+        
         <TextBlock Grid.Row="5"
                    Grid.Column="1"
                    Style="{StaticResource FieldValue}"
