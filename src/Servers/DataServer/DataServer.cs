@@ -535,7 +535,7 @@ namespace RxdSolutions.FusionLink
                         OnPublishQueueChanged?.Invoke(this, new EventArgs());
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     try
                     {
