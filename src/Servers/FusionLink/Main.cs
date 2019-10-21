@@ -169,7 +169,7 @@ namespace RxdSolutions.FusionLink
                 var ribbon = RibbonBuilder.Instance.GetRibbon();
                 RibbonBuilder.Instance.BuildRibbon(ribbon);
 
-            }), DispatcherPriority.ApplicationIdle);
+            }), DispatcherPriority.Normal);
         }
 
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
