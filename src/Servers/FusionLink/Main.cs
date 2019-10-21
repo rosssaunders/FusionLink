@@ -171,7 +171,7 @@ namespace RxdSolutions.FusionLink
 
             }), DispatcherPriority.Normal);
         }
-
+        
         private void OnCaptionBarButtonClicked(object sender, EventArgs e)
         {
             try
