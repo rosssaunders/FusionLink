@@ -94,5 +94,10 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(CurveNotFoundFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
         List<CurvePoint> GetCurvePoints(string curency, string family, string reference);
+
+        [OperationContract(Name = "GetTransactionsByPosition")]
+        [FaultContract(typeof(PositionNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate);
     }
 }

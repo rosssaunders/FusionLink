@@ -398,6 +398,21 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _server.GetTransactions(positionId, startDate, endDate);
+            }
+            catch (FaultException<PositionNotFoundFaultContract> ex)
+            {
+                throw new CurveNotFoundException($"{Resources.PositionNotFoundMessage} - {ex.Detail.PositionId}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
 
         private void InvokeServerWithErrorHandling(Action action)
         {

@@ -106,7 +106,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                         //Ignore and try again on the next pass
                                         IsConnected = false;
                                     }
-                                    catch (CommunicationException ex)
+                                    catch (CommunicationException)
                                     {
                                         IsConnected = false;
 

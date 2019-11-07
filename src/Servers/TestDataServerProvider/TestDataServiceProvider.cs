@@ -204,5 +204,10 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

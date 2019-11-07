@@ -470,6 +470,22 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _dataServiceProvider.GetTransactions(positionId, startDate, endDate);
+            }
+            catch (PositionNotFoundException)
+            {
+                throw new FaultException<PositionNotFoundFaultContract>(new PositionNotFoundFaultContract() { PositionId = positionId });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
         public void RequestCalculate()
         {
             try

@@ -262,43 +262,43 @@
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>E:\UAT_SOPHIS\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -308,51 +308,51 @@
       <Private>true</Private>
     </Reference>
     <Reference Include="Sophis.DotNetCore">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.DotNetCore.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.DotNetCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetTools.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\SophisDotNetValue.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>E:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
+      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

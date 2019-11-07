@@ -27,6 +27,7 @@ namespace RxdSolutions.FusionLink.Provider
         private readonly PositionService _positionService;
         private readonly InstrumentService _instrumentService;
         private readonly CurveService _curveService;
+        private readonly TransactionService _transactionService;
 
         private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
         private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
@@ -59,7 +60,8 @@ namespace RxdSolutions.FusionLink.Provider
                                          ITransactionListener transactionListener,
                                          PositionService positionService,
                                          InstrumentService instrumentService,
-                                         CurveService curveService)
+                                         CurveService curveService,
+                                         TransactionService transactionService)
         {
             _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
@@ -69,6 +71,8 @@ namespace RxdSolutions.FusionLink.Provider
             _positionService = positionService;
             _instrumentService = instrumentService;
             _curveService = curveService;
+            _transactionService = transactionService;
+
             _mainExtraction = sophis.globals.CSMExtraction.gMain();
 
             _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s, _mainExtraction));
@@ -191,6 +195,27 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception e)
                 {
                     CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _transactionService.GetTransactions(positionId, startDate, endDate);
+                }
+                catch (PositionNotFoundException e)
+                {
+                    CSMLog.Write(_className, "GetTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });

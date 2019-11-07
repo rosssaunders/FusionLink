@@ -198,7 +198,8 @@ namespace RxdSolutions.FusionLink
                                                                     aggregateTransactionListener,
                                                                     new PositionService(),
                                                                     new InstrumentService(),
-                                                                    new CurveService());
+                                                                    new CurveService(),
+                                                                    new TransactionService());
 
             CreateDataServerFromConfig(dataServiceProvider);
 

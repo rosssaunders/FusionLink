@@ -95,5 +95,14 @@ namespace RxdSolutions.FusionLink.Client.Properties {
                 return ResourceManager.GetString("PortfolioNotLoadedMessage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested position could not be found.
+        /// </summary>
+        internal static string PositionNotFoundMessage {
+            get {
+                return ResourceManager.GetString("PositionNotFoundMessage", resourceCulture);
+            }
+        }
     }
 }

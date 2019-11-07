@@ -44,5 +44,7 @@ namespace RxdSolutions.FusionLink
         List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
 
         List<CurvePoint> GetCurvePoints(string currency, string family, string reference);
+        
+        List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate);
     }
 }

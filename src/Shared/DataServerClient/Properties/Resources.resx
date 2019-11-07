@@ -129,4 +129,7 @@
   <data name="PortfolioNotLoadedMessage" xml:space="preserve">
     <value>The requested positions cannot be found as the portfolio is not loaded.</value>
   </data>
+  <data name="PositionNotFoundMessage" xml:space="preserve">
+    <value>The requested position could not be found</value>
+  </data>
 </root>
