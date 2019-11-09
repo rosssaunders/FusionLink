@@ -57,13 +57,13 @@ namespace RxdSolutions.FusionLink.Interface
         public short BlockTrade { get; set; }
         
         [DataMember] 
-        public int Broker { get; set; }
+        public string Broker { get; set; }
         
         [DataMember] 
         public double BrokerFees { get; set; }
         
         [DataMember] 
-        public int CashDepositary { get; set; }
+        public string CashDepositary { get; set; }
         
         [DataMember] 
         public int ClearingExceptionParty { get; set; }
@@ -90,10 +90,10 @@ namespace RxdSolutions.FusionLink.Interface
         public short CompressionResult { get; set; }
         
         [DataMember] 
-        public int Counterparty { get; set; }
+        public string Counterparty { get; set; }
         
         [DataMember] 
-        public int Counterparty2 { get; set; }
+        public string Counterparty2 { get; set; }
         
         [DataMember] 
         public double CounterpartyFees { get; set; }
@@ -241,7 +241,10 @@ namespace RxdSolutions.FusionLink.Interface
         
         [DataMember] 
         public int SophisOrderId { get; set; }
-        
+
+        [DataMember]
+        public double Spot { get; set; }
+
         [DataMember] 
         public string TradeRepository { get; set; }
         
@@ -255,7 +258,7 @@ namespace RxdSolutions.FusionLink.Interface
         public DateTime TransactionDate { get; set; }
         
         [DataMember] 
-        public double TransactionTime { get; set; }
+        public TimeSpan TransactionTime { get; set; }
         
         [DataMember] 
         public string TransactionType { get; set; }

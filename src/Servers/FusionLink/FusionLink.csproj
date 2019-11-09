@@ -269,6 +269,10 @@
       <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetToolkitBackOffice">
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitBackOffice.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisPortfoliosGUI">
       <HintPath>C:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
@@ -377,13 +381,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v71319_x64)\Toolkits" /y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(Sophis_v726_x64)\Toolkits" /y</PostBuildEvent>
-  </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(OutDir)*.* C:\UAT_SOPHIS\CLIENT\Toolkits" />
+    <Exec Command="xcopy $(TargetDir)*.* \\wgsb-rsau02.bhdgsystematic.com\e$\UAT_SOPHIS\CLIENT\Toolkits\ /y" />
   </Target>
 </Project>
