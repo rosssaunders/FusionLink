@@ -200,22 +200,48 @@ namespace RxdSolutions.FusionLink.Provider
             });
         }
 
-        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
         {
             return _context.Invoke(() => {
 
                 try
                 {
-                    return _transactionService.GetTransactions(positionId, startDate, endDate);
+                    return _transactionService.GetPositionTransactions(positionId, startDate, endDate);
                 }
                 catch (PositionNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "GetTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _transactionService.GetPortfolioTransactions(portfolioId, startDate, endDate);
+                }
+                catch (PortfolioNotFoundException e)
+                {
+                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (PortfolioNotLoadedException e)
+                {
+                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });

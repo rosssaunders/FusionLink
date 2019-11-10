@@ -13,172 +13,215 @@ using sophis.market_data;
 using sophis.portfolio;
 using sophis.static_data;
 using sophis.utils;
+using System.Collections;
 
 namespace RxdSolutions.FusionLink.Services
 {
     public class TransactionService
     {
-        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        private readonly PositionService positionService;
+
+        public TransactionService(PositionService positionService)
         {
-            using (var position = CSMPosition.GetCSRPosition(positionId))
-            using (var transactions = new CSMTransactionVector())
+            this.positionService = positionService;
+        }
+
+        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
+        {
+            _userNameCacheLookup.Clear();
+
+            using var position = CSMPosition.GetCSRPosition(positionId);
+
+            if(position is object)
             {
+                var transactions = new CSMTransactionVector();
                 position.GetTransactions(transactions);
 
-                var tradesInRange = transactions.OfType<CSMTransaction>().Where(x =>
-                {
-                    var dt = (DateTime)x.GetTransactionDate().GetDateTime();
-                    return (dt >= startDate && dt <= endDate);
-                });
-
-                return ConvertToModel(tradesInRange);
+                return GetTradesForPosition(startDate, endDate, transactions);
+            }
+            else
+            {
+                throw new PortfolioNotFoundException();
             }
         }
 
+        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
+        {
+            _userNameCacheLookup.Clear();
+
+            var results = new List<Transaction>();
+
+            var sql = $"DATENEG >= TO_DATE('{startDate.ToString("yyyyMMdd")}', 'YYYYMMDD') AND DATENEG <= TO_DATE('{endDate.ToString("yyyyMMdd")}', 'YYYYMMDD')";
+
+            using var extraction = new CSMExtraction(sql, "GetPortfolioTransactions");
+
+            //Add the Fund as the Entry point to the extraction
+            var entryPoints = new ArrayList();
+            extraction.GetEntryPointsList(entryPoints);
+            entryPoints.Add(portfolioId);
+            extraction.Create();
+
+            using var portfolio = CSMPortfolio.GetCSRPortfolio(portfolioId, extraction);
+
+            if (portfolio is null)
+                return results;
+
+            var positionCount = portfolio.GetFlatViewPositionCount();
+            for (var x = 0; x < positionCount; x++)
+            {
+                using var position = portfolio.GetNthFlatViewPosition(x);
+                using var transactionVector = new CSMTransactionVector();
+                position.GetTransactions(transactionVector);
+
+                var models = GetTradesForPosition(startDate, endDate, transactionVector);
+
+                results.AddRange(models);
+            }
+
+            return results;
+        }
+
+        private List<Transaction> GetTradesForPosition(DateTime startDate, DateTime endDate, CSMTransactionVector transactions)
+        {
+            var tradesInRange = transactions.OfType<CSMTransaction>().Where(x =>
+            {
+                var dt = (DateTime)x.GetTransactionDate().GetDateTime();
+                return (dt >= startDate && dt <= endDate);
+            });
+
+            return ConvertToModel(tradesInRange);
+        }
+
+        private Dictionary<int, string> _userNameCacheLookup = new Dictionary<int, string>();
+
         private string GetUserName(int id)
         {
-            using (var decisionMaker = new CSMUserRights((uint)id))
-            using (var name = decisionMaker.GetName())
+            if(!_userNameCacheLookup.ContainsKey(id))
             {
-                return name.StringValue;
+                if (id == 0)
+                    _userNameCacheLookup.Add(0, "MANAGER");
+                else
+                {
+                    using var user = new CSMUserRights((uint)id); //This will trigger a SQL call so we need to cache the results
+
+                    if(user is null)
+                        _userNameCacheLookup.Add(id, "UNKNOWN");
+                    else
+                    {
+                        using var name = user.GetName();
+                        _userNameCacheLookup.Add(id, name.StringValue);
+                    }
+                }
             }
+
+            return _userNameCacheLookup[id];
         }
 
         private string GetThirdPartyName(int id)
         {
-            using (var entity = new CSMThirdParty(id))
-            using (var name = entity.GetName())
-            {
-                return name.StringValue;
-            }
+            using var entity = CSMThirdParty.GetCSRThirdParty(id);
+
+            if (entity is null)
+                return "";
+
+            using var name = entity.GetName();
+            return name.StringValue;
         }
 
         private string GetInstrumentReference(int id)
         {
-            using (var entity = CSMInstrument.GetInstance(id))
-            using (var name = entity.GetReference())
-            {
-                return name.StringValue;
-            }
+            using var instrument = CSMInstrument.GetInstance(id);
+
+            if (instrument is null)
+                return "";
+
+            using var name = instrument.GetReference();
+            return name.StringValue;
         }
 
         private string GetCurrencyCode(int id)
         {
-            using (var name = new CMString())
-            {
-                CSMCurrency.CurrencyToString(id, name);
-                return name.StringValue;
-            }
+            using var name = new CMString();
+            CSMCurrency.CurrencyToString(id, name);
+            return name.StringValue;
         }
 
         private string GetQuotationType(eMAskQuotationType eMAskQuotationType)
         {
-            switch(eMAskQuotationType)
+            return eMAskQuotationType switch
             {
-                case eMAskQuotationType.M_adLastQuotationValidValue:
-                    return "Last Quotation Valid Value";
+                eMAskQuotationType.M_adLastQuotationValidValue => "Last Quotation Valid Value",
 
-                case eMAskQuotationType.M_aqInAnotherCurrency:
-                    return "In Another Currency";
+                eMAskQuotationType.M_aqInAnotherCurrency => "In Another Currency",
 
-                case eMAskQuotationType.M_aqInPercentage:
-                    return "In Percentage";
+                eMAskQuotationType.M_aqInPercentage => "In Percentage",
 
-                case eMAskQuotationType.M_aqInPercentWithAccrued:
-                    return "Percent With Accrued";
+                eMAskQuotationType.M_aqInPercentWithAccrued => "Percent With Accrued",
 
-                case eMAskQuotationType.M_aqInPrice:
-                    return "In Price";
+                eMAskQuotationType.M_aqInPrice => "In Price",
 
-                case eMAskQuotationType.M_aqInPriceWithoutAccrued:
-                    return "In Price Without Accrued";
+                eMAskQuotationType.M_aqInPriceWithoutAccrued => "In Price Without Accrued",
 
-                case eMAskQuotationType.M_aqInRate:
-                    return "In Rate";
+                eMAskQuotationType.M_aqInRate => "In Rate",
 
-                case eMAskQuotationType.M_aqNotDefined:
-                    return "Not Defined";
+                eMAskQuotationType.M_aqNotDefined => "Not Defined",
 
-                case eMAskQuotationType.M_aqUncertainMode:
-                    return "Uncertain Mode";
+                eMAskQuotationType.M_aqUncertainMode => "Uncertain Mode",
 
-                default:
-                    return "Unknown";
-            }
+                _ => "Unknown",
+            };
         }
 
         private string GetPositionType(eMPositionType positionType)
         {
-            switch (positionType)
+            return positionType switch
             {
-                case eMPositionType.M_pVirtualForValue:
-                    return "Virtual For Value";
-                
-                case eMPositionType.M_pVirtualCashPerCurrency:
-                    return "Virtual Cash Per Currency";
-                
-                case eMPositionType.M_pVirtualForNostroInterest:
-                    return "Virtual For Nostro Interest";
-                
-                case eMPositionType.M_pVirtual:
-                    return "Virtual";
-                
-                case eMPositionType.M_pVirtualMarginCall:
-                    return "Virtual Margin Call";
-                
-                case eMPositionType.M_pContractForDifference:
-                    return "Contract For Difference";
-                
-                case eMPositionType.M_pSecurityLoan:
-                    return "Security Loan";
-                
-                case eMPositionType.M_pUseArbitrageSimulation:
-                    return "Use Arbitrage Simulation";
-                
-                case eMPositionType.M_pUseLastSimulation:
-                    return "Use Last Simulation";
-                
-                case eMPositionType.M_pUseTheoreticalSimulation:
-                    return "Use Theoretical Simulation";
-                
-                case eMPositionType.M_pUseArbitrage:
-                    return "Use Arbitrage";
-                
-                case eMPositionType.M_pUseLast:
-                    return "Use Last";
-                
-                case eMPositionType.M_pUseTheoretical:
-                    return "Use Theoretical";
-                
-                case eMPositionType.M_pSimulatedVirtualForex:
-                    return "Simulated Virtual Forex";
-                
-                case eMPositionType.M_pVirtualForex:
-                    return "Virtual Forex";
-                
-                case eMPositionType.M_pBrokerage:
-                    return "Brokerage";
-                
-                case eMPositionType.M_pBasket:
-                    return "Basket";
-                
-                case eMPositionType.M_pSimulation:
-                    return "Simulation";
-                
-                case eMPositionType.M_pLended:
-                    return "Lended";
-                
-                case eMPositionType.M_pArbitrage:
-                    return "Arbitrage";
-                
-                case eMPositionType.M_pBlocked:
-                    return "Blocked";
-                
-                case eMPositionType.M_pStandard:
-                    return "Standard";
-            }
+                eMPositionType.M_pVirtualForValue => "Virtual For Value",
 
-            return "Unknown";
+                eMPositionType.M_pVirtualCashPerCurrency => "Virtual Cash Per Currency",
+
+                eMPositionType.M_pVirtualForNostroInterest => "Virtual For Nostro Interest",
+
+                eMPositionType.M_pVirtual => "Virtual",
+
+                eMPositionType.M_pVirtualMarginCall => "Virtual Margin Call",
+
+                eMPositionType.M_pContractForDifference => "Contract For Difference",
+
+                eMPositionType.M_pSecurityLoan => "Security Loan",
+
+                eMPositionType.M_pUseArbitrageSimulation => "Use Arbitrage Simulation",
+
+                eMPositionType.M_pUseLastSimulation => "Use Last Simulation",
+
+                eMPositionType.M_pUseTheoreticalSimulation => "Use Theoretical Simulation",
+
+                eMPositionType.M_pUseArbitrage => "Use Arbitrage",
+
+                eMPositionType.M_pUseLast => "Use Last",
+
+                eMPositionType.M_pUseTheoretical => "Use Theoretical",
+
+                eMPositionType.M_pSimulatedVirtualForex => "Simulated Virtual Forex",
+
+                eMPositionType.M_pVirtualForex => "Virtual Forex",
+
+                eMPositionType.M_pBrokerage => "Brokerage",
+
+                eMPositionType.M_pBasket => "Basket",
+
+                eMPositionType.M_pSimulation => "Simulation",
+
+                eMPositionType.M_pLended => "Lended",
+
+                eMPositionType.M_pArbitrage => "Arbitrage",
+
+                eMPositionType.M_pBlocked => "Blocked",
+
+                eMPositionType.M_pStandard => "Standard",
+
+                _ => "Unknown",
+            };
         }
 
         private string GetPaymentMethod(int v)
@@ -188,70 +231,72 @@ namespace RxdSolutions.FusionLink.Services
 
         private string GetPaymentCurrencyType(CSMTransaction.eMPaymentCurrencyType eMPaymentCurrencyType)
         {
-            switch (eMPaymentCurrencyType)
+            return eMPaymentCurrencyType switch
             {
-                case CSMTransaction.eMPaymentCurrencyType.M_pcPence:
-                    return "Pence";
-                
-                case CSMTransaction.eMPaymentCurrencyType.M_pcSettlement:
-                    return "Settlement";
-                
-                case CSMTransaction.eMPaymentCurrencyType.M_pcUnderlying:
-                    return "Underlying";
-            }
+                CSMTransaction.eMPaymentCurrencyType.M_pcPence => "Pence",
 
-            return "Unknown";
+                CSMTransaction.eMPaymentCurrencyType.M_pcSettlement => "Settlement",
+
+                CSMTransaction.eMPaymentCurrencyType.M_pcUnderlying => "Underlying",
+
+                _ => "Unknown",
+            };
         }
 
         private string GetForexCertaintyType(CSMTransaction.eMForexCertaintyType eMForexCertaintyType)
         {
-            switch (eMForexCertaintyType)
+            return eMForexCertaintyType switch
             {
-                case CSMTransaction.eMForexCertaintyType.M_fcUncertain:
-                    return "Uncertain";
-                
-                case CSMTransaction.eMForexCertaintyType.M_fcCertain:
-                    return "Certain";
-            }
+                CSMTransaction.eMForexCertaintyType.M_fcUncertain => "Uncertain",
 
-            return "Unknown";
+                CSMTransaction.eMForexCertaintyType.M_fcCertain => "Certain",
+
+                _ => "Unknown",
+            };
         }
 
         private string GetDeliveryType(eMBODeliveryType eMBODeliveryType)
         {
-            switch (eMBODeliveryType)
+            return eMBODeliveryType switch
             {
-                case eMBODeliveryType.M_bdtNA:
-                    return "NA";
-                
-                case eMBODeliveryType.M_bdtFOP:
-                    return "FOP";
-                
-                case eMBODeliveryType.M_bdtDVP:
-                    return "DVP";
-                
-                case eMBODeliveryType.M_bdtAll:
-                    return "All";
-            }
+                eMBODeliveryType.M_bdtNA => "NA",
 
-            return "Unknown";
+                eMBODeliveryType.M_bdtFOP => "FOP",
+
+                eMBODeliveryType.M_bdtDVP => "DVP",
+
+                eMBODeliveryType.M_bdtAll => "All",
+
+                _ => "Unknown",
+            };
         }
 
         private string GetCreationKind(eMTransactionOriginType eMTransactionOriginType)
         {
-            switch (eMTransactionOriginType)
+            return eMTransactionOriginType switch
             {
-                case eMTransactionOriginType.M_toElectronic:
-                    return "Electronic";
-                
-                case eMTransactionOriginType.M_toAutomatic:
-                    return "Automatic";
-                
-                case eMTransactionOriginType.M_toManual:
-                    return "Manual";
-            }
+                eMTransactionOriginType.M_toElectronic => "Electronic",
 
-            return "Unknown";
+                eMTransactionOriginType.M_toAutomatic => "Automatic",
+
+                eMTransactionOriginType.M_toManual => "Manual",
+
+                _ => "Unknown",
+            };
+        }
+
+        private string GetStatus(eMBackOfficeType backOfficeType)
+        {
+            using var s = new CSMKernelStatus((int)backOfficeType);
+            using var name = s.GetName();
+            return name.StringValue;
+        }
+
+        private string GetBusinessEvent(eMTransactionType transactionType)
+        {
+            using var be = CSMBusinessEvent.GetBusinessEventById((int)transactionType);
+            using var name = be.GetName();
+            return name.StringValue;
         }
 
         private List<Transaction> ConvertToModel(IEnumerable<CSMTransaction> transactions)
@@ -259,109 +304,104 @@ namespace RxdSolutions.FusionLink.Services
             var modelTransactions = new List<Transaction>();
             foreach (CSMTransaction t in transactions)
             {
-                var model = new Transaction();
-
-                model.AccountancyDate = t.GetAccountancyDate().GetDateTime();
-                model.AccountingBook = t.GetAccountingBook();
-                model.AccruedAmount = t.GetAccruedAmount();
-                model.AccruedAmount2 = t.GetAccruedAmount2();
-                model.AccruedCoupon = t.GetAccruedCoupon();
-                model.AccruedCouponDate = t.GetAccruedCouponDate().GetDateTime();
-                model.Adjustment = t.GetAdjustment();
-
-                model.AskQuotationType = GetQuotationType(t.GetAskQuotationType());
-                model.BackOfficeInfos = t.GetBackOfficeInfos();
-                model.BackOfficeRef = t.GetBackOfficeRef();
-
-                using (var s = new CSMKernelStatus((int)t.GetBackOfficeType()))
-                using (var name = s.GetName())
-                {
-                    model.BackOfficeType = name.ToString();
-                }
-
-                model.BasketInstrumentRef = t.GetBasketInstrumentRef();
-                model.BasketInternalCode = t.GetBasketInternalCode();
-                model.BasketQuantity = t.GetBasketQuantity();
-                model.BenchmarkCode = t.GetBenchmarkCode();
-                model.BlockTrade = t.GetBlockTrade();
-                model.Broker = GetThirdPartyName(t.GetBroker());
-                model.BrokerFees = t.GetBrokerFees();
-                model.CashDepositary = GetThirdPartyName(t.GetCashDepositary());
-                model.ClearingExceptionParty = t.GetClearingExceptionParty();
-                model.ClearingHouse = t.GetClearingHouse();
-                model.ClearingMember = t.GetClearingMember();
-                model.Comment = t.GetComment();
-                model.Commission = t.GetCommission();
-                model.CommissionDate = t.GetCommissionDate().GetDateTime();
-                model.ComponentCode = t.GetComponentCode();
-                model.CompressionResult = t.GetCompressionResult();
-                model.Counterparty = GetThirdPartyName(t.GetCounterparty());
-                model.Counterparty2 = GetThirdPartyName(t.GetCounterparty2());
-                model.CounterpartyFees = t.GetCounterpartyFees();
-                model.CreationKind = GetCreationKind(t.GetCreationKind());
-                model.CrossedReference = t.GetCrossedReference();
-                model.DecisionMaker = GetUserName(t.GetDecisionMaker());
-                model.DeliveryDate = t.GetDeliveryDate().GetDateTime();
-                model.DeliveryType = GetDeliveryType(t.GetDeliveryType());
-                model.Depositary = GetThirdPartyName(t.GetDepositary());
-                model.DepositaryOfCounterparty = GetThirdPartyName(t.GetDepositaryOfCounterparty());
-                model.DestinationTable = t.GetDestinationTable();
-                model.Entity = GetThirdPartyName(t.GetEntity());
-                model.ExecutionVenue = GetThirdPartyName(t.GetExecutionVenue());
-                model.FolioCode = t.GetFolioCode();
-                model.ForceLoad = t.GetForceLoad();
-                model.ForexCertaintyType = GetForexCertaintyType(t.GetForexCertaintyType());
-                model.ForexSpot = t.GetForexSpot();
-                model.ForwardFixingDate = t.GetForwardFixingDate().GetDateTime();
-                model.GrossAmount = t.GetGrossAmount();
-                model.InitialMargin = t.GetInitialMargin();
-                model.Instrument = GetInstrumentReference(t.GetInstrumentCode());
-                model.InstrumentCode = t.GetInstrumentCode();
-                model.InvestmentStrategyId = t.GetInvestmentStrategyId();
-                model.LostroCashId = t.GetLostroCashId();
-                model.LostroPhysicalId = t.GetLostroPhysicalId();
-                model.MarketFees = t.GetMarketFees();
-                model.MirroringReference = t.GetMirroringReference();
-                model.MirrorRule = t.GetMirrorRule();
-                model.NetAmount = t.GetNetAmount();
-                model.NostroCashId = t.GetNostroCashId();
-                model.NostroPhysicalId = t.GetNostroPhysicalId();
-                model.Notional = t.GetNotional();
-                model.Operator = GetUserName(t.GetOperator());
-                model.OrderId = t.GetOrderId();
-                model.OrderReference = t.GetOrderReference();
-                model.OtherTradeRepository = GetThirdPartyName(t.GetOtherTradeRepository());
-                model.PariPassuDate = t.GetPariPassuDate().GetDateTime();
-                model.PaymentCurrencyType = GetPaymentCurrencyType(t.GetPaymentCurrencyType());
-                model.PaymentMethod = GetPaymentMethod(t.GetPaymentMethod());
-                model.PoolFactor = t.GetPoolFactor();
-                model.Position = t.GetPositionID();
-                model.PositionType = GetPositionType(t.GetPositionType());
-                model.PsetId = t.GetPsetId();
-                model.Quantity = t.GetQuantity();
-                model.Reference = t.GetReference();
-                model.ReportingCtpy = GetThirdPartyName(t.GetReportingCtpy());
-                model.SettlementCurrency = GetCurrencyCode(t.GetSettlementCurrency());
-                model.SettlementDate = (DateTime)t.GetSettlementDate().GetDateTime();
-                model.SettlementMethod = t.GetSettlementMethod().ToString();
-                model.Spot = t.GetSpot();
-                model.SophisOrderId = t.GetSophisOrderId();
-                model.TradeRepository = GetThirdPartyName(t.GetTradeRepository());
-                model.TradeYtm = t.GetTradeYtm();
-                model.TransactionCode = t.GetTransactionCode();
-                model.TransactionDate = (DateTime)t.GetTransactionDate().GetDateTime();
-                model.TransactionTime = TimeSpan.FromSeconds(t.GetTransactionTime());
-
-                using (var be = CSMBusinessEvent.GetBusinessEventById((int)t.GetTransactionType()))
-                using (var name = be.GetName())
-                    model.TransactionType = name.StringValue;
-                
-                model.TypeSpotCurrency = GetCurrencyCode(t.GetTypeSpotCurrency());
+                Transaction model = ConvertToModel(t);
 
                 modelTransactions.Add(model);
             }
 
             return modelTransactions;
+        }
+
+        private Transaction ConvertToModel(CSMTransaction t)
+        {
+            var model = new Transaction();
+
+            model.AccountancyDate = t.GetAccountancyDate().GetDateTime();
+            model.AccountingBook = t.GetAccountingBook();
+            model.AccruedAmount = t.GetAccruedAmount();
+            model.AccruedAmount2 = t.GetAccruedAmount2();
+            model.AccruedCoupon = t.GetAccruedCoupon();
+            model.AccruedCouponDate = t.GetAccruedCouponDate().GetDateTime();
+            model.Adjustment = t.GetAdjustment();
+            model.AskQuotationType = GetQuotationType(t.GetAskQuotationType());
+            model.BackOfficeInfos = t.GetBackOfficeInfos();
+            model.BackOfficeRef = t.GetBackOfficeRef();
+            model.BackOfficeType = GetStatus(t.GetBackOfficeType());
+            model.BasketInstrumentRef = t.GetBasketInstrumentRef();
+            model.BasketInternalCode = t.GetBasketInternalCode();
+            model.BasketQuantity = t.GetBasketQuantity();
+            model.BenchmarkCode = t.GetBenchmarkCode();
+            model.BlockTrade = t.GetBlockTrade();
+            model.Broker = GetThirdPartyName(t.GetBroker());
+            model.BrokerFees = t.GetBrokerFees();
+            model.CashDepositary = GetThirdPartyName(t.GetCashDepositary());
+            model.ClearingExceptionParty = GetThirdPartyName(t.GetClearingExceptionParty());
+            model.ClearingHouse = GetThirdPartyName(t.GetClearingHouse());
+            model.ClearingMember = GetThirdPartyName(t.GetClearingMember());
+            model.Comment = t.GetComment();
+            model.Commission = t.GetCommission();
+            model.CommissionDate = t.GetCommissionDate().GetDateTime();
+            model.ComponentCode = t.GetComponentCode();
+            model.CompressionResult = t.GetCompressionResult();
+            model.Counterparty = GetThirdPartyName(t.GetCounterparty());
+            model.Counterparty2 = GetThirdPartyName(t.GetCounterparty2());
+            model.CounterpartyFees = t.GetCounterpartyFees();
+            model.CreationKind = GetCreationKind(t.GetCreationKind());
+            model.CrossedReference = t.GetCrossedReference();
+            model.DecisionMaker = GetUserName(t.GetDecisionMaker());
+            model.DeliveryDate = t.GetDeliveryDate().GetDateTime();
+            model.DeliveryType = GetDeliveryType(t.GetDeliveryType());
+            model.Depositary = GetThirdPartyName(t.GetDepositary());
+            model.DepositaryOfCounterparty = GetThirdPartyName(t.GetDepositaryOfCounterparty());
+            model.Entity = GetThirdPartyName(t.GetEntity());
+            model.ExecutionVenue = GetThirdPartyName(t.GetExecutionVenue());
+            model.FolioCode = t.GetFolioCode();
+            model.ForceLoad = t.GetForceLoad();
+            model.ForexCertaintyType = GetForexCertaintyType(t.GetForexCertaintyType());
+            model.ForexSpot = t.GetForexSpot();
+            model.ForwardFixingDate = t.GetForwardFixingDate().GetDateTime();
+            model.GrossAmount = t.GetGrossAmount();
+            model.InitialMargin = t.GetInitialMargin();
+            model.Instrument = GetInstrumentReference(t.GetInstrumentCode());
+            model.InstrumentCode = t.GetInstrumentCode();
+            model.InvestmentStrategyId = t.GetInvestmentStrategyId();
+            model.LostroCashId = t.GetLostroCashId();
+            model.LostroPhysicalId = t.GetLostroPhysicalId();
+            model.MarketFees = t.GetMarketFees();
+            model.MirroringReference = t.GetMirroringReference();
+            model.MirrorRule = t.GetMirrorRule();
+            model.NetAmount = t.GetNetAmount();
+            model.NostroCashId = t.GetNostroCashId();
+            model.NostroPhysicalId = t.GetNostroPhysicalId();
+            model.Notional = t.GetNotional();
+            model.Operator = GetUserName(t.GetOperator());
+            model.OrderId = t.GetOrderId();
+            model.OrderReference = t.GetOrderReference();
+            model.OtherTradeRepository = GetThirdPartyName(t.GetOtherTradeRepository());
+            model.PariPassuDate = t.GetPariPassuDate().GetDateTime();
+            model.PaymentCurrencyType = GetPaymentCurrencyType(t.GetPaymentCurrencyType());
+            model.PaymentMethod = GetPaymentMethod(t.GetPaymentMethod());
+            model.PoolFactor = t.GetPoolFactor();
+            model.Position = t.GetPositionID();
+            model.PositionType = GetPositionType(t.GetPositionType());
+            model.PsetId = t.GetPsetId();
+            model.Quantity = t.GetQuantity();
+            model.Reference = t.GetReference();
+            model.ReportingCtpy = GetThirdPartyName(t.GetReportingCtpy());
+            model.SettlementCurrency = GetCurrencyCode(t.GetSettlementCurrency());
+            model.SettlementDate = (DateTime)t.GetSettlementDate().GetDateTime();
+            model.SettlementMethod = t.GetSettlementMethod().ToString();
+            model.Spot = t.GetSpot();
+            model.SophisOrderId = t.GetSophisOrderId();
+            model.TradeRepository = GetThirdPartyName(t.GetTradeRepository());
+            model.TradeYtm = t.GetTradeYtm();
+            model.TransactionCode = t.GetTransactionCode();
+            model.TransactionDate = (DateTime)t.GetTransactionDate().GetDateTime();
+            model.TransactionTime = TimeSpan.FromSeconds(t.GetTransactionTime());
+            model.TransactionType = GetBusinessEvent(t.GetTransactionType());
+            model.TypeSpotCurrency = GetCurrencyCode(t.GetTypeSpotCurrency());
+
+            return model;
         }
     }
 }

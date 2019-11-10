@@ -135,6 +135,12 @@
   <data name="NotConnectedMessage" xml:space="preserve">
     <value>Not connected</value>
   </data>
+  <data name="PortfolioNotEnteredMessage" xml:space="preserve">
+    <value>The portfolio id must be greater than 0</value>
+  </data>
+  <data name="PositionNotEnteredMessage" xml:space="preserve">
+    <value>The position id must be greater than 0</value>
+  </data>
   <data name="SearchingForServersMessage" xml:space="preserve">
     <value>Searching for available FusionLink servers. Please wait...</value>
   </data>

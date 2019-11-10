@@ -14,36 +14,35 @@ namespace RxdSolutions.FusionLink.Services
         {
             var results = new List<int>();
 
-            using (var portfolio = CSMPortfolio.GetCSRPortfolio(folioId))
+            using var portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
+
+            if (portfolio is object)
             {
-                if (portfolio is object)
+                if (!portfolio.IsLoaded())
                 {
-                    if (!portfolio.IsLoaded())
-                    {
-                        throw new PortfolioNotLoadedException();
-                    }
-
-                    GetPositionsFromPortfolio(portfolio, positions, results);
-
-                    var allChildren = new ArrayList();
-                    portfolio.GetChildren(allChildren);
-
-                    for (int i = 0; i < allChildren.Count; i++)
-                    {
-                        var current = allChildren[i] as CSMPortfolio;
-
-                        if (current is object)
-                        {
-                            GetPositionsFromPortfolio(current, positions, results);
-                        }
-                    }
-
-                    return results;
+                    throw new PortfolioNotLoadedException();
                 }
-                else
+
+                GetPositionsFromPortfolio(portfolio, positions, results);
+
+                var allChildren = new ArrayList();
+                portfolio.GetChildren(allChildren);
+
+                for (int i = 0; i < allChildren.Count; i++)
                 {
-                    throw new PortfolioNotFoundException();
+                    var current = allChildren[i] as CSMPortfolio;
+
+                    if (current is object)
+                    {
+                        GetPositionsFromPortfolio(current, positions, results);
+                    }
                 }
+
+                return results;
+            }
+            else
+            {
+                throw new PortfolioNotFoundException();
             }
         }
 

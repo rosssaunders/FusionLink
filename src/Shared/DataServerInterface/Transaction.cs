@@ -66,13 +66,13 @@ namespace RxdSolutions.FusionLink.Interface
         public string CashDepositary { get; set; }
         
         [DataMember] 
-        public int ClearingExceptionParty { get; set; }
+        public string ClearingExceptionParty { get; set; }
         
         [DataMember] 
-        public int ClearingHouse { get; set; }
+        public string ClearingHouse { get; set; }
         
         [DataMember] 
-        public int ClearingMember { get; set; }
+        public string ClearingMember { get; set; }
         
         [DataMember] 
         public string Comment { get; set; }
@@ -118,9 +118,6 @@ namespace RxdSolutions.FusionLink.Interface
         
         [DataMember] 
         public string DepositaryOfCounterparty { get; set; }
-        
-        [DataMember] 
-        public string DestinationTable { get; set; }
         
         [DataMember] 
         public string Entity { get; set; }

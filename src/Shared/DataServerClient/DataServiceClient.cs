@@ -98,6 +98,8 @@ namespace RxdSolutions.FusionLink.Client
                     binding.MaxReceivedMessageSize = int.MaxValue;
                     binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
                     binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
+                    binding.SendTimeout = new TimeSpan(0, 5, 0);
+                    binding.ReceiveTimeout = new TimeSpan(0, 5, 0);
 
                     _callback = new DataServiceClientCallback();
                     _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
@@ -107,7 +109,7 @@ namespace RxdSolutions.FusionLink.Client
                     _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
 
                     _server = DuplexChannelFactory<IDataServiceServer>.CreateChannel(_callback, binding, address);
-
+                    
                     _server.Register();
 
                     //Subscribe to any topics in case this is a reconnection
@@ -398,15 +400,43 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
-        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
         {
             try
             {
-                return _server.GetTransactions(positionId, startDate, endDate);
+                var results = _server.GetPositionTransactions(positionId, startDate, endDate);
+
+                results = results.OrderBy(x => x.TransactionCode).ToList();
+
+                return results;
             }
             catch (FaultException<PositionNotFoundFaultContract> ex)
             {
                 throw new CurveNotFoundException($"{Resources.PositionNotFoundMessage} - {ex.Detail.PositionId}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var results = _server.GetPortfolioTransactions(portfolioId, startDate, endDate);
+
+                results = results.OrderBy(x => x.TransactionCode).ToList();
+
+                return results;
+            }
+            catch (FaultException<PortfolioNotFoundFaultContract> ex)
+            {
+                throw new PortfolioNotFoundException($"{Resources.PortfolioNotFoundMessage} - {ex.Detail.PortfolioId}");
+            }
+            catch (FaultException<PortfolioNotLoadedFaultContract> ex)
+            {
+                throw new PortfolioNotLoadedException($"{Resources.PortfolioNotLoadedMessage} - {ex.Detail.PortfolioId}");
             }
             catch (FaultException<ErrorFaultContract> ex)
             {

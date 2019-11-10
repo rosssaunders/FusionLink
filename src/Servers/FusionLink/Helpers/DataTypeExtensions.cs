@@ -130,10 +130,8 @@ namespace RxdSolutions.FusionLink.Helpers
 
         public static int ConvertDateTime(DateTime value)
         {
-            using(var day = new CSMDay(value.Day, value.Month, value.Year))
-            {
-                return day.toLong();
-            }
+            using var day = new CSMDay(value.Day, value.Month, value.Year);
+            return day.toLong();
         }
 
         private static object ConvertString(string inString)

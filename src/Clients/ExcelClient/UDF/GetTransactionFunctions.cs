@@ -12,12 +12,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
 {
     public static class GetTransactionFunctions
     {
-        private static Dictionary<string, Func<Transaction, object>> fieldLookup = new Dictionary<string, Func<Transaction, object>>();
-
-        private static List<string> defaultFields = new List<string>();
+        private static readonly Dictionary<string, Func<Transaction, object>> fieldLookup = new Dictionary<string, Func<Transaction, object>>();
+        private static readonly List<string> defaultFields = new List<string>();
 
         static GetTransactionFunctions()
         {
+            defaultFields.Add("Position");
             defaultFields.Add("TransactionCode");
             defaultFields.Add("InstrumentCode");
             defaultFields.Add("Instrument");
@@ -40,7 +40,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
             defaultFields.Add("Comment");
             defaultFields.Add("BackOfficeInfos");
             defaultFields.Add("BackOfficeType");
-
 
             fieldLookup.Add("AccountancyDate", x => x.AccountancyDate);
             fieldLookup.Add("AccountingBook", x => x.AccountingBook);
@@ -79,7 +78,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
             fieldLookup.Add("DeliveryType", x => x.DeliveryType);
             fieldLookup.Add("Depositary", x => x.Depositary);
             fieldLookup.Add("DepositaryOfCounterparty", x => x.DepositaryOfCounterparty);
-            fieldLookup.Add("DestinationTable", x => x.DestinationTable);
             fieldLookup.Add("Entity", x => x.Entity);
             fieldLookup.Add("ExecutionVenue", x => x.ExecutionVenue);
             fieldLookup.Add("FolioCode", x => x.FolioCode);
@@ -130,15 +128,49 @@ namespace RxdSolutions.FusionLink.ExcelClient
             fieldLookup.Add("TypeSpotCurrency", x => x.TypeSpotCurrency);
         }
 
-        [ExcelFunction(Name = "GETTRANSACTIONS",
+        [ExcelFunction(Name = "GETPOSITIONTRANSACTIONS",
                        Description = "Returns a list of transactions for a given position.",
-                       HelpTopic = "Get-Transactions")]
-        public static object GetTransactions(
-            [ExcelArgument(Name = "positionId", Description = "The Id of the position")]int positionId,
+                       HelpTopic = "Get-Position-Transactions")]
+        public static object GetPositionTransactions(
+            [ExcelArgument(Name = "position_id", Description = "The id of the position")]int positionId,
             [ExcelArgument(Name = "start_date", Description = "The start date")]DateTime startDate,
-            [ExcelArgument(Name = "end_Date", Description = "The end date")]DateTime endDate,
-            [ExcelArgument(Name = "extra_fields", Description = "Addition fields to display", AllowReference = false)]object[,] extraFields)
+            [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
+            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
         {
+            if (positionId <= 0)
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotEnteredMessage));
+
+            return GetTransactions(startDate, endDate, extraFields, (startDate, endDate) => AddIn.Client.GetPositionTransactions(positionId, startDate, endDate));
+        }
+
+        [ExcelFunction(Name = "GETPORTFOLIOTRANSACTIONS",
+               Description = "Returns a list of transactions for a given portfolio.",
+               HelpTopic = "Get-Portfolio-Transactions")]
+        public static object GetPortfolioTransactions(
+            [ExcelArgument(Name = "portfolio_id", Description = "The id of the portfolio")]int portfolioId,
+            [ExcelArgument(Name = "start_date", Description = "The start date")]DateTime startDate,
+            [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
+            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
+        {
+            if(portfolioId <= 0)
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotEnteredMessage));
+
+            return GetTransactions(startDate, endDate, extraFields, (startDate, endDate) => AddIn.Client.GetPortfolioTransactions(portfolioId, startDate, endDate));
+        }
+
+        private static object GetTransactions(DateTime startDate, DateTime endDate, object[,] extraFields, Func<DateTime, DateTime, List<Transaction>> getTransactions)
+        {
+            if (startDate == ExcelStaticData.ExcelMinDate)
+                startDate = DateTime.MinValue;
+
+            if (endDate == ExcelStaticData.ExcelMinDate)
+                endDate = DateTime.MaxValue;
+
+            if (startDate > endDate)
+            {
+                return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.StartDateGreaterThanEndDateMessage));
+            }
+
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));
@@ -146,8 +178,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             try
             {
-                var results = AddIn.Client.GetTransactions(positionId, startDate, endDate);
-               
+                var results = getTransactions(startDate, endDate); 
+
                 if (results.Count == 0)
                 {
                     return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.ExcelEmptyRange);
@@ -155,21 +187,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 else
                 {
                     var extraFieldsLength = 0;
-                    if(!(extraFields[0, 0] == ExcelMissing.Value))
+                    if (!(extraFields[0, 0] == ExcelMissing.Value))
                     {
                         extraFieldsLength = extraFields.Length;
                     }
 
-                    object[,] array = new object[results.Count + 1, defaultFields.Count + extraFields.Length];
+                    object[,] array = new object[results.Count + 1, (defaultFields.Count - 1) + extraFields.Length];
 
                     var k = 0;
                     foreach (var fld in defaultFields)
                     {
                         array[0, k++] = fld;
                     }
-                    
-                    if(extraFieldsLength > 0)
-                        foreach(var ef in extraFields)
+
+                    if (extraFieldsLength > 0)
+                        foreach (var ef in extraFields)
                         {
                             array[0, k++] = ef;
                         }
@@ -187,7 +219,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                         if (extraFieldsLength > 0)
                             foreach (var ef in extraFields)
                             {
-                                if(fieldLookup.ContainsKey(ef.ToString()))
+                                if (fieldLookup.ContainsKey(ef.ToString()))
                                 {
                                     array[i + 1, j++] = fieldLookup[ef.ToString()](t);
                                 }

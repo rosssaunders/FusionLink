@@ -470,15 +470,35 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate)
+        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
         {
             try
             {
-                return _dataServiceProvider.GetTransactions(positionId, startDate, endDate);
+                return _dataServiceProvider.GetPositionTransactions(positionId, startDate, endDate);
             }
             catch (PositionNotFoundException)
             {
                 throw new FaultException<PositionNotFoundFaultContract>(new PositionNotFoundFaultContract() { PositionId = positionId });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                return _dataServiceProvider.GetPortfolioTransactions(portfolioId, startDate, endDate);
+            }
+            catch (PortfolioNotFoundException)
+            {
+                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = portfolioId });
+            }
+            catch (PortfolioNotLoadedException)
+            {
+                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = portfolioId });
             }
             catch (Exception ex)
             {

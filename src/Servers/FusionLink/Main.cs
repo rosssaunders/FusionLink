@@ -192,14 +192,19 @@ namespace RxdSolutions.FusionLink
             var aggregatePositionListener = new AggregatePositionListener(_positionActionListener, _positionEventListener);
             var aggregateTransactionListener = new AggregateTransactionListener(_transactionActionListener, _transactionEventListener);
 
+            var positionService = new PositionService();
+            var instrumentService = new InstrumentService();
+            var curveService = new CurveService();
+            var transactionService = new TransactionService(positionService);
+
             var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions,
                                                                     aggregatePortfolioListener,
                                                                     aggregatePositionListener,
                                                                     aggregateTransactionListener,
-                                                                    new PositionService(),
-                                                                    new InstrumentService(),
-                                                                    new CurveService(),
-                                                                    new TransactionService());
+                                                                    positionService,
+                                                                    instrumentService,
+                                                                    curveService,
+                                                                    transactionService);
 
             CreateDataServerFromConfig(dataServiceProvider);
 

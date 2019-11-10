@@ -115,6 +115,24 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The portfolio id must be greater than 0.
+        /// </summary>
+        internal static string PortfolioNotEnteredMessage {
+            get {
+                return ResourceManager.GetString("PortfolioNotEnteredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The position id must be greater than 0.
+        /// </summary>
+        internal static string PositionNotEnteredMessage {
+            get {
+                return ResourceManager.GetString("PositionNotEnteredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Searching for available FusionLink servers. Please wait....
         /// </summary>
         internal static string SearchingForServersMessage {

@@ -37,6 +37,8 @@ namespace RxdSolutions.FusionLink
             binding.MaxConnections = int.MaxValue;
             binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
             binding.Security.Transport.ProtectionLevel = ProtectionLevel.EncryptAndSign;
+            binding.SendTimeout = new TimeSpan(0, 5, 0);
+            binding.ReceiveTimeout = new TimeSpan(0, 5, 0);
 
             host.AddServiceEndpoint(typeof(IDataServiceServer), binding, ServiceName);
 

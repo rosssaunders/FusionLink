@@ -45,6 +45,8 @@ namespace RxdSolutions.FusionLink
 
         List<CurvePoint> GetCurvePoints(string currency, string family, string reference);
         
-        List<Transaction> GetTransactions(int positionId, DateTime startDate, DateTime endDate);
+        List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate);
+
+        List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate);
     }
 }

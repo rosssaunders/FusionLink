@@ -11,21 +11,21 @@ namespace RxdSolutions.FusionLink.Services
     {
         public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
         {
-            var currencyCode = CSMCurrency.StringToCurrency(currency);
+            int currencyCode = CSMCurrency.StringToCurrency(currency);
 
             if (currencyCode == 0)
             {
                 throw new CurrencyNotFoundException();
             }
 
-            var familyCode = CSMYieldCurveFamily.GetYieldCurveFamilyCode(currencyCode, family);
+            int familyCode = CSMYieldCurveFamily.GetYieldCurveFamilyCode(currencyCode, family);
 
             if (familyCode == 0)
             {
                 throw new CurveFamilyFoundException();
             }
 
-            var curveId = CSMYieldCurve.LookUpYieldCurveId(familyCode, reference);
+            int curveId = CSMYieldCurve.LookUpYieldCurveId(familyCode, reference);
 
             if (curveId == 0)
             {
@@ -34,38 +34,36 @@ namespace RxdSolutions.FusionLink.Services
 
             var results = new List<CurvePoint>();
 
-            using (CSMYieldCurve yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId))
-            using (SSMYieldCurve activeCurve = yieldCurve.GetActiveSSYieldCurve())
+            using var yieldCurve = CSMYieldCurve.GetCSRYieldCurve(curveId);
+            using SSMYieldCurve activeCurve = yieldCurve.GetActiveSSYieldCurve();
+            
+            for (int i = 0; i < GetPointCount(activeCurve); i++)
             {
-                for (int i = 0; i < GetPointCount(activeCurve); i++)
+                using var yieldPoint = GetPointList(activeCurve).GetNthElement(i);
+
+                var cp = new CurvePoint();
+                results.Add(cp);
+
+                double multiplier = 1;
+
+                if (yieldPoint.fType == 'x')
                 {
-                    using (var yieldPoint = GetPointList(activeCurve).GetNthElement(i))
-                    {
-                        var cp = new CurvePoint();
-                        results.Add(cp);
-
-                        double multiplier = 1;
-
-                        if (yieldPoint.fType == 'x')
-                        {
-                            string startDateOffset = yieldPoint.fStartDate > 0 ? $"{yieldPoint.fStartDate}" : "";
-                            cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
-                            multiplier = 0.01d;
-                        }
-                        else
-                        {
-                            string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
-                            cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
-                        }
-
-                        cp.PointType = yieldPoint.IsPointOfType(eMTypeSegment.M_etsFutureFRA) ? "FutureFRA" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsMoneyMarket) ? "Money Market" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsSwap) ? "Swap" : "Unknown";
-                        cp.Rate = yieldPoint.fYield * multiplier;
-                        cp.IsEnabled = yieldPoint.fInfoPtr.fIsUsed;
-                        cp.RateCode = yieldPoint.fInfoPtr.fRateCode.ToString();
-                    }
+                    string startDateOffset = yieldPoint.fStartDate > 0 ? $"{yieldPoint.fStartDate}" : "";
+                    cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                    multiplier = 0.01d;
                 }
-            }
+                else
+                {
+                    string startDateOffset = yieldPoint.fStartDate > 0 ? $"+{yieldPoint.fStartDate}" : "";
+                    cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
+                }
 
+                cp.PointType = yieldPoint.IsPointOfType(eMTypeSegment.M_etsFutureFRA) ? "FutureFRA" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsMoneyMarket) ? "Money Market" : yieldPoint.IsPointOfType(eMTypeSegment.M_etsSwap) ? "Swap" : "Unknown";
+                cp.Rate = yieldPoint.fYield * multiplier;
+                cp.IsEnabled = yieldPoint.fInfoPtr.fIsUsed;
+                cp.RateCode = yieldPoint.fInfoPtr.fRateCode.ToString();
+            }
+            
             return results;
         }
 
