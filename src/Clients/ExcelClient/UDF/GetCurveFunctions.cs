@@ -19,6 +19,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "family_reference", Description = "The curve family")]string family,
             [ExcelArgument(Name = "curve_reference", Description = "The curve reference")]string reference)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));

@@ -137,6 +137,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
             [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (positionId <= 0)
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotEnteredMessage));
 
@@ -152,7 +155,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
             [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
         {
-            if(portfolioId <= 0)
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
+            if (portfolioId <= 0)
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.PortfolioNotEnteredMessage));
 
             return GetTransactions(startDate, endDate, extraFields, (startDate, endDate) => AddIn.Client.GetPortfolioTransactions(portfolioId, startDate, endDate));
@@ -192,7 +198,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
                         extraFieldsLength = extraFields.Length;
                     }
 
-                    object[,] array = new object[results.Count + 1, (defaultFields.Count - 1) + extraFields.Length];
+                    var columnsInArray = defaultFields.Count;
+                    if (extraFieldsLength > 0)
+                        columnsInArray += extraFieldsLength;
+
+                    object[,] array = new object[results.Count + 1, columnsInArray];
 
                     var k = 0;
                     foreach (var fld in defaultFields)

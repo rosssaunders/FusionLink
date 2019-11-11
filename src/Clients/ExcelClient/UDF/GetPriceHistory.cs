@@ -18,6 +18,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                              [ExcelArgument(Name = "start_date", Description = "Start Date")]DateTime startDate,
                                              [ExcelArgument(Name = "end_date", Description = "End Date")]DateTime endDate)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (startDate == ExcelStaticData.ExcelMinDate)
                 startDate = DateTime.MinValue;
 

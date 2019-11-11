@@ -17,6 +17,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
         public static object GetPositions([ExcelArgument(Name = "portfolio_id", Description = "The Portfolio Id")]int portfolioId,
                                           [ExcelArgument(Name = "include_all_positions", Description = "Include all positions")] bool includeAll = false)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (AddIn.Client.State != System.ServiceModel.CommunicationState.Opened)
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(Resources.NotConnectedMessage));
