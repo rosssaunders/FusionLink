@@ -42,7 +42,7 @@ namespace RxdSolutions.FusionLink.Ribbon
             }
             else
             {
-                var fwkElement = new DiagnosticsView(new DiagnosticsViewModel(Main.DataServer));
+                var fwkElement = new DiagnosticsView(new DiagnosticsViewModel(Main.RealTimeDataServer));
                 WPFAdapter.Instance.OpenWindow(fwkElement, Resources.DashboardWindowCaption, wndKey, false);
             }
         }

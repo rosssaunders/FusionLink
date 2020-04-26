@@ -1,6 +1,4 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,14 +12,15 @@ using RxdSolutions.FusionLink.Properties;
 namespace RxdSolutions.FusionLink
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
-    public class DataServer : IDataServiceServer
+    public class RealTimeDataServer : IRealTimeServer
     {
-        private readonly Dictionary<string, IDataServiceClient> _clients;
-        private readonly IDataServerProvider _dataServiceProvider;
-
+        private readonly Dictionary<string, IRealTimeCallbackClient> _clients;
+        private readonly IRealTimeProvider _realTimeProvider;
+        
         private readonly Subscriptions<(int Id, string Column)> _positionSubscriptions;
         private readonly Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
         private readonly Subscriptions<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
+        private readonly Subscriptions<(object Id, string Property)> _instrumentPropertySubscriptions;
         private readonly Subscriptions<SystemProperty> _systemSubscriptions;
 
         private readonly AutoResetEvent _clientMonitorResetEvent;
@@ -51,11 +50,11 @@ namespace RxdSolutions.FusionLink
 
         public bool IsRunning { get; private set; }
 
-        public DataServer(IDataServerProvider dataService)
+        public RealTimeDataServer(IRealTimeProvider realTimeProvider)
         {
-            _clients = new Dictionary<string, IDataServiceClient>();
-            _dataServiceProvider = dataService;
-            _dataServiceProvider.DataAvailable += DataService_DataAvailable;
+            _clients = new Dictionary<string, IRealTimeCallbackClient>();
+            _realTimeProvider = realTimeProvider;
+            _realTimeProvider.DataAvailable += DataService_DataAvailable;
 
             _positionSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage };
             _positionSubscriptions.OnValueChanged += PositionDataPointChanged;
@@ -76,6 +75,11 @@ namespace RxdSolutions.FusionLink
             _portfolioPropertySubscriptions.OnValueChanged += PortfolioPropertyPointChanged;
             _portfolioPropertySubscriptions.SubscriptionAdded += PortfolioPropertySubscriptionAdded;
             _portfolioPropertySubscriptions.SubscriptionRemoved += PortfolioPropertySubscriptionRemoved;
+
+            _instrumentPropertySubscriptions = new Subscriptions<(object, string)>() { DefaultMessage = DefaultMessage };
+            _instrumentPropertySubscriptions.OnValueChanged += InstrumentPropertyPointChanged;
+            _instrumentPropertySubscriptions.SubscriptionAdded += InstrumentPropertySubscriptionAdded;
+            _instrumentPropertySubscriptions.SubscriptionRemoved += InstrumentPropertySubscriptionRemoved;
 
             _clientMonitorResetEvent = new AutoResetEvent(false);
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
@@ -102,7 +106,7 @@ namespace RxdSolutions.FusionLink
 
                 StartPublisher();
 
-                _dataServiceProvider.Start();
+                _realTimeProvider.Start();
 
                 OnStatusChanged?.Invoke(this, new EventArgs());
             }
@@ -128,7 +132,7 @@ namespace RxdSolutions.FusionLink
 
                 _dataPublisher = null;
 
-                _dataServiceProvider.Stop();
+                _realTimeProvider.Stop();
 
                 OnStatusChanged?.Invoke(this, new EventArgs());
             }
@@ -149,7 +153,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                var c = OperationContext.Current.GetCallbackChannel<IDataServiceClient>();
+                var c = OperationContext.Current.GetCallbackChannel<IRealTimeCallbackClient>();
 
                 lock (_clients)
                 {
@@ -314,6 +318,37 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void SubscribeToInstrumentProperty(object instrumentId, string property)
+        {
+            try
+            {
+                var dp = _instrumentPropertySubscriptions.Add(OperationContext.Current.SessionId, (instrumentId, property));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+                SendMessageToAllClients((s, c) =>
+                {
+                    if (_instrumentPropertySubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Property)))
+                    {
+                        c.SendInstrumentProperty(dp.Key.Id, dp.Key.Property, dp.Value);
+                    }
+
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void SubscribeToInstrumentProperties(List<(object Id, string Property)> items)
+        {
+            foreach (var (id, property) in items)
+            {
+                SubscribeToInstrumentProperty(id, property);
+            }
+        }
+
         public void UnsubscribeFromPositionValue(int positionId, string column)
         {
             try
@@ -394,19 +429,13 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public List<int> GetPositions(int folioId, PositionsToRequest position)
+        public void UnsubscribeFromInstrumentProperty(object instrumentId, string property)
         {
             try
             {
-                return _dataServiceProvider.GetPositions(folioId, position);
-            }
-            catch (PortfolioNotFoundException)
-            {
-                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = folioId });
-            }
-            catch (PortfolioNotLoadedException)
-            {
-                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = folioId });
+                _instrumentPropertySubscriptions.Remove(OperationContext.Current.SessionId, (instrumentId, property));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -414,95 +443,11 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
+        public void UnsubscribeFromInstrumentProperties(List<(object Id, string Property)> list)
         {
-            try
+            foreach (var (Id, Property) in list)
             {
-                return _dataServiceProvider.GetPriceHistory(instrumentId, startDate, endDate);
-            }
-            catch (InstrumentNotFoundException)
-            {
-                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract() { Instrument = instrumentId.ToString() });
-            }
-            catch (Exception ex)
-            {
-                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
-            }
-        }
-
-        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
-        {
-            try
-            {
-                return _dataServiceProvider.GetPriceHistory(reference, startDate, endDate);
-            }
-            catch (InstrumentNotFoundException)
-            {
-                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract() { Instrument = reference });
-            }
-            catch (Exception ex)
-            {
-                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
-            }
-        }
-
-        public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
-        {
-            try
-            {
-                return _dataServiceProvider.GetCurvePoints(currency, family, reference);
-            }
-            catch (CurrencyNotFoundException)
-            {
-                throw new FaultException<CurrencyNotFoundFaultContract>(new CurrencyNotFoundFaultContract() { Currency = currency });
-            }
-            catch (CurveFamilyFoundException)
-            {
-                throw new FaultException<CurveFamilyNotFoundFaultContract>(new CurveFamilyNotFoundFaultContract() { CurveFamily = family });
-            }
-            catch (CurveNotFoundException)
-            {
-                throw new FaultException<CurveNotFoundFaultContract>(new CurveNotFoundFaultContract() { Curve = reference });
-            }
-            catch (Exception ex)
-            {
-                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
-            }
-        }
-
-        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
-        {
-            try
-            {
-                return _dataServiceProvider.GetPositionTransactions(positionId, startDate, endDate);
-            }
-            catch (PositionNotFoundException)
-            {
-                throw new FaultException<PositionNotFoundFaultContract>(new PositionNotFoundFaultContract() { PositionId = positionId });
-            }
-            catch (Exception ex)
-            {
-                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
-            }
-        }
-
-        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
-        {
-            try
-            {
-                return _dataServiceProvider.GetPortfolioTransactions(portfolioId, startDate, endDate);
-            }
-            catch (PortfolioNotFoundException)
-            {
-                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = portfolioId });
-            }
-            catch (PortfolioNotLoadedException)
-            {
-                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = portfolioId });
-            }
-            catch (Exception ex)
-            {
-                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+                UnsubscribeFromInstrumentProperty(Id, Property);
             }
         }
 
@@ -510,7 +455,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                _dataServiceProvider.RequestCalculate();
+                _realTimeProvider.RequestCalculate();
             }
             catch (Exception ex)
             {
@@ -522,7 +467,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                _dataServiceProvider.LoadPositions();
+                _realTimeProvider.LoadPositions();
             }
             catch (Exception ex)
             {
@@ -543,6 +488,11 @@ namespace RxdSolutions.FusionLink
         public int PortfolioPropertySubscriptionCount
         {
             get => _portfolioPropertySubscriptions.Count;
+        }
+
+        public int InstrumentPropertySubscriptionCount
+        {
+            get => _instrumentPropertySubscriptions.Count;
         }
 
         public int SystemValueCount
@@ -602,6 +552,13 @@ namespace RxdSolutions.FusionLink
                     dp.Value = kvp.Value;
             }
 
+            foreach (var kvp in e.InstrumentProperties)
+            {
+                var dp = _instrumentPropertySubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
             foreach (var kvp in e.PositionValues)
             {
                 var dp = _positionSubscriptions.Get(kvp.Key);
@@ -627,7 +584,7 @@ namespace RxdSolutions.FusionLink
             }
         }
 
-        private void SendMessageToAllClients(Action<string, IDataServiceClient> send)
+        private void SendMessageToAllClients(Action<string, IRealTimeCallbackClient> send)
         {
             lock (_clients)
             {
@@ -717,6 +674,9 @@ namespace RxdSolutions.FusionLink
             foreach ((int Id, PortfolioProperty Property) sub in _portfolioPropertySubscriptions.GetKeys())
                 _portfolioPropertySubscriptions.Remove(sessionId, sub);
 
+            foreach ((object Id, string property) sub in _instrumentPropertySubscriptions.GetKeys())
+                _instrumentPropertySubscriptions.Remove(sessionId, sub);
+
             OnClientConnectionChanged?.Invoke(this, new ClientConnectionChangedEventArgs(ClientConnectionStatus.Disconnected, null));
         }
 
@@ -724,9 +684,7 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((id, client) =>
             {
-
                 client.SendServiceStaus(GetServiceStatus());
-
             });
         }
 
@@ -743,42 +701,61 @@ namespace RxdSolutions.FusionLink
 
         private void SystemSubscriptionAdded(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
         {
-            _dataServiceProvider.SubscribeToSystemValue(e.Key);
+            _realTimeProvider.SubscribeToSystemValue(e.Key);
         }
 
         private void SystemSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<SystemProperty> e)
         {
-            _dataServiceProvider.UnsubscribeFromSystemValue(e.Key);
+            _realTimeProvider.UnsubscribeFromSystemValue(e.Key);
         }
 
         private void PortfolioPropertySubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
-            _dataServiceProvider.SubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
+            _realTimeProvider.SubscribeToPortfolioProperty(e.Key.Id, e.Key.Property);
         }
 
         private void PortfolioPropertySubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
-            _dataServiceProvider.UnsubscribeFromPortfolioProperty(e.Key.Id, e.Key.Property);
+            _realTimeProvider.UnsubscribeFromPortfolioProperty(e.Key.Id, e.Key.Property);
         }
 
         private void PortfolioSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
-            _dataServiceProvider.UnsubscribeFromPortfolio(e.Key.Id, e.Key.Column);
+            _realTimeProvider.UnsubscribeFromPortfolio(e.Key.Id, e.Key.Column);
+        }
+
+        private void InstrumentPropertySubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(object Id, string Property)> e)
+        {
+            _realTimeProvider.UnsubscribeFromInstrumentProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void InstrumentPropertySubscriptionAdded(object sender, SubscriptionChangedEventArgs<(object Id, string Property)> e)
+        {
+            _realTimeProvider.SubscribeToInstrumentProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void InstrumentPropertyPointChanged(object sender, DataPointChangedEventArgs<(object Id, string Property)> e)
+        {
+            SendMessageToAllClients((s, c) =>
+            {
+                if (_instrumentPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendInstrumentProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+            });
         }
 
         private void PortfolioSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
-            _dataServiceProvider.SubscribeToPortfolio(e.Key.Id, e.Key.Column);
+            _realTimeProvider.SubscribeToPortfolio(e.Key.Id, e.Key.Column);
         }
 
         private void PositionSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
-            _dataServiceProvider.UnsubscribeFromPosition(e.Key.Id, e.Key.Column);
+            _realTimeProvider.UnsubscribeFromPosition(e.Key.Id, e.Key.Column);
         }
 
         private void PositionSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
-            _dataServiceProvider.SubscribeToPosition(e.Key.Id, e.Key.Column);
+            _realTimeProvider.SubscribeToPosition(e.Key.Id, e.Key.Column);
         }
     }
 }

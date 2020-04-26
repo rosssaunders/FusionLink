@@ -61,11 +61,30 @@ namespace RxdSolutions.FusionLink.Provider
                             return fullName.StringValue;
                         }
 
+                    case PortfolioProperty.Locked:
+                        return Portfolio.IsLocked();
+                        
+                    case PortfolioProperty.Comment:
+                        using (var comment = Portfolio.GetComment())
+                            return comment.StringValue;
+
+                    case PortfolioProperty.Closed:
+                        return Portfolio.IsMarkedAsClosed();
+                        
+                    case PortfolioProperty.Entity:
+                        return Portfolio.GetEntity();
+                        
+                    case PortfolioProperty.Currency:
+                        return Portfolio.GetCurrency(); 
+                        
+                    case PortfolioProperty.Security:
+                        return Portfolio.GetUnderlyingCode(); 
+                    
                     default:
                         return $"Unknown Portfolio Property '{Property}'";
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ex.Message;
             }

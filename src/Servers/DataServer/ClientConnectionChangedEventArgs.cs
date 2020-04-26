@@ -8,7 +8,7 @@ namespace RxdSolutions.FusionLink
 {
     public class ClientConnectionChangedEventArgs : EventArgs
     {
-        public ClientConnectionChangedEventArgs(ClientConnectionStatus status, IDataServiceClient client)
+        public ClientConnectionChangedEventArgs(ClientConnectionStatus status, IRealTimeCallbackClient client)
         {
             Status = status;
             Client = client;
@@ -16,6 +16,6 @@ namespace RxdSolutions.FusionLink
 
         public ClientConnectionStatus Status { get; private set; }
 
-        public IDataServiceClient Client { get; private set; }
+        public IRealTimeCallbackClient Client { get; private set; }
     }
 }

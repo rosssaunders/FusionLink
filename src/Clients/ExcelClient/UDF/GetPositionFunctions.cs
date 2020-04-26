@@ -2,6 +2,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ExcelDna.Integration;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
@@ -14,7 +15,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         [ExcelFunction(Name = "GETPOSITIONS", 
                        Description = "Returns a list of position ids of the given portfolio. By default only includes open positions.", 
                        HelpTopic = "Get-Positions")]
-        public static object GetPositions([ExcelArgument(Name = "portfolio_id", Description = "The Portfolio Id")]int portfolioId,
+        public static object GetPositions([ExcelArgument(Name = "portfolio_id", Description = "The Portfolio Id")]object[] portfolioId,
                                           [ExcelArgument(Name = "include_all_positions", Description = "Include all positions")] bool includeAll = false)
         {
             if (ExcelDnaUtil.IsInFunctionWizard())
@@ -27,7 +28,34 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             try
             {
-                var results = AddIn.Client.GetPositions(portfolioId, includeAll ? PositionsToRequest.All : PositionsToRequest.Open);
+                if (portfolioId.Length == 0)
+                    return ExcelError.ExcelErrorNA;
+
+                if (portfolioId[0] == ExcelMissing.Value)
+                    return ExcelError.ExcelErrorNA;
+
+                var intIds = new HashSet<int>();
+                foreach (var id in portfolioId)
+                {
+                    try
+                    {
+                        intIds.Add(Convert.ToInt32(id));
+                    }
+                    catch
+                    {
+                        return ExcelError.ExcelErrorNA;
+                    }
+                }
+
+                var results = new HashSet<int>();
+                foreach (var id in intIds)
+                {
+                    var resultsForPortfolio = AddIn.Client.GetPositions(id, includeAll ? PositionsToRequest.All : PositionsToRequest.Open);
+
+                    foreach(var r in resultsForPortfolio)
+                        results.Add(r);
+                }
+
                 int[] positionIds = results.OrderBy(x => x).ToArray();
 
                 if (positionIds.Length == 0)

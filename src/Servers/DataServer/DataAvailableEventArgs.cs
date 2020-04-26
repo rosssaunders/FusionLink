@@ -13,6 +13,7 @@ namespace RxdSolutions.FusionLink
         {
             PortfolioValues = new Dictionary<(int, string), object>();
             PortfolioProperties = new Dictionary<(int, PortfolioProperty), object>();
+            InstrumentProperties = new Dictionary<(object, string), object>();
             PositionValues = new Dictionary<(int, string), object>();
             SystemValues = new Dictionary<SystemProperty, object>();
         }
@@ -24,6 +25,8 @@ namespace RxdSolutions.FusionLink
         public IDictionary<(int positionId, string column), object> PositionValues { get; }
 
         public IDictionary<(int positionId, PortfolioProperty property), object> PortfolioProperties { get; }
+
+        public IDictionary<(object instrument, string property), object> InstrumentProperties { get; }
 
         public IDictionary<SystemProperty, object> SystemValues { get; }
     }

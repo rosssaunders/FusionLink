@@ -61,6 +61,24 @@ namespace RxdSolutions.FusionLink.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested calendar could not be found.
+        /// </summary>
+        internal static string CalendarNotFoundMessage {
+            get {
+                return ResourceManager.GetString("CalendarNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Currency not found.
+        /// </summary>
+        internal static string CurrencyNotFoundMessage {
+            get {
+                return ResourceManager.GetString("CurrencyNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested curve could not be found.
         /// </summary>
         internal static string CurveNotFoundMessage {
@@ -88,7 +106,7 @@ namespace RxdSolutions.FusionLink.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The requested positions cannot be found as the portfolio is not loaded..
+        ///   Looks up a localized string similar to The requested portfolio is not loaded.
         /// </summary>
         internal static string PortfolioNotLoadedMessage {
             get {

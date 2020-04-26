@@ -14,16 +14,16 @@ namespace RxdSolutions.FusionLink
 
             var testDataProvider = new TestDataServiceProvider();
 
-            var dataServer = new DataServer(testDataProvider);
+            var dataServer = new RealTimeDataServer(testDataProvider);
             dataServer.OnClientConnectionChanged += Ds_OnClientConnectionChanged;
 
-            var host = DataServerHostFactory.Create(dataServer);
+            //var host = DataServerHostFactory.CreateRealTimeServiceHost(dataServer);
 
             Console.WriteLine("Press any key to exit");
             Console.ReadLine();
 
-            host.Close();
-            host = null;
+            //host.Close();
+            //host = null;
         }
 
         private static void Ds_OnClientConnectionChanged(object sender, ClientConnectionChangedEventArgs e)

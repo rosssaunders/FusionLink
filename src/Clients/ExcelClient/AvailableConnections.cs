@@ -76,7 +76,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                 var discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
 
-                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IDataServiceServer)) { Duration = TimeSpan.FromSeconds(3) });
+                var findResponse = discoveryClient.Find(new FindCriteria(typeof(IRealTimeServer)) { Duration = TimeSpan.FromSeconds(3) });
 
                 discoveryClient.Close();
 

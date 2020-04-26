@@ -6,7 +6,7 @@ using System.ServiceModel;
 namespace RxdSolutions.FusionLink.Interface
 {
     [ServiceContract]
-    public interface IDataServiceClient
+    public interface IRealTimeCallbackClient
     {
         [OperationContract(IsOneWay = true)]
         void SendServiceStaus(ServiceStatus status);
@@ -18,10 +18,13 @@ namespace RxdSolutions.FusionLink.Interface
         void SendPortfolioValue(int portfolioId, string column, object value);
 
         [OperationContract(IsOneWay = true)]
-        void SendPortfolioProperty(int id, PortfolioProperty property, object value);
+        void SendPortfolioProperty(int id, PortfolioProperty propertyName, object value);
 
         [OperationContract(IsOneWay = true)]
-        void SendSystemValue(SystemProperty property, object value);
+        void SendInstrumentProperty(object id, string propertyName, object value);
+
+        [OperationContract(IsOneWay = true)]
+        void SendSystemValue(SystemProperty propertyName, object value);
 
         [OperationContract]
         [FaultContract(typeof(ErrorFaultContract))]

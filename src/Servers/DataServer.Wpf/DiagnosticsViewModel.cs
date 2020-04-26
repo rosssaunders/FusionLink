@@ -8,18 +8,19 @@ namespace RxdSolutions.FusionLink.Client
 {
     public class DiagnosticsViewModel : INotifyPropertyChanged
     {
-        private readonly DataServer _dataServer;
+        private readonly RealTimeDataServer _dataServer;
 
         private int _portfolioSubscriptionCount;
         private int _systemSubscriptionCount;
         private int _positionSubscriptionCount;
         private int _portfolioPropertySubscriptionCount;
+        private int _instrumentPropertySubscriptionCount;
         private int _clientCount;
         private int _lastTimeTaken;
         private long _refreshTimeTaken;
         private int _numberOfRefreshes;
         
-        public DiagnosticsViewModel(DataServer dataServer)
+        public DiagnosticsViewModel(RealTimeDataServer dataServer)
         {
             _dataServer = dataServer;
             _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
@@ -29,6 +30,7 @@ namespace RxdSolutions.FusionLink.Client
             _dataServer.OnStatusChanged += OnStatusChanged;
             
             PortfolioSubscriptionCount = _dataServer.PortfolioValueSubscriptionCount;
+            InstrumentPropertySubscriptionCount = _dataServer.InstrumentPropertySubscriptionCount;
             SystemSubscriptionCount = _dataServer.SystemValueCount;
             PositionSubscriptionCount = _dataServer.PositonValueSubscriptionCount;
             PortfolioPropertySubscriptionCount = _dataServer.PortfolioPropertySubscriptionCount;
@@ -87,7 +89,7 @@ namespace RxdSolutions.FusionLink.Client
 
         public string ServerUri
         {
-            get { return DataServerHostFactory.GetListeningAddress().ToString(); }
+            get { return DataServerHostFactory.GetBaseAddress().ToString(); }
         }
 
         public bool IsTerminalServices
@@ -124,6 +126,16 @@ namespace RxdSolutions.FusionLink.Client
             set
             {
                 _positionSubscriptionCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int InstrumentPropertySubscriptionCount
+        {
+            get { return _instrumentPropertySubscriptionCount; }
+            set
+            {
+                _instrumentPropertySubscriptionCount = value;
                 OnPropertyChanged();
             }
         }
@@ -173,6 +185,7 @@ namespace RxdSolutions.FusionLink.Client
             SystemSubscriptionCount = _dataServer.SystemValueCount;
             PositionSubscriptionCount = _dataServer.PositonValueSubscriptionCount;
             PortfolioPropertySubscriptionCount = _dataServer.PortfolioPropertySubscriptionCount;
+            InstrumentPropertySubscriptionCount = _dataServer.InstrumentPropertySubscriptionCount;
         }
 
         private void ExecuteToggleDataServer(object sender)

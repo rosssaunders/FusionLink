@@ -242,6 +242,24 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested Instrument &apos;{0}&apos; cannot be found.
+        /// </summary>
+        internal static string InstrumentNotFoundMessage {
+            get {
+                return ResourceManager.GetString("InstrumentNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested property &apos;{0}&apos; does not exist.
+        /// </summary>
+        internal static string InstrumentPropertyNotFoundMessage {
+            get {
+                return ResourceManager.GetString("InstrumentPropertyNotFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to load FusionLink.
         /// </summary>
         internal static string LoadFailureMessage {

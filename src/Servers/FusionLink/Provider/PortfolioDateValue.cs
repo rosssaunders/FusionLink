@@ -15,7 +15,7 @@ namespace RxdSolutions.FusionLink.Provider
         {
             try
             {
-                return CSMPortfolio.GetPortfolioDate().GetDateTime();
+                return CSMPortfolio.GetPortfolioDate().ToDateTime();
             }
             catch(Exception ex)
             {

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using ExcelDna.Integration;
-using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 using RxdSolutions.FusionLink.Interface;
 
@@ -135,7 +134,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "position_id", Description = "The id of the position")]int positionId,
             [ExcelArgument(Name = "start_date", Description = "The start date")]DateTime startDate,
             [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
-            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
+            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[] extraFields)
         {
             if (ExcelDnaUtil.IsInFunctionWizard())
                 return null;
@@ -153,7 +152,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "portfolio_id", Description = "The id of the portfolio")]int portfolioId,
             [ExcelArgument(Name = "start_date", Description = "The start date")]DateTime startDate,
             [ExcelArgument(Name = "end_date", Description = "The end date")]DateTime endDate,
-            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[,] extraFields)
+            [ExcelArgument(Name = "extra_fields", Description = "Additional fields to display", AllowReference = false)]object[] extraFields)
         {
             if (ExcelDnaUtil.IsInFunctionWizard())
                 return null;
@@ -164,7 +163,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             return GetTransactions(startDate, endDate, extraFields, (startDate, endDate) => AddIn.Client.GetPortfolioTransactions(portfolioId, startDate, endDate));
         }
 
-        private static object GetTransactions(DateTime startDate, DateTime endDate, object[,] extraFields, Func<DateTime, DateTime, List<Transaction>> getTransactions)
+        private static object GetTransactions(DateTime startDate, DateTime endDate, object[] extraFields, Func<DateTime, DateTime, List<Transaction>> getTransactions)
         {
             if (startDate == ExcelStaticData.ExcelMinDate)
                 startDate = DateTime.MinValue;
@@ -193,7 +192,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 else
                 {
                     var extraFieldsLength = 0;
-                    if (!(extraFields[0, 0] == ExcelMissing.Value))
+                    if (!(extraFields[0] == ExcelMissing.Value))
                     {
                         extraFieldsLength = extraFields.Length;
                     }
@@ -235,7 +234,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                 }
                                 else
                                 {
-                                    array[i + 1, j++] = "Unknown field";
+                                    array[i + 1, j++] = Resources.UnknownTransactionField;
                                 }
                             }
                     }

@@ -4,7 +4,7 @@
     <ProjectGuid>{4EA8C78B-118D-4FD4-A745-2EBED8F68062}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>RxdSolutions.FusionLink</RootNamespace>
-    <AssemblyName>DataServer.Wpf</AssemblyName>
+    <AssemblyName>FusionLinkDataServerGUI</AssemblyName>
     <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>AnyCPU;x64</Platforms>

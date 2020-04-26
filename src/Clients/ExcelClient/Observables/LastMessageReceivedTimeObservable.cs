@@ -24,6 +24,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _rtdClient.OnPositionValueReceived += OnMessageReceived;
             _rtdClient.OnPortfolioValueReceived += OnMessageReceived;
             _rtdClient.OnPortfolioPropertyReceived += OnMessageReceived;
+            _rtdClient.OnInstrumentPropertyReceived += OnMessageReceived;
             _rtdClient.OnSystemValueReceived += OnMessageReceived;
             _rtdClient.OnServiceStatusReceived += OnMessageReceived;
         

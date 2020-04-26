@@ -1,6 +1,4 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,22 +13,20 @@ using sophis.utils;
 
 namespace RxdSolutions.FusionLink.Provider
 {
-    public class FusionDataServiceProvider : IDataServerProvider, IDisposable
+    public class FusionRealTimeProvider : IRealTimeProvider, IDisposable
     {
-        private readonly string _className = nameof(FusionDataServiceProvider);
+        private readonly string _className = nameof(FusionRealTimeProvider);
 
         private readonly Dispatcher _context;
         private readonly IGlobalFunctions _globalFunctions;
         private readonly IPortfolioListener _portfolioListener;
         private readonly IPositionListener _positionListener;
         private readonly ITransactionListener _transactionListener;
-        private readonly PositionService _positionService;
-        private readonly InstrumentService _instrumentService;
-        private readonly CurveService _curveService;
-        private readonly TransactionService _transactionService;
+        private readonly IInstrumentListener _instrumentListener;
 
         private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
         private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
+        private readonly Subscriptions<InstrumentPropertyValue, (object Reference, string Property)> _instrumentPropertySubscriptions;
         private readonly Subscriptions<PositionCellValue, string> _positionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
@@ -50,34 +46,31 @@ namespace RxdSolutions.FusionLink.Provider
                 return _portfolioCellSubscriptions.Count > 0 || 
                        _positionCellSubscriptions.Count > 0 || 
                        _systemValueSubscriptions.Count > 0 ||
-                       _portfolioPropertySubscriptions.Count > 0;
+                       _portfolioPropertySubscriptions.Count > 0 ||
+                       _instrumentPropertySubscriptions.Count > 0;
             }
         }
 
-        public FusionDataServiceProvider(IGlobalFunctions globalFunctions, 
-                                         IPortfolioListener portfolioListener,
-                                         IPositionListener positionListener,
-                                         ITransactionListener transactionListener,
-                                         PositionService positionService,
-                                         InstrumentService instrumentService,
-                                         CurveService curveService,
-                                         TransactionService transactionService)
+        public FusionRealTimeProvider(IGlobalFunctions globalFunctions, 
+                                      IPortfolioListener portfolioListener,
+                                      IPositionListener positionListener,
+                                      ITransactionListener transactionListener,
+                                      IInstrumentListener instrumentListener,
+                                      InstrumentService instrumentService)
         {
             _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
             _portfolioListener = portfolioListener;
             _positionListener = positionListener;
             _transactionListener = transactionListener;
-            _positionService = positionService;
-            _instrumentService = instrumentService;
-            _curveService = curveService;
-            _transactionService = transactionService;
+            _instrumentListener = instrumentListener;
 
             _mainExtraction = sophis.globals.CSMExtraction.gMain();
 
             _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s, _mainExtraction));
             _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s, _mainExtraction));
             _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
+            _instrumentPropertySubscriptions = new Subscriptions<InstrumentPropertyValue, (object Reference, string Property)>((i, s) => new InstrumentPropertyValue(i, s.Reference, s.Property, instrumentService));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
             _portfolioComputedIds = new List<int>();
 
@@ -85,6 +78,7 @@ namespace RxdSolutions.FusionLink.Provider
             _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
             _positionListener.PositionChanged += PositionListener_PositionChanged;
             _transactionListener.TransactionChanged += TransactionListener_TransactionChanged;
+            _instrumentListener.InstrumentChanged += InstrumentListener_InstrumentChanged;
         }
 
         public void Start()
@@ -95,156 +89,6 @@ namespace RxdSolutions.FusionLink.Provider
         public void Stop()
         {
             IsRunning = false;
-        }
-
-        public List<int> GetPositions(int folioId, PositionsToRequest positions)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    return _positionService.GetPositions(folioId, positions);
-                }
-                catch(PortfolioNotLoadedException e)
-                {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch(PortfolioNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-
-            });
-        }
-
-        public List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    var instrumentId = CSMInstrument.GetCode(reference);
-
-                    return _instrumentService.GetPriceHistory(instrumentId, startDate, endDate);
-                }
-                catch(InstrumentNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-
-            });
-        }
-
-        public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    return _instrumentService.GetPriceHistory(instrumentId, startDate, endDate);
-                }
-                catch (InstrumentNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetPriceHistory", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-            });
-        }
-
-        public List<CurvePoint> GetCurvePoints(string currency, string family, string reference)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    return _curveService.GetCurvePoints(currency, family, reference);
-                }
-                catch(CurrencyNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (CurveFamilyFoundException e)
-                {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (CurveNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-            });
-        }
-
-        public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    return _transactionService.GetPositionTransactions(positionId, startDate, endDate);
-                }
-                catch (PositionNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-            });
-        }
-
-        public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
-        {
-            return _context.Invoke(() => {
-
-                try
-                {
-                    return _transactionService.GetPortfolioTransactions(portfolioId, startDate, endDate);
-                }
-                catch (PortfolioNotFoundException e)
-                {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (PortfolioNotLoadedException e)
-                {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
-                    throw;
-                }
-            });
         }
 
         public void SubscribeToPortfolio(int portfolioId, string column)
@@ -345,6 +189,36 @@ namespace RxdSolutions.FusionLink.Provider
             }, DispatcherPriority.Normal);
         }
 
+        public void SubscribeToInstrumentProperty(object id, string property)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                //Find the sicovam for the id
+                int sicovam = 0;
+                if (id is string reference)
+                    sicovam = CSMInstrument.GetCode(reference);
+                else
+                    sicovam = (int)id;
+
+                _instrumentPropertySubscriptions.Add(sicovam, (id, property));
+                var dp = _instrumentPropertySubscriptions.Get(sicovam, (id, property));
+
+                try
+                {
+                    var da = new DataAvailableEventArgs();
+                    da.InstrumentProperties.Add((id, property), dp.GetValue());
+
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch (Exception ex)
+                {
+                    dp.Error = ex;
+                    CSMLog.Write(_className, "SubscribeToInstrumentProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
+            }, DispatcherPriority.Normal);
+        }
+
         public void UnsubscribeFromPortfolio(int portfolioId, string column)
         {
             var op = _context.InvokeAsync(() => {
@@ -409,7 +283,29 @@ namespace RxdSolutions.FusionLink.Provider
             }, DispatcherPriority.Normal);
         }
 
-        
+        public void UnsubscribeFromInstrumentProperty(object id, string property)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                //Find the sicovam for the id
+                int sicovam = 0;
+                if (id is string reference)
+                    sicovam = CSMInstrument.GetCode(reference);
+                else
+                    sicovam = (int)id;
+
+                try
+                {
+                    _instrumentPropertySubscriptions.Remove(sicovam, (id, property));
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, "UnsubscribeToInstrumentProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
+            }, DispatcherPriority.Normal);
+        }
+
         private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
         {
             if (IsRunning && HasSubscriptions)
@@ -625,6 +521,11 @@ namespace RxdSolutions.FusionLink.Provider
             RefreshPosition(e.PositionId, e.IsLocal);
         }
 
+        private void InstrumentListener_InstrumentChanged(object sender, InstrumentChangedEventArgs e)
+        {
+            RefreshInstrument(e.InstrumentId, e.IsLocal);
+        }
+
         private void RefreshPortfolio(int portfolioId, bool isLocal)
         {
             try
@@ -681,6 +582,51 @@ namespace RxdSolutions.FusionLink.Provider
             catch (Exception ex)
             {
                 CSMLog.Write(_className, "RefreshPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+            }
+        }
+
+        private void RefreshInstrument(int instrumentId, bool isLocal)
+        {
+            try
+            {
+                void NotifyDataChanged()
+                {
+                    foreach (var cell in _instrumentPropertySubscriptions.GetCells().ToList())
+                    {
+                        if (cell.InstrumentId == instrumentId)
+                        {
+                            _instrumentPropertySubscriptions.Remove(cell.InstrumentId, (cell.Reference, cell.Property));
+                            _instrumentPropertySubscriptions.Add(instrumentId, (cell.Reference, cell.Property));
+                        }
+                    }
+
+                    var args = new DataAvailableEventArgs();
+
+                    foreach (var value in _instrumentPropertySubscriptions.Get(instrumentId))
+                    {
+                        args.InstrumentProperties.Add((value.Reference, value.Property), value.GetValue());
+                    }
+
+                    DataAvailable?.Invoke(this, args);
+                }
+
+                if (isLocal)
+                {
+                    //There must be a Sophis API call which does the same work without the risk of deadlock.
+                    var yield = Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        NotifyDataChanged();
+                    });
+                }
+                else
+                {
+                    NotifyDataChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write(_className, "RefreshInstrument", CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 

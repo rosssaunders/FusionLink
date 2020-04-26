@@ -117,8 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CalendarCurrencyNotEntered" xml:space="preserve">
+    <value>A currency must be specified</value>
+  </data>
+  <data name="CalendarNameMissing" xml:space="preserve">
+    <value>If calendar type if "Market" or "Place", a associated currency must be entered.</value>
+  </data>
+  <data name="CalendarTypeUnknown" xml:space="preserve">
+    <value>The calendar type in unknown. Must be either "Currency", "Place" or "Market"</value>
+  </data>
   <data name="ComputeRequestedMessage" xml:space="preserve">
     <value>A F9 calculation has been requested</value>
+  </data>
+  <data name="DateNotEntered" xml:space="preserve">
+    <value>The date to calculate from was not entered</value>
   </data>
   <data name="DocumentationBaseAddress" xml:space="preserve">
     <value>https://github.com/RXDSolutions/FusionLinkDocs/wiki/</value>
@@ -149,5 +161,8 @@
   </data>
   <data name="SubscribingToData" xml:space="preserve">
     <value>Subscribing... please wait</value>
+  </data>
+  <data name="UnknownTransactionField" xml:space="preserve">
+    <value />
   </data>
 </root>

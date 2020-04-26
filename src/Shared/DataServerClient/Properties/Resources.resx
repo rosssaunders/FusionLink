@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CalendarNotFoundMessage" xml:space="preserve">
+    <value>The requested calendar could not be found</value>
+  </data>
+  <data name="CurrencyNotFoundMessage" xml:space="preserve">
+    <value>Currency not found</value>
+  </data>
   <data name="CurveNotFoundMessage" xml:space="preserve">
     <value>The requested curve could not be found</value>
   </data>
@@ -127,7 +133,7 @@
     <value>The requested portfolio could not be found</value>
   </data>
   <data name="PortfolioNotLoadedMessage" xml:space="preserve">
-    <value>The requested positions cannot be found as the portfolio is not loaded.</value>
+    <value>The requested portfolio is not loaded</value>
   </data>
   <data name="PositionNotFoundMessage" xml:space="preserve">
     <value>The requested position could not be found</value>

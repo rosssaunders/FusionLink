@@ -42,6 +42,18 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitCommodity.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitCPPI.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitFinance.dll</HintPath>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitMonteCarlo.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />

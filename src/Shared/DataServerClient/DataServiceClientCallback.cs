@@ -6,11 +6,12 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.Client
 {
-    public class DataServiceClientCallback : IDataServiceClient
+    public class DataServiceCallbackClient : IRealTimeCallbackClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
+        public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
 
@@ -26,6 +27,13 @@ namespace RxdSolutions.FusionLink.Client
             LastReceivedMessageTimestamp = DateTime.UtcNow;
 
             OnPortfolioPropertyReceived?.Invoke(this, new PortfolioPropertyReceivedEventArgs(portfolioId, property, value));
+        }
+
+        public void SendInstrumentProperty(object instrument, string property, object value)
+        {
+            LastReceivedMessageTimestamp = DateTime.UtcNow;
+
+            OnInstrumentPropertyReceived?.Invoke(this, new InstrumentPropertyReceivedEventArgs(instrument, property, value));
         }
 
         public void SendPortfolioValue(int portfolioId, string column, object value)

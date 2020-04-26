@@ -42,7 +42,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _clients.Add(client);
         }
 
-        
         public void Start()
         {
             lock(_monitorLock)

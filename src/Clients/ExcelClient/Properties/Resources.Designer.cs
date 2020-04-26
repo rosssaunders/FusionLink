@@ -61,11 +61,47 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A currency must be specified.
+        /// </summary>
+        internal static string CalendarCurrencyNotEntered {
+            get {
+                return ResourceManager.GetString("CalendarCurrencyNotEntered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If calendar type if &quot;Market&quot; or &quot;Place&quot;, a associated currency must be entered..
+        /// </summary>
+        internal static string CalendarNameMissing {
+            get {
+                return ResourceManager.GetString("CalendarNameMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The calendar type in unknown. Must be either &quot;Currency&quot;, &quot;Place&quot; or &quot;Market&quot;.
+        /// </summary>
+        internal static string CalendarTypeUnknown {
+            get {
+                return ResourceManager.GetString("CalendarTypeUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A F9 calculation has been requested.
         /// </summary>
         internal static string ComputeRequestedMessage {
             get {
                 return ResourceManager.GetString("ComputeRequestedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The date to calculate from was not entered.
+        /// </summary>
+        internal static string DateNotEntered {
+            get {
+                return ResourceManager.GetString("DateNotEntered", resourceCulture);
             }
         }
         
@@ -156,6 +192,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         internal static string SubscribingToData {
             get {
                 return ResourceManager.GetString("SubscribingToData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string UnknownTransactionField {
+            get {
+                return ResourceManager.GetString("UnknownTransactionField", resourceCulture);
             }
         }
     }

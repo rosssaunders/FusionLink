@@ -1,13 +1,10 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
-using System.Collections.Generic;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
-    public interface IDataServerProvider
+    public interface IRealTimeProvider
     {
         event EventHandler<DataAvailableEventArgs> DataAvailable;
 
@@ -29,6 +26,8 @@ namespace RxdSolutions.FusionLink
 
         void SubscribeToPortfolioProperty(int id, PortfolioProperty property);
 
+        void SubscribeToInstrumentProperty(object id, string property);
+        
         void UnsubscribeFromPortfolio(int portfolioId, string column);
 
         void UnsubscribeFromPosition(int positionId, string column);
@@ -37,16 +36,6 @@ namespace RxdSolutions.FusionLink
 
         void UnsubscribeFromPortfolioProperty(int id, PortfolioProperty property);
 
-        List<int> GetPositions(int folioId, PositionsToRequest positions);
-
-        List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
-
-        List<PriceHistory> GetPriceHistory(string reference, DateTime startDate, DateTime endDate);
-
-        List<CurvePoint> GetCurvePoints(string currency, string family, string reference);
-        
-        List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate);
-
-        List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate);
+        void UnsubscribeFromInstrumentProperty(object id, string property);
     }
 }

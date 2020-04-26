@@ -41,12 +41,19 @@ namespace RxdSolutions.FusionLink.Services
             }
             else
             {
-                throw new PortfolioNotFoundException();
+                throw new PositionNotFoundException();
             }
         }
 
         public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
         {
+            using var portfolioCheck = CSMPortfolio.GetCSRPortfolio(portfolioId);
+            if (portfolioCheck is null)
+                throw new PortfolioNotFoundException();
+
+            if (!portfolioCheck.IsLoaded())
+                throw new PortfolioNotLoadedException();
+
             _userNameCacheLookup.Clear();
 
             var results = new List<Transaction>();
@@ -85,7 +92,7 @@ namespace RxdSolutions.FusionLink.Services
         {
             var tradesInRange = transactions.OfType<CSMTransaction>().Where(x =>
             {
-                var dt = (DateTime)x.GetTransactionDate().GetDateTime();
+                var dt = (DateTime)x.GetTransactionDate().ToDateTime();
                 return (dt >= startDate && dt <= endDate);
             });
 
@@ -316,12 +323,12 @@ namespace RxdSolutions.FusionLink.Services
         {
             var model = new Transaction();
 
-            model.AccountancyDate = t.GetAccountancyDate().GetDateTime();
+            model.AccountancyDate = t.GetAccountancyDate().ToDateTime();
             model.AccountingBook = t.GetAccountingBook();
             model.AccruedAmount = t.GetAccruedAmount();
             model.AccruedAmount2 = t.GetAccruedAmount2();
             model.AccruedCoupon = t.GetAccruedCoupon();
-            model.AccruedCouponDate = t.GetAccruedCouponDate().GetDateTime();
+            model.AccruedCouponDate = t.GetAccruedCouponDate().ToDateTime();
             model.Adjustment = t.GetAdjustment();
             model.AskQuotationType = GetQuotationType(t.GetAskQuotationType());
             model.BackOfficeInfos = t.GetBackOfficeInfos();
@@ -340,7 +347,7 @@ namespace RxdSolutions.FusionLink.Services
             model.ClearingMember = GetThirdPartyName(t.GetClearingMember());
             model.Comment = t.GetComment();
             model.Commission = t.GetCommission();
-            model.CommissionDate = t.GetCommissionDate().GetDateTime();
+            model.CommissionDate = t.GetCommissionDate().ToDateTime();
             model.ComponentCode = t.GetComponentCode();
             model.CompressionResult = t.GetCompressionResult();
             model.Counterparty = GetThirdPartyName(t.GetCounterparty());
@@ -349,7 +356,7 @@ namespace RxdSolutions.FusionLink.Services
             model.CreationKind = GetCreationKind(t.GetCreationKind());
             model.CrossedReference = t.GetCrossedReference();
             model.DecisionMaker = GetUserName(t.GetDecisionMaker());
-            model.DeliveryDate = t.GetDeliveryDate().GetDateTime();
+            model.DeliveryDate = t.GetDeliveryDate().ToDateTime();
             model.DeliveryType = GetDeliveryType(t.GetDeliveryType());
             model.Depositary = GetThirdPartyName(t.GetDepositary());
             model.DepositaryOfCounterparty = GetThirdPartyName(t.GetDepositaryOfCounterparty());
@@ -359,7 +366,7 @@ namespace RxdSolutions.FusionLink.Services
             model.ForceLoad = t.GetForceLoad();
             model.ForexCertaintyType = GetForexCertaintyType(t.GetForexCertaintyType());
             model.ForexSpot = t.GetForexSpot();
-            model.ForwardFixingDate = t.GetForwardFixingDate().GetDateTime();
+            model.ForwardFixingDate = t.GetForwardFixingDate().ToDateTime();
             model.GrossAmount = t.GetGrossAmount();
             model.InitialMargin = t.GetInitialMargin();
             model.Instrument = GetInstrumentReference(t.GetInstrumentCode());
@@ -378,7 +385,7 @@ namespace RxdSolutions.FusionLink.Services
             model.OrderId = t.GetOrderId();
             model.OrderReference = t.GetOrderReference();
             model.OtherTradeRepository = GetThirdPartyName(t.GetOtherTradeRepository());
-            model.PariPassuDate = t.GetPariPassuDate().GetDateTime();
+            model.PariPassuDate = t.GetPariPassuDate().ToDateTime();
             model.PaymentCurrencyType = GetPaymentCurrencyType(t.GetPaymentCurrencyType());
             model.PaymentMethod = GetPaymentMethod(t.GetPaymentMethod());
             model.PoolFactor = t.GetPoolFactor();
@@ -389,14 +396,14 @@ namespace RxdSolutions.FusionLink.Services
             model.Reference = t.GetReference();
             model.ReportingCtpy = GetThirdPartyName(t.GetReportingCtpy());
             model.SettlementCurrency = GetCurrencyCode(t.GetSettlementCurrency());
-            model.SettlementDate = (DateTime)t.GetSettlementDate().GetDateTime();
+            model.SettlementDate = (DateTime)t.GetSettlementDate().ToDateTime();
             model.SettlementMethod = t.GetSettlementMethod().ToString();
             model.Spot = t.GetSpot();
             model.SophisOrderId = t.GetSophisOrderId();
             model.TradeRepository = GetThirdPartyName(t.GetTradeRepository());
             model.TradeYtm = t.GetTradeYtm();
             model.TransactionCode = t.GetTransactionCode();
-            model.TransactionDate = (DateTime)t.GetTransactionDate().GetDateTime();
+            model.TransactionDate = (DateTime)t.GetTransactionDate().ToDateTime();
             model.TransactionTime = TimeSpan.FromSeconds(t.GetTransactionTime());
             model.TransactionType = GetBusinessEvent(t.GetTransactionType());
             model.TypeSpotCurrency = GetCurrencyCode(t.GetTypeSpotCurrency());

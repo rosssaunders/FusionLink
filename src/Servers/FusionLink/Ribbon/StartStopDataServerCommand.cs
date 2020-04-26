@@ -34,10 +34,10 @@ namespace RxdSolutions.FusionLink.Ribbon
 
         private static void Handler(object sender, ExecutedRoutedEventArgs e)
         {
-            if (Main.DataServer.IsRunning)
-                Main.DataServer.Stop();
+            if (Main.RealTimeDataServer.IsRunning)
+                Main.RealTimeDataServer.Stop();
             else
-                Main.DataServer.Start();
+                Main.RealTimeDataServer.Start();
         }
     }
 }

@@ -8,7 +8,7 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
-    public class TestDataServiceProvider : IDataServerProvider
+    public class TestDataServiceProvider : IRealTimeProvider
     {
         private static readonly Random random = new Random();
 
@@ -211,6 +211,21 @@ namespace RxdSolutions.FusionLink
         }
 
         public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DateTime AddBusinessDays(DateTime date, int daysToAdd, string calendar, CalendarType calendarType, string currency)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SubscribeToInstrumentProperty(object id, string property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeFromInstrumentProperty(object id, string property)
         {
             throw new NotImplementedException();
         }

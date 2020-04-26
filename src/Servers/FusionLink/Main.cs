@@ -16,6 +16,7 @@ using RxdSolutions.FusionLink.Ribbon;
 using RxdSolutions.FusionLink.Services;
 using RxdSolutions.Windows.MFC;
 using sophis;
+using sophis.instrument;
 using sophis.misc;
 using sophis.portfolio;
 using sophis.utils;
@@ -35,10 +36,15 @@ namespace RxdSolutions.FusionLink
         private static PositionEventListener _positionEventListener;
         private static TransactionActionListener _transactionActionListener;
         private static TransactionEventListener _transactionEventListener;
+        private static InstrumentActionListener _instrumentActionListener;
+        private static InstrumentEventListener _instrumentEventListener;
 
-        private static ServiceHost _host;
+        private static ServiceHost _realTimeHost;
+        private static ServiceHost _onDemandHost;
 
-        public static DataServer DataServer;
+        public static OnDemandDataServer OnDemandDataServer;
+        public static RealTimeDataServer RealTimeDataServer;
+
         public static CaptionBar CaptionBar;
 
         private static DisplayDashboardCommand _displayDashboardCommand;
@@ -97,9 +103,9 @@ namespace RxdSolutions.FusionLink
             {
                 AutomaticComputingPreferenceChangeListener.Stop();
 
-                DataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
-                DataServer.Close();
-                _host?.Close();
+                RealTimeDataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
+                RealTimeDataServer.Close();
+                _realTimeHost?.Close();
             }
             catch (Exception ex)
             {
@@ -107,9 +113,21 @@ namespace RxdSolutions.FusionLink
             } 
         }
 
+        private CSMGlobalFunctions GetGlobalFunctions()
+        {
+            if(string.Equals(Process.GetCurrentProcess().ProcessName, "SophisValue", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return new FusionInvestGlobalFunctions();
+            }
+            else
+            {
+                return new SophisRisqueGlobalFunctions();
+            }
+        }
+
         private void RegisterListeners()
         {
-            _globalFunctions = new FusionInvestGlobalFunctions();
+            _globalFunctions = GetGlobalFunctions();
             CSMGlobalFunctions.Register(_globalFunctions);
 
             _portfolioEventListener = new PortfolioEventListener();
@@ -129,6 +147,13 @@ namespace RxdSolutions.FusionLink
 
             _transactionActionListener = new TransactionActionListener();
             CSMTransactionAction.Register("TransactionActionListener", CSMTransactionAction.eMOrder.M_oSavingInDataBase, _transactionActionListener);
+
+            _instrumentEventListener = new InstrumentEventListener();
+            CSMInstrumentEvent.Register("InstrumentEventListener", _instrumentEventListener);
+
+            _instrumentActionListener = new InstrumentActionListener();
+            CSMInstrumentAction.Register("InstrumentActionListenerModif", CSMInstrumentAction.eMOrder.M_oModification, _instrumentActionListener);
+            CSMInstrumentAction.Register("InstrumentActionListenerCreate", CSMInstrumentAction.eMOrder.M_oCreation, _instrumentActionListener);
 
             AutomaticComputingPreferenceChangeListener.Start();
             AutomaticComputingPreferenceChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
@@ -191,43 +216,59 @@ namespace RxdSolutions.FusionLink
             var aggregatePortfolioListener = new AggregatePortfolioListener(_portfolioActionListener, _portfolioEventListener);
             var aggregatePositionListener = new AggregatePositionListener(_positionActionListener, _positionEventListener);
             var aggregateTransactionListener = new AggregateTransactionListener(_transactionActionListener, _transactionEventListener);
+            var aggregateInstrumentListener = new AggregateInstrumentListener(_instrumentActionListener, _instrumentEventListener);
 
             var positionService = new PositionService();
             var instrumentService = new InstrumentService();
             var curveService = new CurveService();
             var transactionService = new TransactionService(positionService);
+            var priceService = new PriceService();
 
-            var dataServiceProvider = new FusionDataServiceProvider(_globalFunctions as IGlobalFunctions,
+            var realTimeProvider = new FusionRealTimeProvider(_globalFunctions as IGlobalFunctions,
                                                                     aggregatePortfolioListener,
                                                                     aggregatePositionListener,
                                                                     aggregateTransactionListener,
-                                                                    positionService,
-                                                                    instrumentService,
-                                                                    curveService,
-                                                                    transactionService);
+                                                                    aggregateInstrumentListener,
+                                                                    instrumentService);
 
-            CreateDataServerFromConfig(dataServiceProvider);
+            CreateRealTimeDataServerFromConfig(realTimeProvider);
+
+            var onDemandProvider = new FusionOnDemandProvider(positionService,
+                                                                instrumentService,
+                                                                curveService,
+                                                                transactionService,
+                                                                priceService);
+
+            //var ss = new SharedSessionInstanceContextProvider(realTimeProvider);
+
+            //DataServerHostFactory.Initialize(ss);
+
+            CreateOnDemandDataServerFromConfig(onDemandProvider);
 
             return Task.Run(() =>
             {
                 try
                 {
-                    _host = DataServerHostFactory.Create(DataServer);
-                    _host.Faulted += Host_Faulted;
+                    _realTimeHost = DataServerHostFactory.Create(RealTimeDataServer);
+                    _realTimeHost.Faulted += Host_Faulted;
+
+                    _onDemandHost = DataServerHostFactory.Create(OnDemandDataServer);
+                    _onDemandHost.Faulted += Host_Faulted;
                 }
                 catch (AddressAlreadyInUseException)
                 {
                     //Another Sophis has already assumed the role of server. Sink the exception.
                     CSMLog.Write("Main", "EntryPoint", CSMLog.eMVerbosity.M_error, "Another instance is already listening and acting as the FusionLink Server");
 
-                    _host = null;
+                    _realTimeHost = null;
+                    _onDemandHost = null;
                 }
 
-                DataServer = _host.SingletonInstance as DataServer;
+                RealTimeDataServer = _realTimeHost.SingletonInstance as RealTimeDataServer;
 
-                DataServer.Start();
-                DataServer.OnClientConnectionChanged += OnClientConnectionChanged;
-                DataServer.OnStatusChanged += OnStatusChanged;
+                RealTimeDataServer.Start();
+                RealTimeDataServer.OnClientConnectionChanged += OnClientConnectionChanged;
+                RealTimeDataServer.OnStatusChanged += OnStatusChanged;
             });
         }
 
@@ -245,14 +286,19 @@ namespace RxdSolutions.FusionLink
             });
         }
 
-        private static void CreateDataServerFromConfig(FusionDataServiceProvider dataServiceProvider)
+        private static void CreateRealTimeDataServerFromConfig(FusionRealTimeProvider realTimeProvider)
         {
-            DataServer = new DataServer(dataServiceProvider);
+            RealTimeDataServer = new RealTimeDataServer(realTimeProvider);
 
             string defaultMessage = "";
             CSMConfigurationFile.getEntryValue("FusionLink", "DefaultMessage", ref defaultMessage, Resources.DefaultDataLoadingMessage);
 
-            DataServer.DefaultMessage = defaultMessage;
+            RealTimeDataServer.DefaultMessage = defaultMessage;
+        }
+
+        private static void CreateOnDemandDataServerFromConfig(FusionOnDemandProvider onDemandProvider)
+        {
+            OnDemandDataServer = new OnDemandDataServer(onDemandProvider);
         }
 
         private void UpdateCaption()
@@ -263,16 +309,16 @@ namespace RxdSolutions.FusionLink
             string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
             caption.Append(dataServiceIdentifierCaption);
 
-            if (DataServer.ClientCount > 0)
+            if (RealTimeDataServer.ClientCount > 0)
             {
                 string clientsConnectedCaption = "";
-                if (DataServer.ClientCount == 1)
+                if (RealTimeDataServer.ClientCount == 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, DataServer.ClientCount);
+                    clientsConnectedCaption = string.Format(Resources.SingleClientConnectedMessage, RealTimeDataServer.ClientCount);
                 }
-                else if (DataServer.ClientCount > 1)
+                else if (RealTimeDataServer.ClientCount > 1)
                 {
-                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, DataServer.ClientCount);
+                    clientsConnectedCaption = string.Format(Resources.MultipleClientsConnectedMessage, RealTimeDataServer.ClientCount);
                 }
 
                 caption.Append(" / ");
@@ -295,7 +341,7 @@ namespace RxdSolutions.FusionLink
                     break;
             }
 
-            if (!DataServer.IsRunning)
+            if (!RealTimeDataServer.IsRunning)
             {
                 caption.Append(" / ");
                 caption.Append(Resources.DataServerStopped);

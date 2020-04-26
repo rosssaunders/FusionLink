@@ -15,6 +15,24 @@ namespace RxdSolutions.FusionLink.Interface
         FullPath,
 
         [EnumMember]
-        ParentId
+        ParentId,
+
+        [EnumMember]
+        Locked,
+
+        [EnumMember]
+        Comment,
+
+        [EnumMember]
+        Closed,
+
+        [EnumMember]
+        Entity,
+
+        [EnumMember]
+        Currency,
+
+        [EnumMember]
+        Security
     }
 }
