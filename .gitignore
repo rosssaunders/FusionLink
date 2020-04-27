@@ -15,7 +15,7 @@ build/
 [Oo]bj/
 
 #Finastra commercial dlls
-libs/Finastra/**/*.dll
+libs/Finastra/**/*.*
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/

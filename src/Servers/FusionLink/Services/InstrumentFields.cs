@@ -515,7 +515,7 @@ namespace RxdSolutions.FusionLink.Services
             OptionFields.Add("CalculationAgent".ToUpper(), x => x.GetCalculationAgent());
 
             //OptionFields.Add("FixingType".ToUpper(), x => x.GetFixingType()); --THIS RETURNS A NUMBER THAT ISNT USEFUL
-            OptionFields.Add("GuarrantedFX".ToUpper(), x => x.GetFX);
+            //OptionFields.Add("GuarrantedFX".ToUpper(), x => x.GetFX);
             OptionFields.Add("GuarrantedFX".ToUpper(), x => x.GetGuarrantedForexSpot());
 
 

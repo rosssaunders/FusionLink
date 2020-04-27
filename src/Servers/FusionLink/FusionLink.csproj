@@ -37,23 +37,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MFCCaptionBar10">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="SophisDotNetToolkitCommodity">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitCommodity.dll</HintPath>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCPPI">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitCPPI.dll</HintPath>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitFinance">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitFinance.dll</HintPath>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitMonteCarlo">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitMonteCarlo.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
@@ -116,6 +101,22 @@
     </Reference>
     <Reference Include="Sophis.Windows">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCommodity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCPPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitFinance.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitMonteCarlo.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -218,6 +219,22 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCommodity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCPPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitFinance.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitMonteCarlo.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug_72'">
     <Reference Include="MFCCaptionBar">
@@ -272,104 +289,86 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitCommodity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitCPPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitFinance.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitMonteCarlo.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkit">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitBackOffice">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetToolkitBackOffice.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitBackOffice.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisPortfoliosGUI">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\Sophis.Windows.Widgets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetTools">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetTools.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetValue">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\SophisDotNetValue.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\Sophis.Windows.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\DevExpress.XtraTreeList.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>C:\UAT_SOPHIS\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
+      <HintPath>..\..\..\libs\Finastra\Sophis.Windows.Ribbon.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Develop_72'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Sophis.DotNetCore">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.DotNetCore.dll</HintPath>
+      <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitCommodity.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkit.dll</HintPath>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitCPPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitFinance.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\DevExpress.XtraTreeList.v18.1.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>C:\UAT_SOPHIS_72\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitMonteCarlo.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -395,6 +394,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetDir)*.* \\wgsb-rsau02.bhdgsystematic.com\e$\UAT_SOPHIS\CLIENT\Toolkits\ /y" />
+    <Exec Command="xcopy $(TargetDir)*.* E:\UAT_SOPHIS\CLIENT\Toolkits\ /y" />
   </Target>
 </Project>
