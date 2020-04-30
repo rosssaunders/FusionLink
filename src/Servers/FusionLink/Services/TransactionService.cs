@@ -2,18 +2,16 @@
 
 
 using System;
-using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using RxdSolutions.FusionLink.Helpers;
 using RxdSolutions.FusionLink.Interface;
 using sophis.backoffice_kernel;
-using sophis.gui;
 using sophis.instrument;
-using sophis.market_data;
 using sophis.portfolio;
 using sophis.static_data;
 using sophis.utils;
-using System.Collections;
 
 namespace RxdSolutions.FusionLink.Services
 {

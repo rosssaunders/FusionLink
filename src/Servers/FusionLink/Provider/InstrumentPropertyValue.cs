@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Runtime.ExceptionServices;
+using RxdSolutions.FusionLink.Model;
 using RxdSolutions.FusionLink.Properties;
 using RxdSolutions.FusionLink.Services;
 using sophis.commodity;
@@ -57,95 +58,95 @@ namespace RxdSolutions.FusionLink.Provider
                     switch (Instrument.GetType_API())
                     {
                         case 'A':
-                            CSMEquity a = Instrument;
+                            var a = new Equity(InstrumentId);
                             return _instrumentService.GetValue(a, Property);
 
                         case 'B': //Caps and Floors
-                            CSMCapFloor b = Instrument;
+                            var b = new CapFloor(InstrumentId);
                             return _instrumentService.GetValue(b, Property);
 
                         case 'C': //Commissions
-                            CSMCommission c = Instrument;
+                            var c = new Commission(InstrumentId);
                             return _instrumentService.GetValue(c, Property);
 
                         case 'D': //CSMOption
-                            CSMOption d = Instrument;
+                            var d = new Option(InstrumentId);
                             return _instrumentService.GetValue(d, Property);
 
                         case 'E': //Forex
-                            CSMForexSpot e = Instrument;
+                            var e = new ForexSpot(InstrumentId);
                             return _instrumentService.GetValue(e, Property);
 
                         case 'K': // 'Non Deliverable Forward Forex'
-                            CSMNonDeliverableForexForward k = Instrument;
+                            var k = new NonDeliverableForexForward(InstrumentId);
                             return _instrumentService.GetValue(k, Property);
 
                         case 'X': // 'Forward Forex'
-                            CSMForexFuture x = Instrument;
+                            var x = new ForexFuture(InstrumentId);
                             return _instrumentService.GetValue(x, Property);
 
                         case 'F': //CSMFuture
-                            CSMFuture f = Instrument;
+                            var f = new Future(InstrumentId);
                             return _instrumentService.GetValue(f, Property);
 
                         case 'G': // 'Contracts for difference'
-                            CSMContractForDifference g = Instrument;
+                            var g = new ContractForDifference(InstrumentId);
                             return _instrumentService.GetValue(g, Property);
 
                         case 'H': // 'Issuers'
-                            CSMIssuer h = Instrument;
+                            var h = new Issuer(InstrumentId);
                             return _instrumentService.GetValue(h, Property);
 
                         case 'I': // 'Indexes and Baskets'
-                            CSMInstrument i = Instrument;
+                            var i = new Instrument(InstrumentId);
                             return _instrumentService.GetValue(i, Property);
 
                         case 'L': // 'Repos'
-                            CSMLoanAndRepo l = Instrument;
+                            var l = new LoanAndRepo(InstrumentId);
                             return _instrumentService.GetValue(l, Property);
 
                         case 'N': // 'Bond Baskets' / Packages
-                            CSMBondBasket n = Instrument;
+                            var n = new BondBasket(InstrumentId);
                             return _instrumentService.GetValue(n, Property);
 
                         case 'M': // 'Listed Options'
-                            CSMOption m = Instrument;
+                            var m = new ListedOption(InstrumentId);
                             return _instrumentService.GetValue(m, Property);
 
                         case 'O': // 'Bonds'
-                            CSMBond o = Instrument;
+                            var o = new Bond(InstrumentId);
                             return _instrumentService.GetValue(o, Property);
 
                         case 'P': // 'Loans on Stock'
-                            CSMLoanAndRepo p = Instrument;
+                            var p = new LoanAndRepo(InstrumentId);
                             return _instrumentService.GetValue(p, Property);
 
                         case 'Q': // 'Commodity'
-                            CSMCommodity q = Instrument;
+                            var q = new Commodity(InstrumentId);
                             return _instrumentService.GetValue(q, Property);
 
                         case 'R': // 'Interest Rates'   
-                            CSMInterestRate r = Instrument;
+                            var r = new InterestRate(InstrumentId);
                             return _instrumentService.GetValue(r, Property);
 
                         case 'S': // 'Swaps'
-                            CSMSwap s = Instrument;
+                            var s = new Swap(InstrumentId);
                             return _instrumentService.GetValue(s, Property);
 
                         case 'T': // 'Debt Instruments'
-                            CSMDebtInstrument t = Instrument;
+                            var t = new DebtInstrument(InstrumentId);
                             return _instrumentService.GetValue(t, Property);
 
                         case 'U': // 'Commodity Indexes'
-                            CSMCommodityBasket u = Instrument;
+                            var u = new CommodityBasket(InstrumentId);
                             return _instrumentService.GetValue(u, Property);
 
                         case 'W': // 'Swapped Options'
-                            CSMOption w = Instrument;
+                            var w = new Option(InstrumentId);
                             return _instrumentService.GetValue(w, Property);
 
                         case 'Z': // 'Fund'
-                            CSMAmFund z = Instrument;
+                            var z = new Fund(InstrumentId);
                             return _instrumentService.GetValue(z, Property);
 
                         default:

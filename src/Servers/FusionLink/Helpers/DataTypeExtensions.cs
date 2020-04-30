@@ -17,6 +17,13 @@ namespace RxdSolutions.FusionLink.Helpers
     {
         public static int SophisNull = -10_000_000;
 
+        public static string ExtractString(this CMString cMString)
+        {
+            var str = cMString.StringValue;
+            cMString.Dispose();
+            return str;
+        }
+
         public static string GetName(this CSMCalendar calendar)
         {
             using var str = new CMString();
