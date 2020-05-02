@@ -31,7 +31,23 @@ namespace RxdSolutions.FusionLink.Services
 
         public object GetValue<T>(T instrument, string property) where T : Instrument
         {
-            return _dispatchMapping[typeof(T)][property].Invoke(instrument);
+            if(_dispatchMapping.ContainsKey(typeof(T)))
+            {
+                var propertyDict = _dispatchMapping[typeof(T)];
+
+                if(propertyDict.ContainsKey(property))
+                {
+                    return propertyDict[property](instrument);
+                }
+                else
+                {
+                    return $"Unknown Instrument Property '{property}'";
+                }
+            }
+            else
+            {
+                return $"Unknown Instrument Type '{nameof(instrument)}'";
+            }
         }
     }
 }
