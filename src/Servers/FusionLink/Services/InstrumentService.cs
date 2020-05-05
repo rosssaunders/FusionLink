@@ -24,7 +24,7 @@ namespace RxdSolutions.FusionLink.Services
 
                 foreach(var property in x.GetProperties())
                 {
-                    properties.Add(property.Name, (obj) => property.GetValue(obj));
+                    properties.Add(property.Name.ToUpper(), (obj) => property.GetValue(obj));
                 }
             }
         }
@@ -35,9 +35,9 @@ namespace RxdSolutions.FusionLink.Services
             {
                 var propertyDict = _dispatchMapping[typeof(T)];
 
-                if(propertyDict.ContainsKey(property))
+                if(propertyDict.ContainsKey(property.ToUpper()))
                 {
-                    return propertyDict[property](instrument);
+                    return propertyDict[property.ToUpper()](instrument);
                 }
                 else
                 {

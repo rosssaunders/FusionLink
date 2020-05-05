@@ -98,6 +98,6 @@
     <Error Condition="!Exists('..\..\..\NuGetPackages\exceldna.addin\1.0.0\build\ExcelDna.AddIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\NuGetPackages\exceldna.addin\1.0.0\build\ExcelDna.AddIn.targets'))" />
   </Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetDir)*.* \\wgsb-rsau02.bhdgsystematic.com\e$\UAT_SOPHIS\CLIENT\FusionLink\ /y" />
+    <Exec Command="xcopy $(TargetDir)*.* e:\UAT_SOPHIS\CLIENT\FusionLink\ /y" />
   </Target>
 </Project>
