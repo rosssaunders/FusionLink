@@ -79,7 +79,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                                 if (_connection == null)
                                 {
-                                    _connection = _connections.AvailableEndpoints.FirstOrDefault()?.Uri;
+                                    _connection = _connections.AvailableEndpoints.FirstOrDefault()?.Via;
                                 }
 
                                 var connectionToAttempt = _connections.FindEndpoint(_connection);
@@ -96,7 +96,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                 {
                                     try
                                     {
-                                        client.Open(connectionToAttempt);
+                                        client.Open(connectionToAttempt.EndpointAddress, connectionToAttempt.Via);
 
                                         IsConnected = true;
                                     }

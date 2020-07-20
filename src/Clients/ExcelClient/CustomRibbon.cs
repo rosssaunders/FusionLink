@@ -1,9 +1,6 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Resources;
@@ -20,15 +17,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
     [ComVisible(true)]
     public class CustomRibbon : ExcelRibbon
     {
-        private XNamespace customUINS = "http://schemas.microsoft.com/office/2006/01/customui";
+        private readonly XNamespace _customUINS = "http://schemas.microsoft.com/office/2006/01/customui";
         private static IRibbonUI _ribbonUi;
+        private Microsoft.Office.Interop.Excel.Application _application;
 
         private ConnectionMonitor _connectionMonitor;
         private DataServiceClient _client;
-        private Microsoft.Office.Interop.Excel.Application _application;
         private AvailableConnections _availableConnections;
-
-        private static HashSet<string> _processNames = new HashSet<string>() { "sophisvalue", "sophisrisque" };
 
         public CustomRibbon()
         {
@@ -124,7 +119,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 string GetCurrentFlag()
                 {
-                    if(_client.Connection.Uri.Equals(endPoint.Uri))
+                    if(_client.Via.Equals(endPoint))
                     {
                         return " (Current)";
                     }
@@ -132,14 +127,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     return string.Empty;
                 }
 
-                var item = (Id: endPoint.Process.Id, MenuItem: new XElement(customUINS + "button",
-                        new XAttribute("id", $"Process{endPoint.Process.Id}Button"),
-                        new XAttribute("label", ConnectionHelper.GetConnectionName(endPoint.Uri) + GetCurrentFlag()),
-                        new XAttribute("tag", endPoint.Uri.ToString()),
+                var cb = new ConnectionBuilder(endPoint);
+
+                var processId = cb.GetProcessId();
+                var connectionName = cb.GetConnectionName() + GetCurrentFlag();
+
+                var item = (Id: processId, MenuItem: new XElement(_customUINS + "button",
+                        new XAttribute("id", $"Process{processId}Button"),
+                        new XAttribute("label", connectionName),
+                        new XAttribute("tag", endPoint.ToString()),
                         new XAttribute("onAction", "OnConnect"),
                         new XAttribute("imageMso", "ServerConnection")));
-
-                endPoint.Process.Dispose();
 
                 return item;
             }
@@ -152,37 +150,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             return menu.ToString();
         }
 
-        private IEnumerable<(Uri Uri, Process Process)> GetAliveEndPoints()
+        private IEnumerable<Uri> GetAliveEndPoints()
         {
-            foreach (var endPoint in _availableConnections.AvailableEndpoints)
-            {
-                var id = ConnectionHelper.GetConnectionId(endPoint.Uri);
-
-                Process process = null;
-                try
-                {
-                    process = Process.GetProcessById(id);
-                }
-                catch
-                {
-                    process = null; //Process must have exited
-                }
-
-                if (process != null)
-                {
-                    if (_processNames.Contains(process.ProcessName.ToLower()))
-                    {
-                        yield return (endPoint.Uri, process);
-                    }
-                }
-            };
+            return _availableConnections.AvailableEndpoints.Select(x => x.Via);
         }
                
         private XElement BuildMessage(string message)
         {
             var loadingMessageMenu = BuildPopupMenu(
                     new[] {
-                        new XElement(customUINS + "button",
+                        new XElement(_customUINS + "button",
                             new XAttribute("id", $"Process0"),
                             new XAttribute("label", message),
                             new XAttribute("tag", "0"),
@@ -197,7 +174,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private XElement BuildPopupMenu(IEnumerable<XElement> items)
         {
             var menu =
-                new XElement(customUINS + "menu",
+                new XElement(_customUINS + "menu",
                     new XAttribute("itemSize", "large"),
                     items
                 );

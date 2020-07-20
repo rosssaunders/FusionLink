@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using RxdSolutions.FusionLink.Client.Properties;
 using RxdSolutions.FusionLink.Interface;
 
@@ -15,6 +16,7 @@ namespace RxdSolutions.FusionLink.Client
         private IRealTimeServer _realTimeServer;
         private DataServiceCallbackClient _callback;
         private EndpointAddress _connection;
+        private Uri _via;
 
         private IOnDemandServer _onDemandServer;
 
@@ -26,6 +28,7 @@ namespace RxdSolutions.FusionLink.Client
         private readonly HashSet<(object Id, string Property)> _instrumentPropertySubscriptions;
 
         private readonly HashSet<SystemProperty> _systemSubscriptions;
+        private readonly Binding _binding;
 
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
@@ -35,7 +38,7 @@ namespace RxdSolutions.FusionLink.Client
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
 
-        public DataServiceClient()
+        public DataServiceClient(Binding binding)
         {
             _connectionLock = new object();
             _positionCellValueSubscriptions = new HashSet<(int, string)>();
@@ -43,6 +46,7 @@ namespace RxdSolutions.FusionLink.Client
             _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
             _instrumentPropertySubscriptions = new HashSet<(object Id, string Property)>();
             _systemSubscriptions = new HashSet<SystemProperty>();
+            _binding = binding;
         }
 
         public CommunicationState State 
@@ -87,9 +91,24 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public Uri Via
+        {
+            get
+            {
+                lock (_connectionLock)
+                {
+                    return _via;
+                }
+            }
+            private set
+            {
+                _via = value;
+            }
+        }
+
         public bool IsConnecting { get; private set; }
 
-        public void Open(EndpointAddress endpointAddress)
+        public void Open(EndpointAddress endpointAddress, Uri via)
         {
             lock(_connectionLock)
             {
@@ -97,9 +116,9 @@ namespace RxdSolutions.FusionLink.Client
 
                 try
                 {
-                    var address = endpointAddress;
+                    var address = new EndpointAddress(endpointAddress.Uri, EndpointIdentity.CreateUpnIdentity("rsaunders@bhdgsystematic.com"));
 
-                    var binding = CreateBinding();
+                    var binding = _binding;
 
                     _callback = new DataServiceCallbackClient();
                     _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
@@ -109,7 +128,7 @@ namespace RxdSolutions.FusionLink.Client
                     _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
                     _callback.OnInstrumentPropertyReceived += Callback_OnInstrumentPropertyReceived;
 
-                    _realTimeServer = DuplexChannelFactory<IRealTimeServer>.CreateChannel(_callback, binding, address);
+                    _realTimeServer = DuplexChannelFactory<IRealTimeServer>.CreateChannel(_callback, binding, address, via);
 
                     _realTimeServer.Register();
 
@@ -123,6 +142,7 @@ namespace RxdSolutions.FusionLink.Client
                         _realTimeServer.SubscribeToSystemValue(ps);
 
                     Connection = address;
+                    Via = via;
 
                     OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
                 }
@@ -131,19 +151,6 @@ namespace RxdSolutions.FusionLink.Client
                     IsConnecting = false;
                 }
             }
-        }
-
-        private static NetNamedPipeBinding CreateBinding()
-        {
-            var binding = new NetNamedPipeBinding
-            {
-                MaxReceivedMessageSize = int.MaxValue,
-                SendTimeout = new TimeSpan(0, 5, 0),
-                ReceiveTimeout = new TimeSpan(0, 5, 0)
-            };
-            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
-            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
-            return binding;
         }
 
         public void Close()
@@ -217,6 +224,7 @@ namespace RxdSolutions.FusionLink.Client
 
                     _realTimeServer = null;
                     Connection = null;
+                    Via = null;
 
                     OnConnectionStatusChanged?.Invoke(this, new ConnectionStatusChangedEventArgs());
                 }
@@ -370,7 +378,7 @@ namespace RxdSolutions.FusionLink.Client
             {
                 var endPoint = Connection.Uri.AbsoluteUri + "/OnDemand";
 
-                var binding = CreateBinding();
+                var binding = _binding;
                 factory = new ChannelFactory<IOnDemandServer>(binding, endPoint);
                 _onDemandServer = factory.CreateChannel();
 

@@ -24,17 +24,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             _monitor.AvailableEndpointsChanged += OnAvailableEndpointsChanged;
 
-            SendConnectionList();
+            SendConnectionListToExcel();
 
             return new ActionDisposable(CleanUp);
         }
 
         private void OnAvailableEndpointsChanged(object sender, EventArgs e)
         {
-            SendConnectionList();
+            SendConnectionListToExcel();
         }
 
-        private void SendConnectionList()
+        private void SendConnectionListToExcel()
         {
             if(_monitor.IsSearchingForEndPoints)
             {
@@ -46,7 +46,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
             else
             {
-                string allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => ConnectionHelper.GetConnectionId(x.Uri)));
+                string allConnections = string.Join(",", _monitor.AvailableEndpoints.Select(x => new ConnectionBuilder(x.Via).GetConnectionName()));
                 _observer.OnNext(allConnections);
             }
         }

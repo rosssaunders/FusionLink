@@ -26,7 +26,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             if(_rtdClient.Connection is object)
             {
-                _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
+                _observer.OnNext(new ConnectionBuilder(_rtdClient.Connection.Uri).GetConnectionName());
             }
             else
             {
@@ -40,7 +40,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if(_rtdClient.Connection is object)
             {
-                _observer.OnNext(ConnectionHelper.GetConnectionId(_rtdClient.Connection.Uri));
+                _observer.OnNext(new ConnectionBuilder(_rtdClient.Connection.Uri).GetConnectionName());
             }
             else
             {

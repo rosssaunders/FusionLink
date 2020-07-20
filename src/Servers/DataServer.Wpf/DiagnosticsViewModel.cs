@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.ServiceModel;
+using System.ServiceModel.Dispatcher;
 using System.Windows;
 using RxdSolutions.FusionLink.Properties;
 
@@ -8,6 +11,7 @@ namespace RxdSolutions.FusionLink.Client
 {
     public class DiagnosticsViewModel : INotifyPropertyChanged
     {
+        private readonly ServiceHost _serviceHost;
         private readonly RealTimeDataServer _dataServer;
 
         private int _portfolioSubscriptionCount;
@@ -20,8 +24,10 @@ namespace RxdSolutions.FusionLink.Client
         private long _refreshTimeTaken;
         private int _numberOfRefreshes;
         
-        public DiagnosticsViewModel(RealTimeDataServer dataServer)
+        public DiagnosticsViewModel(ServiceHost serviceHost, RealTimeDataServer dataServer)
         {
+            _serviceHost = serviceHost;
+
             _dataServer = dataServer;
             _dataServer.OnSubscriptionChanged += OnSubscriptionChanged;
             _dataServer.OnClientConnectionChanged += OnClientConnectionChanged;
@@ -89,7 +95,18 @@ namespace RxdSolutions.FusionLink.Client
 
         public string ServerUri
         {
-            get { return DataServerHostFactory.GetBaseAddress().ToString(); }
+            get 
+            {
+                var listener = _serviceHost.ChannelDispatchers
+                                        .OfType<ChannelDispatcher>()
+                                        .Where(x => x.BindingName == "http://tempuri.org/:NetTcpBinding")
+                                        .First()
+                                        .Listener
+                                        .Uri
+                                        .ToString();
+
+                return listener;
+            }
         }
 
         public bool IsTerminalServices

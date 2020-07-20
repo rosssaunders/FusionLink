@@ -1,8 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using System.Linq;
+using System.ServiceModel;
 using ExcelDna.Integration;
 using ExcelDna.Registration;
 using RxdSolutions.FusionLink.Client;
@@ -19,9 +18,22 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public static bool IsShuttingDown;
 
+        private static NetTcpBinding CreateTcpBinding()
+        {
+            var binding = new NetTcpBinding
+            {
+                MaxReceivedMessageSize = int.MaxValue,
+                SendTimeout = new TimeSpan(0, 5, 0),
+                ReceiveTimeout = new TimeSpan(0, 5, 0)
+            };
+            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
+            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
+            return binding;
+        }
+
         static AddIn()
         {
-            Client = new DataServiceClient();
+            Client = new DataServiceClient(CreateTcpBinding());
         }
 
         public void AutoOpen()

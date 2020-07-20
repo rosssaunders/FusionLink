@@ -11,14 +11,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
     public class ConnectionNameExcelObservable : IExcelObservable
     {
         private readonly DataServiceClient _rtdClient;
-        private readonly ConnectionMonitor _connectionMonitor;
         private readonly AvailableConnections _availableConnections;
         private IExcelObserver _observer;
 
-        public ConnectionNameExcelObservable(DataServiceClient rtdClient, ConnectionMonitor connectionMonitor, AvailableConnections availableConnections)
+        public ConnectionNameExcelObservable(DataServiceClient rtdClient, AvailableConnections availableConnections)
         {
             _rtdClient = rtdClient;
-            _connectionMonitor = connectionMonitor;
             _availableConnections = availableConnections;
         }
 
@@ -31,7 +29,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             if (_rtdClient.Connection is object)
             {
-                _observer.OnNext(ConnectionHelper.GetConnectionName(_rtdClient.Connection.Uri));
+                _observer.OnNext(new ConnectionBuilder(_rtdClient.Connection.Uri).GetConnectionName());
             }
             else
             {
@@ -55,7 +53,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (_rtdClient.Connection is object)
             {
-                _observer.OnNext(ConnectionHelper.GetConnectionName(_rtdClient.Connection.Uri));
+                _observer.OnNext(new ConnectionBuilder(_rtdClient.Connection.Uri).GetConnectionName());
             }
             else
             {

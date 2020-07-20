@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,8 +40,8 @@ namespace RxdSolutions.FusionLink
         private static InstrumentActionListener _instrumentActionListener;
         private static InstrumentEventListener _instrumentEventListener;
 
-        private static ServiceHost _realTimeHost;
-        private static ServiceHost _onDemandHost;
+        public static ServiceHost RealTimeHost;
+        public static ServiceHost OnDemandHost;
 
         public static OnDemandDataServer OnDemandDataServer;
         public static RealTimeDataServer RealTimeDataServer;
@@ -105,7 +106,7 @@ namespace RxdSolutions.FusionLink
 
                 RealTimeDataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 RealTimeDataServer.Close();
-                _realTimeHost?.Close();
+                RealTimeHost?.Close();
             }
             catch (Exception ex)
             {
@@ -238,33 +239,28 @@ namespace RxdSolutions.FusionLink
                                                                 curveService,
                                                                 transactionService,
                                                                 priceService);
-
-            //var ss = new SharedSessionInstanceContextProvider(realTimeProvider);
-
-            //DataServerHostFactory.Initialize(ss);
-
             CreateOnDemandDataServerFromConfig(onDemandProvider);
 
             return Task.Run(() =>
             {
                 try
                 {
-                    _realTimeHost = DataServerHostFactory.Create(RealTimeDataServer);
-                    _realTimeHost.Faulted += Host_Faulted;
+                    RealTimeHost = DataServerHostFactory.Create(RealTimeDataServer);
+                    RealTimeHost.Faulted += Host_Faulted;
 
-                    _onDemandHost = DataServerHostFactory.Create(OnDemandDataServer);
-                    _onDemandHost.Faulted += Host_Faulted;
+                    OnDemandHost = DataServerHostFactory.Create(OnDemandDataServer);
+                    OnDemandHost.Faulted += Host_Faulted;
                 }
                 catch (AddressAlreadyInUseException)
                 {
                     //Another Sophis has already assumed the role of server. Sink the exception.
                     CSMLog.Write("Main", "EntryPoint", CSMLog.eMVerbosity.M_error, "Another instance is already listening and acting as the FusionLink Server");
 
-                    _realTimeHost = null;
-                    _onDemandHost = null;
+                    RealTimeHost = null;
+                    OnDemandHost = null;
                 }
 
-                RealTimeDataServer = _realTimeHost.SingletonInstance as RealTimeDataServer;
+                RealTimeDataServer = RealTimeHost.SingletonInstance as RealTimeDataServer;
 
                 RealTimeDataServer.Start();
                 RealTimeDataServer.OnClientConnectionChanged += OnClientConnectionChanged;
@@ -301,12 +297,13 @@ namespace RxdSolutions.FusionLink
             OnDemandDataServer = new OnDemandDataServer(onDemandProvider);
         }
 
-        private void UpdateCaption()
+        private static void UpdateCaption()
         {
             var caption = new StringBuilder();
 
             int processId = Process.GetCurrentProcess().Id;
-            string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, processId);
+            string machineName = Environment.MachineName;
+            string dataServiceIdentifierCaption = string.Format(Resources.ConnectionIdMessage, machineName, processId);
             caption.Append(dataServiceIdentifierCaption);
 
             if (RealTimeDataServer.ClientCount > 0)

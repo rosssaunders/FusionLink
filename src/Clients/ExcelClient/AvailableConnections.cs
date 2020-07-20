@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.ServiceModel;
@@ -14,24 +15,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class AvailableConnections : IDisposable
     {
-        [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool CloseHandle(IntPtr hObject);
-
         public event EventHandler<EventArgs> AvailableEndpointsChanged;
 
         public bool IsSearchingForEndPoints { get; private set; }
 
-        private readonly List<EndpointAddress> _availableEndpoints;
+        private readonly List<EndPointAddressVia> _availableEndpoints;
+        
         private readonly ServiceHost _announcementServiceHost;
         private readonly AnnouncementService _announcementService;
 
         public AvailableConnections()
         {
-            _availableEndpoints = new List<EndpointAddress>();
+            _availableEndpoints = new List<EndPointAddressVia>();
 
             // Subscribe the announcement events
             _announcementService = new AnnouncementService();
@@ -44,7 +39,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _announcementServiceHost.Open();
         }
 
-        public IReadOnlyList<EndpointAddress> AvailableEndpoints
+        public IReadOnlyList<EndPointAddressVia> AvailableEndpoints
         {
             get
             {
@@ -80,92 +75,52 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                 discoveryClient.Close();
 
-                int SessionIdFromUri(EndpointDiscoveryMetadata metaData)
+                lock (_availableEndpoints)
                 {
-                    if (int.TryParse(metaData.ListenUris[0].Segments[2].Replace("/", ""), out int sessionId))
+                    foreach (var endPoint in findResponse.Endpoints)
                     {
-                        return sessionId;
+                        var remoteUsername = new ConnectionBuilder(endPoint.Address.Uri).GetConnectionUsername();
+
+                        if (!string.Equals(remoteUsername, Environment.UserName, StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+
+                        var found = false;
+
+                        foreach (var knownEndpoint in AvailableEndpoints)
+                        {
+                            if (knownEndpoint.Via == endPoint.ListenUris[0])
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            _availableEndpoints.Add(new EndPointAddressVia(endPoint.Address, endPoint.ListenUris[0]));
+                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                        }
                     }
-                    
-                    return 0;
-                }
-
-                int ProcessIdFromUri(EndpointDiscoveryMetadata metaData)
-                {
-                    if (int.TryParse(metaData.ListenUris[0].Segments[3].Replace("/", ""), out int processId))
-                    {
-                        return processId;
-                    }
-
-                    return 0;
-                }
-
-                foreach (var endPoint in findResponse.Endpoints)
-                {
-                    if (string.Compare(endPoint.ListenUris[0].Host, Environment.MachineName, StringComparison.InvariantCultureIgnoreCase) != 0)
-                    {
-                        continue;
-                    }
-
-                    if (SessionIdFromUri(endPoint) != Process.GetCurrentProcess().SessionId)
-                    {
-                        continue;
-                    }
-
-                    //Check the process is running under the same user account
-                    var processId = ProcessIdFromUri(endPoint);
-
-                    if (processId == 0)
-                        continue;
-
-                    var remoteProcess = Process.GetProcessById(processId);
-                    if (remoteProcess == null)
-                        continue;
-
-                    if(!GetProcessUser(remoteProcess).User.Value.Equals(WindowsIdentity.GetCurrent().User.Value))
-                    {
-                        continue;
-                    }
-
-                    var found = false;
 
                     foreach (var knownEndpoint in AvailableEndpoints)
                     {
-                        if (knownEndpoint.Uri == endPoint.Address.Uri)
+                        var found = false;
+                        foreach (var endPoints in findResponse.Endpoints)
                         {
-                            found = true;
-                            break;
+                            if (knownEndpoint.Via == endPoints.ListenUris[0])
+                            {
+                                found = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (!found)
-                    {
-                        lock (_availableEndpoints)
+                        if (!found)
                         {
-                            _availableEndpoints.Add(endPoint.Address);
-                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
-                        }
-                    }
-                }
-
-                foreach (var knownEndpoint in AvailableEndpoints)
-                {
-                    var found = false;
-                    foreach (var endPoints in findResponse.Endpoints)
-                    {
-                        if (knownEndpoint.Uri == endPoints.Address.Uri)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                    {
-                        lock (_availableEndpoints)
-                        {
-                            _availableEndpoints.Remove(knownEndpoint);
-                            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                            lock (_availableEndpoints)
+                            {
+                                _availableEndpoints.Remove(knownEndpoint);
+                                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                            }
                         }
                     }
                 }
@@ -178,30 +133,48 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
-        public void Remove(EndpointAddress ea)
+        public void Remove(EndPointAddressVia ea)
         {
-            _availableEndpoints.Remove(ea);
+            lock (_availableEndpoints)
+            {
+                _availableEndpoints.Remove(ea);
 
-            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
         {
-            _availableEndpoints.Remove(e.EndpointDiscoveryMetadata.Address);
-            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+            lock (_availableEndpoints)
+            {
+                var idx = _availableEndpoints.FindIndex(new Predicate<EndPointAddressVia>(x => x.Via == e.EndpointDiscoveryMetadata.ListenUris[0]));
+
+                if(idx != -1)
+                    _availableEndpoints.RemoveAt(idx);
+
+                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
         {
-            _availableEndpoints.Add(e.EndpointDiscoveryMetadata.Address);
-            AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+            lock (_availableEndpoints)
+            {
+                //Check the user name
+                var remoteUsername = new ConnectionBuilder(e.EndpointDiscoveryMetadata.Address.Uri).GetConnectionUsername();
+                if (!string.Equals(remoteUsername, Environment.UserName, StringComparison.InvariantCultureIgnoreCase))
+                    return;
+
+                _availableEndpoints.Add(new EndPointAddressVia(e.EndpointDiscoveryMetadata.Address, e.EndpointDiscoveryMetadata.ListenUris[0]));
+                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+            }
         }
 
-        public EndpointAddress FindEndpoint(Uri connection)
+        public EndPointAddressVia FindEndpoint(Uri connection)
         {
             lock (_availableEndpoints)
             {
-                return _availableEndpoints.SingleOrDefault(x => x.Uri == connection);
+                return _availableEndpoints.SingleOrDefault(x => x.Via == connection);
             }
         }
 
@@ -228,26 +201,5 @@ namespace RxdSolutions.FusionLink.ExcelClient
         }
 
         #endregion
-
-        private static WindowsIdentity GetProcessUser(Process process)
-        {
-            IntPtr processHandle = IntPtr.Zero;
-            try
-            {
-                OpenProcessToken(process.Handle, 8, out processHandle);
-                return new WindowsIdentity(processHandle);
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                if (processHandle != IntPtr.Zero)
-                {
-                    CloseHandle(processHandle);
-                }
-            }
-        }
     }
 }

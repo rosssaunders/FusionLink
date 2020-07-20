@@ -10,29 +10,46 @@ using System.Threading.Tasks;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public static class ConnectionHelper
+    public class ConnectionBuilder
     {
-        public static int GetConnectionId(Uri uri)
+        private readonly Uri _uri;
+
+        public ConnectionBuilder(Uri uri)
         {
-            return Convert.ToInt32(uri.Segments[3].Replace("/", ""));
+            _uri = uri;
         }
 
-        public static string GetConnectionName(Uri uri)
+        public int GetProcessId()
+        {
+            return Convert.ToInt32(_uri.Segments[3].Replace("/", ""));
+        }
+
+        public int GetSessionId()
+        {
+            return Convert.ToInt32(_uri.Segments[2].Replace("/", ""));
+        }
+
+        public string GetMachineName()
+        {
+            var machineName = _uri.Host.Substring(0, _uri.Host.IndexOf('.'));
+
+            return machineName.ToUpper();
+        }
+
+        public string GetConnectionUsername()
+        {
+            return _uri.Segments[4].Replace("/", "");
+        }
+
+        public string GetConnectionName()
         {
             try
             {
-                using (var process = Process.GetProcessById(GetConnectionId(uri)))
-                {
-                    var title = process.MainWindowTitle;
-                    if (string.IsNullOrWhiteSpace(title))
-                        title = $"{process.ProcessName} - {process.Id}";
-
-                    return $"{process.Id} - {title}";
-                }
+                return $"{GetMachineName()}:{GetProcessId()}";
             }
             catch
             {
-                return uri.ToString();
+                return _uri.ToString();
             }
         }
     }

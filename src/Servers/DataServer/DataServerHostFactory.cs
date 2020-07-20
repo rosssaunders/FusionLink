@@ -1,8 +1,9 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
+using System.Net;
 using System.Net.Security;
-using System.Security.Principal;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using RxdSolutions.FusionLink.Interface;
@@ -11,12 +12,17 @@ namespace RxdSolutions.FusionLink
 {
     public static class DataServerHostFactory
     {
-        public static Uri GetBaseAddress()
+        private static Uri GetBaseAddress()
         {
             int processId = System.Diagnostics.Process.GetCurrentProcess().Id;
             int sessionId = System.Diagnostics.Process.GetCurrentProcess().SessionId;
 
-            return new Uri($"net.pipe://{Environment.MachineName}/FusionLink/{sessionId}/{processId}");
+            return new Uri($"net.tcp://{Dns.GetHostEntry("").HostName}:0/FusionLink/{sessionId}/{processId}/{Environment.UserName}");
+        }
+
+        private static Binding GetBinding()
+        {
+            return CreateTcpBinding();
         }
 
         public static ServiceHost Create(RealTimeDataServer server)
@@ -24,9 +30,10 @@ namespace RxdSolutions.FusionLink
             var baseAddress = GetBaseAddress();
             var host = new ServiceHost(server, baseAddress);
 
-            var binding = CreateBinding();
+            var binding = GetBinding();
 
-            host.AddServiceEndpoint(typeof(IRealTimeServer), binding, $"/");
+            var endPoint = host.AddServiceEndpoint(typeof(IRealTimeServer), binding, $"/");
+            endPoint.ListenUriMode = ListenUriMode.Unique;
 
             // Add ServiceDiscoveryBehavior  
             var discoveryBehavior = new ServiceDiscoveryBehavior();
@@ -52,9 +59,10 @@ namespace RxdSolutions.FusionLink
             var host = new ServiceHost(server, baseAddress);
 
             //Add the NamedPipes endPoint
-            var binding = CreateBinding();
+            var binding = GetBinding();
 
-            host.AddServiceEndpoint(typeof(IOnDemandServer), binding, "/OnDemand");
+            var endPoint = host.AddServiceEndpoint(typeof(IOnDemandServer), binding, "/OnDemand");
+            endPoint.ListenUriMode = ListenUriMode.Unique;
 
             //Secure to only the current user
             host.Authorization.ServiceAuthorizationManager = new CurrentUserOnlyAuthorizationManager();
@@ -64,19 +72,21 @@ namespace RxdSolutions.FusionLink
             return host;
         }
 
-        private static NetNamedPipeBinding CreateBinding()
+        private static NetTcpBinding CreateTcpBinding()
         {
-            //Add the NamedPipes endPoint
-            var binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.Transport)
+            var binding = new NetTcpBinding(SecurityMode.Transport)
             {
                 MaxReceivedMessageSize = int.MaxValue,
             };
 
+            binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Windows;
+            binding.Security.Transport.ProtectionLevel = ProtectionLevel.EncryptAndSign;
+
             binding.MaxConnections = int.MaxValue;
             binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
-            binding.Security.Transport.ProtectionLevel = ProtectionLevel.EncryptAndSign;
             binding.SendTimeout = new TimeSpan(0, 5, 0);
             binding.ReceiveTimeout = new TimeSpan(0, 5, 0);
+
             return binding;
         }
     }

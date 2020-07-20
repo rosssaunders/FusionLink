@@ -148,7 +148,7 @@
     <value>Start / Stop</value>
   </data>
   <data name="ConnectionIdMessage" xml:space="preserve">
-    <value>FusionLink Connection Id is {0}</value>
+    <value>FusionLink Connection Id is "{0}:{1}"</value>
   </data>
   <data name="CopyCellAsExcelReference" xml:space="preserve">
     <value>Copy Cell as Excel FusionLink Reference</value>

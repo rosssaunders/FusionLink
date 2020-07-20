@@ -151,7 +151,7 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FusionLink Connection Id is {0}.
+        ///   Looks up a localized string similar to FusionLink Connection Id is &quot;{0}:{1}&quot;.
         /// </summary>
         internal static string ConnectionIdMessage {
             get {
