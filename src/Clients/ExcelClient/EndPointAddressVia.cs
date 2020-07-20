@@ -1,4 +1,5 @@
-﻿using System;
+﻿//  Copyright (c) RXD Solutions. All rights reserved.
+using System;
 using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.ExcelClient

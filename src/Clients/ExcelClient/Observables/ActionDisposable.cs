@@ -1,11 +1,9 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class ActionDisposable : IDisposable
+    public sealed class ActionDisposable : IDisposable
     {
         Action _disposeAction;
 

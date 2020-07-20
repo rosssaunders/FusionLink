@@ -1,14 +1,12 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using ExcelDna.Integration;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class ExcelCalculationManualHelper : XlCall, IDisposable
+    public sealed class ExcelCalculationManualHelper : XlCall, IDisposable
     {
-        object oldCalculationMode;
+        readonly object oldCalculationMode;
 
         public ExcelCalculationManualHelper()
         {

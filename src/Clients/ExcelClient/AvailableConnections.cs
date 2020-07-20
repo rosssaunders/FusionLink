@@ -1,13 +1,9 @@
-﻿using System;
+﻿//  Copyright (c) RXD Solutions. All rights reserved.
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using System.Text;
 using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Interface;
 

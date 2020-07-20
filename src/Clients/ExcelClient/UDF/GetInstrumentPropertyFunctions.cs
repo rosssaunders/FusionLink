@@ -1,7 +1,5 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-using System;
 using ExcelDna.Integration;
-using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {

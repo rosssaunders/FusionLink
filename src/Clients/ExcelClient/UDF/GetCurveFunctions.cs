@@ -1,10 +1,6 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
-using System.Collections.Generic;
 using ExcelDna.Integration;
-using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.ExcelClient.Properties;
 
 namespace RxdSolutions.FusionLink.ExcelClient

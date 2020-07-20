@@ -52,7 +52,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             //Open the client connection
             ConnectionMonitor = new ConnectionMonitor(AvailableConnections);
             ConnectionMonitor.RegisterClient(Client);
-            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(Client, ConnectionMonitor, AvailableConnections));
+            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(ConnectionMonitor, AvailableConnections));
 
             Client.OnConnectionStatusChanged += Client_OnConnectionStatusChanged;
 

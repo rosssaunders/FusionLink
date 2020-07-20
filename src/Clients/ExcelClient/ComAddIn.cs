@@ -1,26 +1,17 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ExcelDna.Integration;
 using ExcelDna.Integration.Extensibility;
-using RxdSolutions.FusionLink.Client;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
     public class ComAddIn : ExcelComAddIn
     {
-        private readonly DataServiceClient client;
         private readonly ConnectionMonitor monitor;
         private readonly AvailableConnections availableConnections;
 
-        public ComAddIn(DataServiceClient client, ConnectionMonitor monitor, AvailableConnections availableConnections)
+        public ComAddIn(ConnectionMonitor monitor, AvailableConnections availableConnections)
         {
-            this.client = client;
             this.monitor = monitor;
             this.availableConnections = availableConnections;
         }

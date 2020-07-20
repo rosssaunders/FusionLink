@@ -1,6 +1,4 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using ExcelDna.Integration;
 using static ExcelDna.Integration.XlCall;
 

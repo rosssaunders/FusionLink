@@ -1,6 +1,4 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using ExcelDna.Integration;
 
@@ -9,13 +7,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
     // Select an ExcelReference (perhaps on another sheet) allowing changes to be made there.
     // On clean-up, resets all the selections and the active sheet.
     // Should not be used if the work you are going to do will switch sheets, amke new sheets etc.
-    public class ExcelSelectionHelper : XlCall, IDisposable
+    public sealed class ExcelSelectionHelper : XlCall, IDisposable
     {
-        object oldSelectionOnActiveSheet;
-        object oldActiveCellOnActiveSheet;
-
-        object oldSelectionOnRefSheet;
-        object oldActiveCellOnRefSheet;
+        readonly object oldSelectionOnActiveSheet;
+        readonly object oldActiveCellOnActiveSheet;
+        readonly object oldSelectionOnRefSheet;
+        readonly object oldActiveCellOnRefSheet;
 
         public ExcelSelectionHelper(ExcelReference refToSelect)
         {
