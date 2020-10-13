@@ -34,6 +34,12 @@ namespace RxdSolutions.FusionLink.Interface
         void SubscribeToPositionValues(List<(int positionId, string column)> items);
 
         [OperationContract(IsOneWay = true)]
+        void SubscribeToFlatPositionValue(int portgolioId, int instrumentId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToFlatPositionValues(List<(int portfolioId, int instrumentId, string column)> items);
+
+        [OperationContract(IsOneWay = true)]
         void SubscribeToPortfolioValue(int portfolioId, string column);
 
         [OperationContract(IsOneWay = true)]
@@ -53,6 +59,12 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPositionValues(List<(int positionId, string column)> items);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromFlatPositionValue(int portfolioId, int instrumentId, string column);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromFlatPositionValues(List<(int portfolioId, int instrumentId, string column)> items);
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeFromPortfolioValue(int portfolioId, string column);

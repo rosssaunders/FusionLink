@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
@@ -21,6 +22,7 @@ namespace RxdSolutions.FusionLink.Client
         private readonly object _connectionLock;
 
         private readonly HashSet<(int Id, string Column)> _positionCellValueSubscriptions;
+        private readonly HashSet<(int PortfolioId, int InstrumentId, string Column)> _flatPositionCellValueSubscriptions;
         private readonly HashSet<(int Id, string Column)> _portfolioCellValueSubscriptions;
         private readonly HashSet<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly HashSet<(object Id, string Property)> _instrumentPropertySubscriptions;
@@ -30,6 +32,7 @@ namespace RxdSolutions.FusionLink.Client
 
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
+        public event EventHandler<FlatPositionValueReceivedEventArgs> OnFlatPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
@@ -40,6 +43,7 @@ namespace RxdSolutions.FusionLink.Client
         {
             _connectionLock = new object();
             _positionCellValueSubscriptions = new HashSet<(int, string)>();
+            _flatPositionCellValueSubscriptions = new HashSet<(int, int, string)>();
             _portfolioCellValueSubscriptions = new HashSet<(int, string)>();
             _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
             _instrumentPropertySubscriptions = new HashSet<(object Id, string Property)>();
@@ -121,6 +125,7 @@ namespace RxdSolutions.FusionLink.Client
                     _callback = new DataServiceCallbackClient();
                     _callback.OnSystemValueReceived += CallBack_OnSystemValueReceived;
                     _callback.OnPositionValueReceived += CallBack_OnPositionValueReceived;
+                    _callback.OnFlatPositionValueReceived += CallBack_OnFlatPositionValueReceived;
                     _callback.OnPortfolioValueReceived += CallBack_OnPortfolioValueReceived;
                     _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
                     _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
@@ -132,6 +137,7 @@ namespace RxdSolutions.FusionLink.Client
 
                     //Subscribe to any topics in case this is a reconnection
                     _realTimeServer.SubscribeToPositionValues(_positionCellValueSubscriptions.ToList());
+                    _realTimeServer.SubscribeToFlatPositionValues(_flatPositionCellValueSubscriptions.ToList());
                     _realTimeServer.SubscribeToPortfolioValues(_portfolioCellValueSubscriptions.ToList());
                     _realTimeServer.SubscribeToPortfolioProperties(_portfolioPropertySubscriptions.ToList());
                     _realTimeServer.SubscribeToInstrumentProperties(_instrumentPropertySubscriptions.ToList());
@@ -165,6 +171,7 @@ namespace RxdSolutions.FusionLink.Client
                         {
                             _callback.OnSystemValueReceived -= CallBack_OnSystemValueReceived;
                             _callback.OnPositionValueReceived -= CallBack_OnPositionValueReceived;
+                            _callback.OnFlatPositionValueReceived -= CallBack_OnFlatPositionValueReceived;
                             _callback.OnPortfolioValueReceived -= CallBack_OnPortfolioValueReceived;
                             _callback.OnPortfolioPropertyReceived -= Callback_OnPortfolioPropertyReceived;
                             _callback.OnInstrumentPropertyReceived -= Callback_OnInstrumentPropertyReceived;
@@ -186,6 +193,7 @@ namespace RxdSolutions.FusionLink.Client
                             {
                                 //Subscribe to any topics in case this is a reconnection
                                 _realTimeServer.UnsubscribeFromPositionValues(_positionCellValueSubscriptions.ToList());
+                                _realTimeServer.UnsubscribeFromFlatPositionValues(_flatPositionCellValueSubscriptions.ToList());
                                 _realTimeServer.UnsubscribeFromPortfolioValues(_portfolioCellValueSubscriptions.ToList());
                                 _realTimeServer.UnsubscribeFromPortfolioProperties(_portfolioPropertySubscriptions.ToList());
                                 _realTimeServer.UnsubscribeFromInstrumentProperties(_instrumentPropertySubscriptions.ToList());
@@ -269,6 +277,17 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public void SubscribeToFlatPositionValue(int portfolioId, int instrumentId, string column)
+        {
+            lock (_positionCellValueSubscriptions)
+            {
+                if (!_flatPositionCellValueSubscriptions.Contains((portfolioId, instrumentId, column)))
+                    _flatPositionCellValueSubscriptions.Add((portfolioId, instrumentId, column));
+
+                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToFlatPositionValue(portfolioId, instrumentId, column));
+            }
+        }
+
         public void SubscribeToPortfolioValue(int folioId, string column)
         {
             lock(_portfolioCellValueSubscriptions)
@@ -306,7 +325,7 @@ namespace RxdSolutions.FusionLink.Client
         {
             lock(_portfolioPropertySubscriptions)
             {
-                if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
+                if (_portfolioPropertySubscriptions.Contains((folioId, property)))
                     _portfolioPropertySubscriptions.Remove((folioId, property));
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPortfolioProperty(folioId, property));
@@ -328,7 +347,7 @@ namespace RxdSolutions.FusionLink.Client
         {
             lock (_instrumentPropertySubscriptions)
             {
-                if (!_instrumentPropertySubscriptions.Contains((instrument, property)))
+                if (_instrumentPropertySubscriptions.Contains((instrument, property)))
                     _instrumentPropertySubscriptions.Remove((instrument, property));
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromInstrumentProperty(instrument, property));
@@ -339,10 +358,21 @@ namespace RxdSolutions.FusionLink.Client
         {
             lock(_positionCellValueSubscriptions)
             {
-                if (!_positionCellValueSubscriptions.Contains((positionId, column)))
+                if (_positionCellValueSubscriptions.Contains((positionId, column)))
                     _positionCellValueSubscriptions.Remove((positionId, column));
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPositionValue(positionId, column));
+            }
+        }
+
+        public void UnsubscribeToFlatPositionValue(int portfolioId, int instrumentId, string column)
+        {
+            lock (_flatPositionCellValueSubscriptions)
+            {
+                if (_flatPositionCellValueSubscriptions.Contains((portfolioId, instrumentId, column)))
+                    _flatPositionCellValueSubscriptions.Remove((portfolioId, instrumentId, column));
+
+                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromFlatPositionValue(portfolioId, instrumentId, column));
             }
         }
 
@@ -350,7 +380,7 @@ namespace RxdSolutions.FusionLink.Client
         {
             lock(_portfolioCellValueSubscriptions)
             {
-                if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
+                if (_portfolioCellValueSubscriptions.Contains((folioId, column)))
                     _portfolioCellValueSubscriptions.Remove((folioId, column));
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPortfolioValue(folioId, column));
@@ -361,7 +391,7 @@ namespace RxdSolutions.FusionLink.Client
         {
             lock(_systemSubscriptions)
             {
-                if (!_systemSubscriptions.Contains(property))
+                if (_systemSubscriptions.Contains(property))
                     _systemSubscriptions.Remove(property);
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromSystemValue(property));
@@ -370,23 +400,24 @@ namespace RxdSolutions.FusionLink.Client
 
         private T ExecuteBatchRequest<T>(Func<IOnDemandServer, T> func)
         {
-            ChannelFactory<IOnDemandServer> factory = null;
-
             try
             {
-                var endPoint = Connection.Uri.AbsoluteUri + "/OnDemand";
+                _onDemandServer = ChannelFactory<IOnDemandServer>.CreateChannel(_binding, Connection, Via);
 
-                var binding = _binding;
-                factory = new ChannelFactory<IOnDemandServer>(binding, endPoint);
-                _onDemandServer = factory.CreateChannel();
+                
 
                 var results = func(_onDemandServer);
 
                 return results;
             }
+            catch(Exception ex)
+            {
+                Debug.Print(ex.ToString());
+
+                throw;
+            }
             finally
             {
-                factory?.Close();
             }
         }
 
@@ -395,6 +426,26 @@ namespace RxdSolutions.FusionLink.Client
             try
             {
                 return ExecuteBatchRequest(x => x.GetPositions(portfolioId, positions));
+            }
+            catch (FaultException<PortfolioNotFoundFaultContract> ex)
+            {
+                throw new PortfolioNotFoundException($"{Resources.PortfolioNotFoundMessage} - {ex.Detail.PortfolioId}");
+            }
+            catch (FaultException<PortfolioNotLoadedFaultContract> ex)
+            {
+                throw new PortfolioNotLoadedException($"{Resources.PortfolioNotLoadedMessage} - {ex.Detail.PortfolioId}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public List<int> GetFlatPositions(int portfolioId, PositionsToRequest positions)
+        {
+            try
+            {
+                return ExecuteBatchRequest(x => x.GetFlatPositions(portfolioId, positions));
             }
             catch (FaultException<PortfolioNotFoundFaultContract> ex)
             {
@@ -586,6 +637,11 @@ namespace RxdSolutions.FusionLink.Client
         private void CallBack_OnPositionValueReceived(object sender, PositionValueReceivedEventArgs e)
         {
             OnPositionValueReceived?.Invoke(sender, e);
+        }
+
+        private void CallBack_OnFlatPositionValueReceived(object sender, FlatPositionValueReceivedEventArgs e)
+        {
+            OnFlatPositionValueReceived?.Invoke(sender, e);
         }
 
         private void CallBack_OnSystemValueReceived(object sender, SystemValueReceivedEventArgs e)

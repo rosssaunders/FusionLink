@@ -1,5 +1,6 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System.Runtime.Serialization;
+using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {

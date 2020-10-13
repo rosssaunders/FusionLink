@@ -7,6 +7,7 @@ namespace RxdSolutions.FusionLink.Client
     public class DataServiceCallbackClient : IRealTimeCallbackClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;
+        public event EventHandler<FlatPositionValueReceivedEventArgs> OnFlatPositionValueReceived;
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
@@ -46,6 +47,13 @@ namespace RxdSolutions.FusionLink.Client
             LastReceivedMessageTimestamp = DateTime.UtcNow;
 
             OnPositionValueReceived?.Invoke(this, new PositionValueReceivedEventArgs(positionId, column, value));
+        }
+
+        public void SendFlatPositionValue(int portfolioId, int instrumentId, string column, object value)
+        {
+            LastReceivedMessageTimestamp = DateTime.UtcNow;
+
+            OnFlatPositionValueReceived?.Invoke(this, new FlatPositionValueReceivedEventArgs(portfolioId, instrumentId, column, value));
         }
 
         public void SendServiceStaus(ServiceStatus status)

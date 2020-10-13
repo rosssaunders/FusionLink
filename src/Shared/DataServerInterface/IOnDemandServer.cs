@@ -14,6 +14,12 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(ErrorFaultContract))]
         List<int> GetPositions(int portfolioId, PositionsToRequest position);
 
+        [OperationContract]
+        [FaultContract(typeof(PortfolioNotLoadedFaultContract))]
+        [FaultContract(typeof(PortfolioNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        List<int> GetFlatPositions(int portfolioId, PositionsToRequest position);
+
         [OperationContract(Name = "GetInstrumentPriceHistoryById")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
