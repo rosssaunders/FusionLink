@@ -119,9 +119,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 string GetCurrentFlag()
                 {
-                    if(_client.Via.Equals(endPoint))
+                    if(_client.State == System.ServiceModel.CommunicationState.Opened)
                     {
-                        return " (Current)";
+                        if(_client.Via.Equals(endPoint))
+                        {
+                            return " (Current)";
+                        }
                     }
 
                     return string.Empty;

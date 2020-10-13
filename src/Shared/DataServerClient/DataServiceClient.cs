@@ -17,8 +17,6 @@ namespace RxdSolutions.FusionLink.Client
         private EndpointAddress _connection;
         private Uri _via;
 
-        private IOnDemandServer _onDemandServer;
-
         private readonly object _connectionLock;
 
         private readonly HashSet<(int Id, string Column)> _positionCellValueSubscriptions;
@@ -400,25 +398,20 @@ namespace RxdSolutions.FusionLink.Client
 
         private T ExecuteBatchRequest<T>(Func<IOnDemandServer, T> func)
         {
+            var onDemandServer = ChannelFactory<IOnDemandServer>.CreateChannel(_binding, Connection, Via);
+            
+            var results = func(onDemandServer);
+
             try
             {
-                _onDemandServer = ChannelFactory<IOnDemandServer>.CreateChannel(_binding, Connection, Via);
-
-                
-
-                var results = func(_onDemandServer);
-
-                return results;
-            }
-            catch(Exception ex)
-            {
-                Debug.Print(ex.ToString());
-
-                throw;
+                ((IClientChannel)onDemandServer)?.Close();
             }
             finally
             {
+                ((IDisposable)onDemandServer)?.Dispose();
             }
+            
+            return results;
         }
 
         public List<int> GetPositions(int portfolioId, PositionsToRequest positions)

@@ -14,6 +14,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "portfolio_Id", Description = "The portfolio id")]int portfolioId,
             [ExcelArgument(Name = "property", Description = "The portfolio property to subscribe to")]string property)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (!Enum.TryParse(property,true, out PortfolioProperty enteredValue))
             {
                 return ExcelError.ExcelErrorValue; // #VALUE

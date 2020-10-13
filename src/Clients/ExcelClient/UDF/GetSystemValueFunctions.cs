@@ -12,6 +12,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-System-Value")]
         public static object GetSystemValue(string property)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             if (!Enum.TryParse(property, true, out SystemProperty enteredValue))
             {
                 return ExcelError.ExcelErrorValue; // #VALUE

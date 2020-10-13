@@ -12,6 +12,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
             [ExcelArgument(Name = "instrument", Description = "The instrument id or reference")]object instrument,
             [ExcelArgument(Name = "property", Description = "The instrument property to subscribe to")]string property)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetInstrumentProperty), new object[] { instrument, property }, () => new InstrumentPropertyExcelObservable(instrument, property, AddIn.Client));
         }
     }

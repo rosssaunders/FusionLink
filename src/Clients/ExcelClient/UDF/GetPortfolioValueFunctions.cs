@@ -10,6 +10,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Portfolio-Value")]
         public static object GetPortfolioValue(int portfolioId, string column)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetPortfolioValue), new object[] { portfolioId, column }, () => new PortfolioValueExcelObservable(portfolioId, column, AddIn.Client));
         }
 

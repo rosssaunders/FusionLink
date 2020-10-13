@@ -10,6 +10,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        Category = "Get-Position-Value")]
         public static object GetPositionValue(int positionId, string column)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetPositionValue), new object[] { positionId, column }, () => new PositionValueExcelObservable(positionId, column, AddIn.Client));
         }
 

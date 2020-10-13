@@ -10,6 +10,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Connection-Status")]
         public static object GetConnectionStatus()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetConnectionStatus), null, () => new ConnectionStatusExcelObservable(AddIn.Client));
         }
 
@@ -18,6 +21,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Available-Connections")]
         public static object GetAvailableConnections()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetAvailableConnections), null, () => new AvailableConnectionsExcelObservable(AddIn.AvailableConnections));
         }
 
@@ -26,6 +32,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Connection")]
         public static object GetConnection()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetConnection), null, () => new ConnectionNameExcelObservable(AddIn.Client, AddIn.AvailableConnections));
         }
 
@@ -34,6 +43,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Connection-Id")]
         public static object GetConnectionId()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetConnectionId), null, () => new ConnectionIdExcelObservable(AddIn.Client));
         }
 
@@ -42,6 +54,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Service-Status")]
         public static object GetServiceStatus()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetServiceStatus), null, () => new ServiceStatusExcelObservable(AddIn.Client));
         }
 
@@ -50,6 +65,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        HelpTopic = "Get-Last-Message-Received-Time")]
         public static object GetLastMessageReceivedTime()
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetLastMessageReceivedTime), null, () => new LastMessageReceivedTimeObservable(AddIn.Client));
         }
     }

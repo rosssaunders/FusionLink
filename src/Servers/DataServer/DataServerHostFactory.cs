@@ -56,25 +56,6 @@ namespace RxdSolutions.FusionLink
             return host;
         }
 
-        //public static ServiceHost Create(OnDemandDataServer server)
-        //{
-        //    var baseAddress = GetBaseAddress();
-        //    var host = new ServiceHost(server, baseAddress);
-
-        //    //Add the NamedPipes endPoint
-        //    var binding = GetBinding();
-
-        //    var endPoint = host.AddServiceEndpoint(typeof(IOnDemandServer), binding, "/OnDemand");
-        //    endPoint.ListenUriMode = ListenUriMode.Unique;
-
-        //    //Secure to only the current user
-        //    host.Authorization.ServiceAuthorizationManager = new CurrentUserOnlyAuthorizationManager();
-
-        //    host.Open();
-
-        //    return host;
-        //}
-
         private static NetTcpBinding CreateTcpBinding()
         {
             var binding = new NetTcpBinding(SecurityMode.Transport)

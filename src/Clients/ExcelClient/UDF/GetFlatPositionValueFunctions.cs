@@ -10,6 +10,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
                        Category = "Get-Flat-Position-Value")]
         public static object GetFlatPositionValue(int portfolioId, int instrumentId, string column)
         {
+            if (ExcelDnaUtil.IsInFunctionWizard())
+                return null;
+
             return ExcelAsyncUtil.Observe(nameof(GetFlatPositionValue), new object[] { portfolioId, instrumentId, column }, () => new FlatPositionValueExcelObservable(portfolioId, instrumentId, column, AddIn.Client));
         }
 
