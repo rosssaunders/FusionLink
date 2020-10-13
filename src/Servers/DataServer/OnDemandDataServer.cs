@@ -6,7 +6,6 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class OnDemandDataServer : IOnDemandServer
     {
         private readonly IOnDemandProvider _onDemandProvider;
@@ -21,19 +20,39 @@ namespace RxdSolutions.FusionLink
             _onDemandProvider = onDemandProvider;
         }
 
-        public List<int> GetPositions(int folioId, PositionsToRequest position)
+        public List<int> GetPositions(int portfolioId, PositionsToRequest position)
         {
             try
             {
-                return _onDemandProvider.GetPositions(folioId, position);
+                return _onDemandProvider.GetPositions(portfolioId, position);
             }
             catch (PortfolioNotFoundException)
             {
-                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = folioId });
+                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = portfolioId });
             }
             catch (PortfolioNotLoadedException)
             {
-                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = folioId });
+                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = portfolioId });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public List<int> GetFlatPositions(int portfolioId, PositionsToRequest position)
+        {
+            try
+            {
+                return _onDemandProvider.GetFlatPositions(portfolioId, position);
+            }
+            catch (PortfolioNotFoundException)
+            {
+                throw new FaultException<PortfolioNotFoundFaultContract>(new PortfolioNotFoundFaultContract() { PortfolioId = portfolioId });
+            }
+            catch (PortfolioNotLoadedException)
+            {
+                throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = portfolioId });
             }
             catch (Exception ex)
             {

@@ -41,27 +41,54 @@ namespace RxdSolutions.FusionLink.Provider
             _priceService = priceService;
         }
 
-        public List<int> GetPositions(int folioId, PositionsToRequest positions)
+        public List<int> GetPositions(int portfolioId, PositionsToRequest positions)
         {
             return _context.Invoke(() => {
 
                 try
                 {
-                    return _positionService.GetPositions(folioId, positions);
+                    return _positionService.GetPositions(portfolioId, positions);
                 }
                 catch(PortfolioNotLoadedException e)
                 {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPositions), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch(PortfolioNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPositions), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "GetPositions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPositions), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+
+            });
+        }
+
+        public List<int> GetFlatPositions(int portfolioId, PositionsToRequest positions)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _positionService.GetFlatPositions(portfolioId, positions);
+                }
+                catch (PortfolioNotLoadedException e)
+                {
+                    CSMLog.Write(_className, nameof(GetFlatPositions), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (PortfolioNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetFlatPositions), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetFlatPositions), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
 
@@ -154,22 +181,22 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch(CurrencyNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetCurvePoints), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (CurveFamilyFoundException e)
                 {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetCurvePoints), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (CurveNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetCurvePoints), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "GetCurvePoints", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, nameof(GetCurvePoints), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });
@@ -185,12 +212,12 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (PositionNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPositionTransactions), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "GetPositionTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPositionTransactions), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });
@@ -206,17 +233,17 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (PortfolioNotFoundException e)
                 {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPortfolioTransactions), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (PortfolioNotLoadedException e)
                 {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPortfolioTransactions), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "GetPortfolioTransactions", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, nameof(GetPortfolioTransactions), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });
@@ -297,17 +324,17 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (CalendarNotFoundException e)
                 {
-                    CSMLog.Write(_className, "AddBusinessDays", CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    CSMLog.Write(_className, nameof(AddBusinessDays), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
                 catch (Exception e)
                 {
-                    CSMLog.Write(_className, "AddBusinessDays", CSMLog.eMVerbosity.M_error, e.ToString());
+                    CSMLog.Write(_className, nameof(AddBusinessDays), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });
         }
-        
+
         #region IDisposable Support
 
         private bool disposedValue = false;

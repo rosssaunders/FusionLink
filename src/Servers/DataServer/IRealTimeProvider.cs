@@ -22,6 +22,8 @@ namespace RxdSolutions.FusionLink
 
         void SubscribeToPosition(int positionId, string column);
 
+        void SubscribeToFlatPosition(int portfolioId, int instrumentId, string column);
+
         void SubscribeToSystemValue(SystemProperty property);
 
         void SubscribeToPortfolioProperty(int id, PortfolioProperty property);
@@ -31,6 +33,8 @@ namespace RxdSolutions.FusionLink
         void UnsubscribeFromPortfolio(int portfolioId, string column);
 
         void UnsubscribeFromPosition(int positionId, string column);
+
+        void UnsubscribeFromFlatPosition(int portfolioId, int instrumentId, string column);
 
         void UnsubscribeFromSystemValue(SystemProperty property);
 

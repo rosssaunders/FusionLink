@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using sophis.portfolio;
@@ -43,33 +44,34 @@ namespace RxdSolutions.FusionLink.Client
             if (folioVector.Count == 0)
                 return;
 
-            var table = BuildTable(
+            var sb = new StringBuilder();
+            var columns = GetDisplayedColumns();
 
-                "Id",
-                i => {
+            sb.Append($"Id").Append("\t");
+            sb.Append($"Portfolio Name").Append("\t");
+            foreach (string column in columns)
+            {
+                sb.Append(column).Append("\t");
+            }
+            sb.AppendLine();
 
-                    var portfolio = folioVector[i] as CSMPortfolio;
-                    return portfolio.GetCode();
-                },
+            for (int i = 0; i < folioVector.Count; i++)
+            {
+                var portfolio = folioVector[i] as CSMPortfolio;
+                var portfolioId = portfolio.GetCode();
 
-                "Portfolio Name",
-                i => {
+                sb.Append(portfolioId).Append("\t");
 
-                    var portfolio = folioVector[i] as CSMPortfolio;
-                    return GetPortfolioFormula(portfolio.GetCode(), "Portfolio Name");
-                },
+                foreach (string column in columns)
+                {
+                    string formula = GetPortfolioFormula(portfolioId, column);
+                    sb.Append(formula).Append("\t");
+                }
 
-                (i, column) => {
+                sb.AppendLine();
+            }
 
-                    var portfolio = folioVector[i] as CSMPortfolio;
-
-                    return GetPortfolioFormula(portfolio.GetCode(), column);
-
-                },
-
-                folioVector.Count);
-
-            Clipboard.SetText(table);
+            Clipboard.SetText(sb.ToString());
         }
 
         public override void Action(ArrayList positionList, CMString ActionName)
@@ -77,58 +79,75 @@ namespace RxdSolutions.FusionLink.Client
             if (positionList.Count == 0)
                 return;
 
-            var table = BuildTable(
-
-                "Id",
-                i => {
-                    var position = positionList[i] as CSMPosition;
-                    return position.GetIdentifier();
-                },
-
-                "Instrument name",
-                i => {
-                    var position = positionList[i] as CSMPosition;
-                    return GetPositionFormula(position.GetIdentifier(), "Instrument name");
-                },
-
-                (i, column) => {
-                    var position = positionList[i] as CSMPosition;
-                    return GetPositionFormula(position.GetIdentifier(), column);
-                }, 
-                
-                positionList.Count);
-
-            Clipboard.SetText(table);
-        }
-
-        private string BuildTable(string id, Func<int, int> getUniqueIdentifier, string title, Func<int, string> getFormulaForTitle, Func<int, string, string> getFormulaForColumn, int count)
-        {
             var sb = new StringBuilder();
 
-            sb.Append($"{id}\t");
-            sb.Append($"{title}\t");
-            foreach (string column in GetDisplayedColumns())
+            var isFlatView = false;
+            for(var i = 0; i < positionList.Count; i++)
             {
-                sb.Append(column).Append("\t");
+                if (isFlatView)
+                    break;
+
+                var position = positionList[i] as CSMPosition;
+                isFlatView = position.IsFlat();
             }
-            sb.AppendLine();
 
-            for (int i = 0; i < count; i++)
+            var columns = GetDisplayedColumns();
+
+            if (isFlatView)
             {
-                sb.Append(getUniqueIdentifier(i)).Append("\t");
-                sb.Append(getFormulaForTitle(i)).Append("\t");
-
-                foreach (string column in GetDisplayedColumns())
+                sb.Append($"PortfolioId").Append("\t"); ;
+                sb.Append($"InstrumentId").Append("\t"); ;
+                foreach (string column in columns)
                 {
-                    string formula = getFormulaForColumn(i, column);
-
-                    sb.Append(formula).Append("\t");
+                    sb.Append(column).Append("\t");
                 }
-
                 sb.AppendLine();
+
+                for (int i = 0; i < positionList.Count; i++)
+                {
+                    var position = positionList[i] as CSMPosition;
+                    var portfolioId = position.GetPortfolioCode();
+                    var instrumentId = position.GetInstrumentCode();
+
+                    sb.Append(portfolioId).Append("\t");
+                    sb.Append(instrumentId).Append("\t");
+
+                    foreach (string column in columns)
+                    {
+                        string formula = GetFlatPositionFormula(portfolioId, instrumentId, column);
+                        sb.Append(formula).Append("\t");
+                    }
+
+                    sb.AppendLine();
+                }
+            }
+            else
+            {
+                sb.Append($"Id").Append("\t"); ;
+                foreach (string column in columns)
+                {
+                    sb.Append(column).Append("\t");
+                }
+                sb.AppendLine();
+
+                for (int i = 0; i < positionList.Count; i++)
+                {
+                    var position = positionList[i] as CSMPosition;
+                    var positionId = position.GetIdentifier();
+                    
+                    sb.Append(positionId).Append("\t");
+
+                    foreach (string column in columns)
+                    {
+                        string formula = GetPositionFormula(positionId, column);
+                        sb.Append(formula).Append("\t");
+                    }
+
+                    sb.AppendLine();
+                }
             }
 
-            return sb.ToString();
+            Clipboard.SetText(sb.ToString());
         }
     }
 }

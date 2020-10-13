@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace RxdSolutions.FusionLink.Provider
 {
-    internal class Subscriptions<T, U> where T : class, IDisposable 
+    internal class Subscriptions<T, U, V> where T : class, IDisposable 
     {
-        private Dictionary<int, Dictionary<U, T>> _subscriptions;
-        private readonly Func<int, U, T> _factory;
+        private Dictionary<V, Dictionary<U, T>> _subscriptions;
+        private readonly Func<V, U, T> _factory;
 
-        public Subscriptions(Func<int, U, T> factory)
+        public Subscriptions(Func<V, U, T> factory)
         {
-            _subscriptions = new Dictionary<int, Dictionary<U, T>>();
+            _subscriptions = new Dictionary<V, Dictionary<U, T>>();
             _factory = factory;
         }
 
@@ -25,7 +25,7 @@ namespace RxdSolutions.FusionLink.Provider
             return _subscriptions.Values.SelectMany(x => x.Values);
         }
 
-        public void Add(int id, U property)
+        public void Add(V id, U property)
         {
             if (!_subscriptions.ContainsKey(id))
             {
@@ -43,7 +43,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
         }
 
-        public void Remove(int id, U column)
+        public void Remove(V id, U column)
         {
             if (_subscriptions.ContainsKey(id))
             {
@@ -54,7 +54,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
         }
 
-        public IEnumerable<T> Get(int id)
+        public IEnumerable<T> Get(V id)
         {
             if (_subscriptions.ContainsKey(id))
             {
@@ -64,7 +64,7 @@ namespace RxdSolutions.FusionLink.Provider
             return Enumerable.Empty<T>();
         }
 
-        public T Get(int id, U property)
+        public T Get(V id, U property)
         {
             if (_subscriptions.ContainsKey(id))
             {

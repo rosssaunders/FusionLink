@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using RxdSolutions.FusionLink.Interface;
@@ -70,6 +71,46 @@ namespace RxdSolutions.FusionLink.Services
                         }
                     }
                 }
+            }
+        }
+
+        public List<int> GetFlatPositions(int folioId, PositionsToRequest positions)
+        {
+            var results = new List<int>();
+
+            using var portfolio = CSMPortfolio.GetCSRPortfolio(folioId);
+
+            if (portfolio is object)
+            {
+                if (!portfolio.IsLoaded())
+                {
+                    throw new PortfolioNotLoadedException();
+                }
+
+                for(var i = 0; i < portfolio.GetFlatViewPositionCount(); i++)
+                {
+                    var position = portfolio.GetNthFlatViewPosition(i);
+
+                    switch (positions)
+                    {
+                        case PositionsToRequest.All:
+                            results.Add(position.GetInstrumentCode());
+                            break;
+
+                        case PositionsToRequest.Open:
+                            if (position.GetInstrumentCount() != 0)
+                            {
+                                results.Add(position.GetInstrumentCode());
+                            }
+                            break;
+                    }
+                }
+
+                return results;
+            }
+            else
+            {
+                throw new PortfolioNotFoundException();
             }
         }
     }

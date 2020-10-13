@@ -10,6 +10,11 @@ namespace RxdSolutions.FusionLink.Client
             return $"=GETPOSITIONVALUE({id}, \"{column}\")";
         }
 
+        public static string GetFlatPositionFormula(int portfolioId, int instrumentId, string column)
+        {
+            return $"=GETFLATPOSITIONVALUE({portfolioId}, {instrumentId}, \"{column}\")";
+        }
+
         public static string GetPortfolioFormula(long id, string column)
         {
             return $"=GETPORTFOLIOVALUE({id}, \"{column}\")";

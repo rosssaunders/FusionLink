@@ -232,6 +232,15 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The requested position &apos;{0} / {1}&apos; is either not loaded or does not exist. Please load the positions portfolio..
+        /// </summary>
+        internal static string FlatPositionNotLoadedOrMissingMessage {
+            get {
+                return ResourceManager.GetString("FlatPositionNotLoadedOrMissingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap InfoIcon {
@@ -296,7 +305,7 @@ namespace RxdSolutions.FusionLink.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The requested portfolio &apos;{0}&apos; is not loaded. Please load in the FusionInvest client..
+        ///   Looks up a localized string similar to The requested portfolio &apos;{0}&apos; is not loaded. Please load in the client..
         /// </summary>
         internal static string PortfolioNotLoadedMessage {
             get {

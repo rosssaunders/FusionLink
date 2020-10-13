@@ -229,5 +229,15 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public void SubscribeToFlatPosition(int portfolioId, int instrumentId, string column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeFromFlatPosition(int portfolioId, int instrumentId, string column)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -174,6 +174,9 @@
   <data name="ErrorCaption" xml:space="preserve">
     <value>FusionLink</value>
   </data>
+  <data name="FlatPositionNotLoadedOrMissingMessage" xml:space="preserve">
+    <value>The requested position '{0} / {1}' is either not loaded or does not exist. Please load the positions portfolio.</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="InfoIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\info.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -197,7 +200,7 @@
     <value>The requested Portfolio '{0}' cannot be found</value>
   </data>
   <data name="PortfolioNotLoadedMessage" xml:space="preserve">
-    <value>The requested portfolio '{0}' is not loaded. Please load in the FusionInvest client.</value>
+    <value>The requested portfolio '{0}' is not loaded. Please load in the client.</value>
   </data>
   <data name="PositionNotLoadedOrMissingMessage" xml:space="preserve">
     <value>The requested position '{0}' is either not loaded or does not exist. Please load the positions portfolio in FusionInvest</value>

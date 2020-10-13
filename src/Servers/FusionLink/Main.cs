@@ -40,8 +40,7 @@ namespace RxdSolutions.FusionLink
         private static InstrumentActionListener _instrumentActionListener;
         private static InstrumentEventListener _instrumentEventListener;
 
-        public static ServiceHost RealTimeHost;
-        public static ServiceHost OnDemandHost;
+        public static ServiceHost DataServersHost;
 
         public static OnDemandDataServer OnDemandDataServer;
         public static RealTimeDataServer RealTimeDataServer;
@@ -106,7 +105,7 @@ namespace RxdSolutions.FusionLink
 
                 RealTimeDataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 RealTimeDataServer.Close();
-                RealTimeHost?.Close();
+                DataServersHost?.Close();
             }
             catch (Exception ex)
             {
@@ -239,28 +238,23 @@ namespace RxdSolutions.FusionLink
                                                                 curveService,
                                                                 transactionService,
                                                                 priceService);
+
             CreateOnDemandDataServerFromConfig(onDemandProvider);
 
             return Task.Run(() =>
             {
                 try
                 {
-                    RealTimeHost = DataServerHostFactory.Create(RealTimeDataServer);
-                    RealTimeHost.Faulted += Host_Faulted;
-
-                    OnDemandHost = DataServerHostFactory.Create(OnDemandDataServer);
-                    OnDemandHost.Faulted += Host_Faulted;
+                    DataServersHost = DataServerHostFactory.Create(new DataServers(RealTimeDataServer, OnDemandDataServer));
+                    DataServersHost.Faulted += Host_Faulted;
                 }
                 catch (AddressAlreadyInUseException)
                 {
                     //Another Sophis has already assumed the role of server. Sink the exception.
                     CSMLog.Write("Main", "EntryPoint", CSMLog.eMVerbosity.M_error, "Another instance is already listening and acting as the FusionLink Server");
 
-                    RealTimeHost = null;
-                    OnDemandHost = null;
+                    DataServersHost = null;
                 }
-
-                RealTimeDataServer = RealTimeHost.SingletonInstance as RealTimeDataServer;
 
                 RealTimeDataServer.Start();
                 RealTimeDataServer.OnClientConnectionChanged += OnClientConnectionChanged;

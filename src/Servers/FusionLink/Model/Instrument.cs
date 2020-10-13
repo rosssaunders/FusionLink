@@ -70,7 +70,7 @@ namespace RxdSolutions.FusionLink.Model
             }
         }
 
-        public string Market
+        public virtual string Market
         {
             get
             {

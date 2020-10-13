@@ -25,15 +25,18 @@ namespace RxdSolutions.FusionLink
             return CreateTcpBinding();
         }
 
-        public static ServiceHost Create(RealTimeDataServer server)
+        public static ServiceHost Create(DataServers servers)
         {
             var baseAddress = GetBaseAddress();
-            var host = new ServiceHost(server, baseAddress);
+            var host = new ServiceHost(servers, baseAddress);
 
             var binding = GetBinding();
 
-            var endPoint = host.AddServiceEndpoint(typeof(IRealTimeServer), binding, $"/");
-            endPoint.ListenUriMode = ListenUriMode.Unique;
+            var realTimeEndPoint = host.AddServiceEndpoint(typeof(IRealTimeServer), binding, $"/");
+            realTimeEndPoint.ListenUriMode = ListenUriMode.Unique;
+
+            var onDemandEndPoint = host.AddServiceEndpoint(typeof(IOnDemandServer), binding, $"/");
+            onDemandEndPoint.ListenUriMode = ListenUriMode.Unique;
 
             // Add ServiceDiscoveryBehavior  
             var discoveryBehavior = new ServiceDiscoveryBehavior();
@@ -53,24 +56,24 @@ namespace RxdSolutions.FusionLink
             return host;
         }
 
-        public static ServiceHost Create(OnDemandDataServer server)
-        {
-            var baseAddress = GetBaseAddress();
-            var host = new ServiceHost(server, baseAddress);
+        //public static ServiceHost Create(OnDemandDataServer server)
+        //{
+        //    var baseAddress = GetBaseAddress();
+        //    var host = new ServiceHost(server, baseAddress);
 
-            //Add the NamedPipes endPoint
-            var binding = GetBinding();
+        //    //Add the NamedPipes endPoint
+        //    var binding = GetBinding();
 
-            var endPoint = host.AddServiceEndpoint(typeof(IOnDemandServer), binding, "/OnDemand");
-            endPoint.ListenUriMode = ListenUriMode.Unique;
+        //    var endPoint = host.AddServiceEndpoint(typeof(IOnDemandServer), binding, "/OnDemand");
+        //    endPoint.ListenUriMode = ListenUriMode.Unique;
 
-            //Secure to only the current user
-            host.Authorization.ServiceAuthorizationManager = new CurrentUserOnlyAuthorizationManager();
+        //    //Secure to only the current user
+        //    host.Authorization.ServiceAuthorizationManager = new CurrentUserOnlyAuthorizationManager();
 
-            host.Open();
+        //    host.Open();
 
-            return host;
-        }
+        //    return host;
+        //}
 
         private static NetTcpBinding CreateTcpBinding()
         {

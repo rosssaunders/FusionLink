@@ -24,10 +24,11 @@ namespace RxdSolutions.FusionLink.Provider
         private readonly ITransactionListener _transactionListener;
         private readonly IInstrumentListener _instrumentListener;
 
-        private readonly Subscriptions<PortfolioCellValue, string> _portfolioCellSubscriptions;
-        private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty> _portfolioPropertySubscriptions;
-        private readonly Subscriptions<InstrumentPropertyValue, (object Reference, string Property)> _instrumentPropertySubscriptions;
-        private readonly Subscriptions<PositionCellValue, string> _positionCellSubscriptions;
+        private readonly Subscriptions<PortfolioCellValue, string, int> _portfolioCellSubscriptions;
+        private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty, int> _portfolioPropertySubscriptions;
+        private readonly Subscriptions<InstrumentPropertyValue, (object Reference, string Property), int> _instrumentPropertySubscriptions;
+        private readonly Subscriptions<PositionCellValue, string, int> _positionCellSubscriptions;
+        private readonly Subscriptions<FlatPositionCellValue, string, (int, int)> _flatPositionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
 
         private readonly CSMExtraction _mainExtraction;
@@ -44,7 +45,8 @@ namespace RxdSolutions.FusionLink.Provider
             get 
             {
                 return _portfolioCellSubscriptions.Count > 0 || 
-                       _positionCellSubscriptions.Count > 0 || 
+                       _positionCellSubscriptions.Count > 0 ||
+                       _flatPositionCellSubscriptions.Count > 0 ||
                        _systemValueSubscriptions.Count > 0 ||
                        _portfolioPropertySubscriptions.Count > 0 ||
                        _instrumentPropertySubscriptions.Count > 0;
@@ -67,10 +69,11 @@ namespace RxdSolutions.FusionLink.Provider
 
             _mainExtraction = sophis.globals.CSMExtraction.gMain();
 
-            _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string>((i, s) => new PortfolioCellValue(i, s, _mainExtraction));
-            _positionCellSubscriptions = new Subscriptions<PositionCellValue, string>((i, s) => new PositionCellValue(i, s, _mainExtraction));
-            _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty>((i, s) => new PortfolioPropertyValue(i, s));
-            _instrumentPropertySubscriptions = new Subscriptions<InstrumentPropertyValue, (object Reference, string Property)>((i, s) => new InstrumentPropertyValue(i, s.Reference, s.Property, instrumentService));
+            _portfolioCellSubscriptions = new Subscriptions<PortfolioCellValue, string, int>((id, column) => new PortfolioCellValue(id, column, _mainExtraction));
+            _positionCellSubscriptions = new Subscriptions<PositionCellValue, string, int>((id, column) => new PositionCellValue(id, column, _mainExtraction));
+            _flatPositionCellSubscriptions = new Subscriptions<FlatPositionCellValue, string, (int portfolioId, int instrumentId)>((ids, column) => new FlatPositionCellValue(ids.portfolioId, ids.instrumentId, column, _mainExtraction));
+            _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty, int>((id, property) => new PortfolioPropertyValue(id, property));
+            _instrumentPropertySubscriptions = new Subscriptions<InstrumentPropertyValue, (object Reference, string Property), int>((i, s) => new InstrumentPropertyValue(i, s.Reference, s.Property, instrumentService));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
             _portfolioComputedIds = new List<int>();
 
@@ -111,7 +114,7 @@ namespace RxdSolutions.FusionLink.Provider
                 {
                     dp.Error = ex;
 
-                    CSMLog.Write(_className, "SubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(SubscribeToPortfolio), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -137,12 +140,38 @@ namespace RxdSolutions.FusionLink.Provider
                 {
                     dp.Error = ex;
 
-                    CSMLog.Write(_className, "SubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(SubscribeToPosition), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
         }
 
+        public void SubscribeToFlatPosition(int portfolioId, int instrumentId, string column)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                _flatPositionCellSubscriptions.Add((portfolioId, instrumentId), column);
+                var dp = _flatPositionCellSubscriptions.Get((portfolioId, instrumentId), column);
+
+                try
+                {
+                    var da = new DataAvailableEventArgs();
+                    da.FlatPositionValues.Add((portfolioId, instrumentId, column), dp.GetValue());
+
+                    DataAvailable?.Invoke(this, da);
+
+                    dp.Error = null;
+                }
+                catch (Exception ex)
+                {
+                    dp.Error = ex;
+
+                    CSMLog.Write(_className, nameof(SubscribeToFlatPosition), CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
+            }, DispatcherPriority.Normal);
+        }
+        
         public void SubscribeToSystemValue(SystemProperty property)
         {
             var op = _context.InvokeAsync(() => {
@@ -160,7 +189,7 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception ex)
                 {
                     dp.Error = ex;
-                    CSMLog.Write(_className, "SubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(SubscribeToSystemValue), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -183,7 +212,7 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception ex)
                 {
                     dp.Error = ex;
-                    CSMLog.Write(_className, "SubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(SubscribeToPortfolioProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -213,7 +242,7 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception ex)
                 {
                     dp.Error = ex;
-                    CSMLog.Write(_className, "SubscribeToInstrumentProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(SubscribeToInstrumentProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -229,7 +258,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "UnsubscribeToPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(UnsubscribeFromPortfolio), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
             }, DispatcherPriority.Normal);
@@ -245,9 +274,25 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "UnsubscribeToPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(UnsubscribeFromPosition), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
+            }, DispatcherPriority.Normal);
+        }
+
+        public void UnsubscribeFromFlatPosition(int portfolioId, int instrumentId, string column)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                try
+                {
+                    _flatPositionCellSubscriptions.Remove((portfolioId, instrumentId), column);
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, nameof(UnsubscribeFromFlatPosition), CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
             }, DispatcherPriority.Normal);
         }
 
@@ -261,7 +306,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "UnsubscribeToSystemValue", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(UnsubscribeFromSystemValue), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
                 
             }, DispatcherPriority.Normal);
@@ -277,7 +322,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "UnsubscribeToPortfolioProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(UnsubscribeFromPortfolioProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -300,7 +345,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "UnsubscribeToInstrumentProperty", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(UnsubscribeFromInstrumentProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -331,7 +376,7 @@ namespace RxdSolutions.FusionLink.Provider
                             }
                             catch (Exception ex)
                             {
-                                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                                CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
                             }
 
                         }, DispatcherPriority.ApplicationIdle);
@@ -372,7 +417,7 @@ namespace RxdSolutions.FusionLink.Provider
                                             }
                                             catch (Exception ex)
                                             {
-                                                CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                                                CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
                                             }
 
                                         }, DispatcherPriority.ApplicationIdle);
@@ -380,7 +425,7 @@ namespace RxdSolutions.FusionLink.Provider
                                 }
                                 catch (Exception ex)
                                 {
-                                    CSMLog.Write(_className, "GlobalFunctions_PortfolioCalculationEnded", CSMLog.eMVerbosity.M_error, ex.ToString());
+                                    CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
                                 }
 
                                 break;
@@ -483,6 +528,14 @@ namespace RxdSolutions.FusionLink.Provider
                 }
             }
 
+            void RefreshFlatPositionCells()
+            {
+                foreach (var cell in _flatPositionCellSubscriptions.GetCells())
+                {
+                    args.FlatPositionValues.Add((cell.PortfolioId, cell.InstrumentId, cell.ColumnName), cell.GetValue());
+                }
+            }
+
             void RefreshSystemValues()
             {
                 foreach (var value in _systemValueSubscriptions)
@@ -496,6 +549,8 @@ namespace RxdSolutions.FusionLink.Provider
             RefreshPortfolioCells();
 
             RefreshPositionCells();
+
+            RefreshFlatPositionCells();
 
             RefreshSystemValues();
 
@@ -581,7 +636,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
             catch (Exception ex)
             {
-                CSMLog.Write(_className, "RefreshPortfolio", CSMLog.eMVerbosity.M_error, ex.ToString());
+                CSMLog.Write(_className, nameof(RefreshPortfolio), CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -626,7 +681,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
             catch (Exception ex)
             {
-                CSMLog.Write(_className, "RefreshInstrument", CSMLog.eMVerbosity.M_error, ex.ToString());
+                CSMLog.Write(_className, nameof(RefreshInstrument), CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -670,7 +725,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
             catch (Exception ex)
             {
-                CSMLog.Write(_className, "RefreshPosition", CSMLog.eMVerbosity.M_error, ex.ToString());
+                CSMLog.Write(_className, nameof(RefreshPosition), CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 
@@ -701,7 +756,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch(Exception ex)
                 {
-                    CSMLog.Write(_className, "RequestCalculate", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(RequestCalculate), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.ApplicationIdle);
@@ -735,7 +790,7 @@ namespace RxdSolutions.FusionLink.Provider
                 }
                 catch (Exception ex)
                 {
-                    CSMLog.Write(_className, "LoadPositions", CSMLog.eMVerbosity.M_error, ex.ToString());
+                    CSMLog.Write(_className, nameof(LoadPositions), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.ApplicationIdle);

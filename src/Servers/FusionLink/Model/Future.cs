@@ -99,7 +99,7 @@ namespace RxdSolutions.FusionLink.Model
             }
         }
 
-        public string Market
+        public override string Market
         {
             get
             {

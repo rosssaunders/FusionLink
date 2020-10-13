@@ -394,6 +394,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetDir)*.* E:\UAT_SOPHIS\CLIENT\Toolkits\ /y" />
+    <Exec Command="xcopy $(TargetDir)*.* C:\Users\rsaunders\source\repos\stash\sophisinstaller\Src\Win32\UAT\FusionInvest\Toolkits\ /y" />
   </Target>
 </Project>

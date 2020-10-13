@@ -11,13 +11,14 @@ using RxdSolutions.FusionLink.Properties;
 
 namespace RxdSolutions.FusionLink
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
+
     public class RealTimeDataServer : IRealTimeServer
     {
         private readonly Dictionary<string, IRealTimeCallbackClient> _clients;
         private readonly IRealTimeProvider _realTimeProvider;
         
         private readonly Subscriptions<(int Id, string Column)> _positionSubscriptions;
+        private readonly Subscriptions<(int PortfolioId, int InstrumentId, string Column)> _flatPositionSubscriptions;
         private readonly Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
         private readonly Subscriptions<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly Subscriptions<(object Id, string Property)> _instrumentPropertySubscriptions;
@@ -60,6 +61,11 @@ namespace RxdSolutions.FusionLink
             _positionSubscriptions.OnValueChanged += PositionDataPointChanged;
             _positionSubscriptions.SubscriptionAdded += PositionSubscriptionAdded;
             _positionSubscriptions.SubscriptionRemoved += PositionSubscriptionRemoved;
+
+            _flatPositionSubscriptions = new Subscriptions<(int, int, string)>() { DefaultMessage = DefaultMessage };
+            _flatPositionSubscriptions.OnValueChanged += FlatPositionDataPointChanged;
+            _flatPositionSubscriptions.SubscriptionAdded += FlatPositionSubscriptionAdded;
+            _flatPositionSubscriptions.SubscriptionRemoved += FlatPositionSubscriptionRemoved;
 
             _portfolioSubscriptions = new Subscriptions<(int, string)>() { DefaultMessage = DefaultMessage };
             _portfolioSubscriptions.OnValueChanged += PortfolioDataPointChanged;
@@ -230,6 +236,38 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void SubscribeToFlatPositionValue(int portfolioId, int instrumentId, string column)
+        {
+            try
+            {
+                var dp = _flatPositionSubscriptions.Add(OperationContext.Current.SessionId, (portfolioId, instrumentId, column));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+                SendMessageToAllClients((s, c) =>
+                {
+
+                    if (_flatPositionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.PortfolioId, dp.Key.InstrumentId, dp.Key.Column)))
+                    {
+                        c.SendFlatPositionValue(dp.Key.PortfolioId, dp.Key.InstrumentId, dp.Key.Column, dp.Value);
+                    }
+
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void SubscribeToFlatPositionValues(List<(int portfolioId, int instrumentId, string column)> items)
+        {
+            foreach (var (portfolioId, instrumentId, column) in items)
+            {
+                SubscribeToFlatPositionValue(portfolioId, instrumentId, column);
+            }
+        }
+
         public void SubscribeToPortfolioValue(int portfolioId, string column)
         {
             try
@@ -363,9 +401,31 @@ namespace RxdSolutions.FusionLink
             }
         }
 
+        public void UnsubscribeFromFlatPositionValues(List<(int portfolioId, int instrumentId, string column)> items)
+        {
+            foreach(var (portfolioId, instrumentId, column) in items)
+            {
+                UnsubscribeFromFlatPositionValue(portfolioId, instrumentId, column);
+            }
+        }
+
+        public void UnsubscribeFromFlatPositionValue(int portfolioId, int instrumentId, string column)
+        {
+            try
+            {
+                _flatPositionSubscriptions.Remove(OperationContext.Current.SessionId, (portfolioId, instrumentId, column));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
         public void UnsubscribeFromPositionValues(List<(int positionId, string column)> items)
         {
-            foreach(var (positionId, column) in items)
+            foreach (var (positionId, column) in items)
             {
                 UnsubscribeFromPositionValue(positionId, column);
             }
@@ -566,6 +626,13 @@ namespace RxdSolutions.FusionLink
                     dp.Value = kvp.Value;
             }
 
+            foreach (var kvp in e.FlatPositionValues)
+            {
+                var dp = _flatPositionSubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
             foreach (var kvp in e.SystemValues)
             {
                 var dp = _systemSubscriptions.Get(kvp.Key);
@@ -643,6 +710,17 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        private void FlatPositionDataPointChanged(object sender, DataPointChangedEventArgs<(int PortfolioId, int InstrumentId, string Column)> e)
+        {
+            SendMessageToAllClients((s, c) =>
+            {
+
+                if (_flatPositionSubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                    c.SendFlatPositionValue(e.DataPoint.Key.PortfolioId, e.DataPoint.Key.InstrumentId, e.DataPoint.Key.Column, e.DataPoint.Value);
+
+            });
+        }
+
         private void PortfolioPropertyPointChanged(object sender, DataPointChangedEventArgs<(int Id, PortfolioProperty Property)> e)
         {
             SendMessageToAllClients((s, c) =>
@@ -667,6 +745,9 @@ namespace RxdSolutions.FusionLink
 
             foreach (var (Id, Column) in _positionSubscriptions.GetKeys())
                 _positionSubscriptions.Remove(sessionId, (Id, Column));
+
+            foreach (var (PortfolioId, InstrumentId, Column) in _flatPositionSubscriptions.GetKeys())
+                _flatPositionSubscriptions.Remove(sessionId, (PortfolioId, InstrumentId, Column));
 
             foreach (var sub in _systemSubscriptions.GetKeys())
                 _systemSubscriptions.Remove(sessionId, sub);
@@ -753,9 +834,19 @@ namespace RxdSolutions.FusionLink
             _realTimeProvider.UnsubscribeFromPosition(e.Key.Id, e.Key.Column);
         }
 
+        private void FlatPositionSubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(int PortfolioId, int InstrumentId, string Column)> e)
+        {
+            _realTimeProvider.UnsubscribeFromFlatPosition(e.Key.PortfolioId, e.Key.InstrumentId, e.Key.Column);
+        }
+
         private void PositionSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
             _realTimeProvider.SubscribeToPosition(e.Key.Id, e.Key.Column);
+        }
+
+        private void FlatPositionSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int PortfolioId, int InstrumentId, string Column)> e)
+        {
+            _realTimeProvider.SubscribeToFlatPosition(e.Key.PortfolioId, e.Key.InstrumentId, e.Key.Column);
         }
     }
 }

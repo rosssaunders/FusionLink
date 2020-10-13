@@ -63,11 +63,18 @@ namespace RxdSolutions.FusionLink.Client
 
                 for (int i = 0; i < positionList.Count; i++)
                 {
-                    //Check if the position is a future. If so, allow it
                     var position = positionList[i] as CSMPosition;
 
-                    string formula = GetPositionFormula(position.GetIdentifier(), GetSelectedColumn());
-                    sb.Append(formula).AppendLine();
+                    if(position.IsFlat())
+                    {
+                        string formula = GetFlatPositionFormula(position.GetPortfolioCode(), position.GetInstrumentCode(), GetSelectedColumn());
+                        sb.Append(formula).AppendLine();
+                    }
+                    else
+                    {
+                        string formula = GetPositionFormula(position.GetIdentifier(), GetSelectedColumn());
+                        sb.Append(formula).AppendLine();
+                    }
                 }
 
                 Clipboard.SetText(sb.ToString());

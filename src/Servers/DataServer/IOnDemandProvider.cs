@@ -7,7 +7,9 @@ namespace RxdSolutions.FusionLink
 {
     public interface IOnDemandProvider
     {
-        List<int> GetPositions(int folioId, PositionsToRequest positions);
+        List<int> GetPositions(int portfolioId, PositionsToRequest positions);
+
+        List<int> GetFlatPositions(int portfolioId, PositionsToRequest positions);
 
         List<PriceHistory> GetInstrumentPriceHistory(int instrumentId, DateTime startDate, DateTime endDate);
 
