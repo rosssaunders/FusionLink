@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.ServiceModel;
 using RxdSolutions.FusionLink.Interface;
 
@@ -51,6 +52,16 @@ namespace RxdSolutions.FusionLink
         public List<PriceHistory> GetInstrumentPriceHistory(string reference, DateTime startDate, DateTime endDate)
         {
             return _onDemandServer.GetInstrumentPriceHistory(reference, startDate, endDate);
+        }
+
+        public DataTable GetInstrumentSet(int instrumentId, string property)
+        {
+            return _onDemandServer.GetInstrumentSet(instrumentId, property);
+        }
+
+        public DataTable GetInstrumentSet(string reference, string property)
+        {
+            return _onDemandServer.GetInstrumentSet(reference, property);
         }
 
         public List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate)

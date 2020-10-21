@@ -4,16 +4,25 @@ using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
+    public enum ConnectionType
+    {
+        Automatic,
+        Manual
+    }
+
     public class EndPointAddressVia
     {
-        public EndPointAddressVia(EndpointAddress endpointAddress, Uri via)
+        public EndPointAddressVia(EndpointAddress endpointAddress, Uri via, ConnectionType connectionType)
         {
             EndpointAddress = endpointAddress;
             Via = via;
+            ConnectionType = connectionType;
         }
 
         public EndpointAddress EndpointAddress { get; }
 
         public Uri Via { get; }
+
+        public ConnectionType ConnectionType { get; }
     }
 }

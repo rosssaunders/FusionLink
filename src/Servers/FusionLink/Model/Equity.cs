@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Helpers;
 using sophis.instrument;
+using sophis.market_data;
+using sophis.static_data;
+using Sophis.Utils;
+using sophisTools;
 
 namespace RxdSolutions.FusionLink.Model
 {
@@ -18,8 +23,8 @@ namespace RxdSolutions.FusionLink.Model
         {
             get
             {
-                using CSMEquity instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetBeta();
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                return equity.GetBeta();
             }
         }
 
@@ -27,8 +32,8 @@ namespace RxdSolutions.FusionLink.Model
         {
             get
             {
-                using CSMEquity instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetTradingUnits();
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                return equity.GetTradingUnits();
             }
         }
 
@@ -36,8 +41,8 @@ namespace RxdSolutions.FusionLink.Model
         {
             get
             {
-                using CSMEquity instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetAccountingReferenceDate().ToDateTime();
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                return equity.GetAccountingReferenceDate().ToDateTime();
             }
         }
 
@@ -45,8 +50,8 @@ namespace RxdSolutions.FusionLink.Model
         {
             get
             {
-                using CSMEquity instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetInstrumentCount();
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                return equity.GetInstrumentCount();
             }
         }
 
@@ -54,8 +59,38 @@ namespace RxdSolutions.FusionLink.Model
         {
             get
             {
-                using CSMEquity instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetIssuerCode();
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                return equity.GetIssuerCode();
+            }
+        }
+
+        public DataTable RepoMargins
+        {
+            get
+            {
+                using CSMEquity equity = CSMInstrument.GetInstance(code);
+                var dt = new DataTable(nameof(RepoMargins));
+                dt.Columns.Add("Maturity");
+                dt.Columns.Add("Bid");
+                dt.Columns.Add("Ask");
+                dt.Columns.Add("Cost");
+
+                for (int i = 0; i <= equity.GetRepoMarginCount(); i++)
+                {
+                    var rmObj = new SSMRepoMargin();
+                    if(equity.GetNthRepoMargin(i, rmObj))
+                    {
+                        var maturity = sophis.value.CSMAmDateUtils.DateToString(rmObj.fMaturity);
+
+                        dt.Rows.Add(
+                            maturity,
+                            rmObj.fBid,
+                            rmObj.fAsk,
+                            rmObj.fCost);
+                    }
+                }
+
+                return dt;
             }
         }
     }

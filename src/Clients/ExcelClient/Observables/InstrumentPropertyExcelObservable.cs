@@ -29,7 +29,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             try
             {
-                _observer.OnNext(Resources.SubscribingToData);
+                if (_rtdClient.State == System.ServiceModel.CommunicationState.Opened)
+                    _observer.OnNext(Resources.SubscribingToData);
+                else
+                    _observer.OnNext(Resources.NotConnectedMessage);
+
                 _rtdClient.SubscribeToInstrumentProperty(Instrument, Property);
             }
             catch(Exception ex)

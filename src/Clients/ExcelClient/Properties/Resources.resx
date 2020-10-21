@@ -138,6 +138,9 @@
   <data name="ExcelHelpCategory" xml:space="preserve">
     <value>FusionLink</value>
   </data>
+  <data name="InvalidFieldMessage" xml:space="preserve">
+    <value>#N/A Invalid Field</value>
+  </data>
   <data name="LoadPortfoliosRequestedMessage" xml:space="preserve">
     <value>A F8 has been requested</value>
   </data>

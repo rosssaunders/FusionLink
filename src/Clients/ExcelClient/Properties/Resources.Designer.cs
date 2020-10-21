@@ -124,6 +124,15 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #N/A Invalid Field.
+        /// </summary>
+        internal static string InvalidFieldMessage {
+            get {
+                return ResourceManager.GetString("InvalidFieldMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A F8 has been requested.
         /// </summary>
         internal static string LoadPortfoliosRequestedMessage {

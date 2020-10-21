@@ -97,6 +97,15 @@ namespace RxdSolutions.FusionLink.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #N/A Invalid Field.
+        /// </summary>
+        internal static string InvalidFieldMessage {
+            get {
+                return ResourceManager.GetString("InvalidFieldMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested portfolio could not be found.
         /// </summary>
         internal static string PortfolioNotFoundMessage {

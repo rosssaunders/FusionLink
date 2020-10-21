@@ -6,6 +6,7 @@ using System.Linq;
 using DevExpress.XtraTreeList.Columns;
 using Sophis.Data.Utils;
 using Sophis.Portfolios;
+using Sophis.Util.GUI.DevXpress;
 
 namespace RxdSolutions.FusionLink.Client
 {

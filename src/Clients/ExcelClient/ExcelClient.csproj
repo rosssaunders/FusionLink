@@ -78,6 +78,10 @@
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="ConnectionStringEntry.cs" />
+    <Compile Update="ConnectionStringEntry.Designer.cs">
+      <DependentUpon>ConnectionStringEntry.cs</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -85,6 +89,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="EnterConnection.resx">
+      <DependentUpon>EnterConnection.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

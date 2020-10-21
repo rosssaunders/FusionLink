@@ -13,8 +13,6 @@ namespace RxdSolutions.FusionLink.Services
     {
         public List<PriceHistory> GetPriceHistory(int instrumentId, DateTime startDate, DateTime endDate)
         {
-            var results = new List<PriceHistory>();
-
             using var instrument = CSMInstrument.GetInstance(instrumentId);
 
             if (instrument is null)
@@ -30,8 +28,6 @@ namespace RxdSolutions.FusionLink.Services
 
         public List<PriceHistory> GetCurrencyPriceHistory(int currencyId, DateTime startDate, DateTime endDate)
         {
-            var results = new List<PriceHistory>();
-
             using var currency = CSMCurrency.GetCSRCurrency(currencyId);
 
             if (currency is null)

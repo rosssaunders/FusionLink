@@ -1,5 +1,6 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
+using System.Data;
 using System.Runtime.ExceptionServices;
 using RxdSolutions.FusionLink.Model;
 using RxdSolutions.FusionLink.Properties;
@@ -172,6 +173,9 @@ namespace RxdSolutions.FusionLink.Provider
                     return value;
 
                 if (value is bool)
+                    return value;
+
+                if (value is DataTable)
                     return value;
 
                 return value.ToString();

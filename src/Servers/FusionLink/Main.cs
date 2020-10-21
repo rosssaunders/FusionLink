@@ -221,7 +221,7 @@ namespace RxdSolutions.FusionLink
             var positionService = new PositionService();
             var instrumentService = new InstrumentService();
             var curveService = new CurveService();
-            var transactionService = new TransactionService(positionService);
+            var transactionService = new TransactionService();
             var priceService = new PriceService();
 
             var realTimeProvider = new FusionRealTimeProvider(_globalFunctions as IGlobalFunctions,

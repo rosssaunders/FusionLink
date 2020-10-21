@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink
@@ -26,5 +27,9 @@ namespace RxdSolutions.FusionLink
         List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate);
 
         DateTime AddBusinessDays(DateTime date, int daysToAdd, string calendar, CalendarType calendarType, string currency);
+        
+        DataTable GetInstrumentSet(int instrumentId, string property);
+     
+        DataTable GetInstrumentSet(string reference, string property);
     }
 }

@@ -26,6 +26,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public bool IsConnected { get; private set; }
 
+        public event EventHandler OnConnectionFailed;
+        public event EventHandler OnConnectionSuccess;
+
         public ConnectionMonitor(AvailableConnections connections)
         {
             _clients = new List<DataServiceClient>();
@@ -46,6 +49,12 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if (_running)
                     return;
+
+                //Default to the first one on startup
+                if (_connection == null)
+                {
+                    _connection = _connections.AvailableEndpoints.FirstOrDefault()?.Via;
+                }
 
                 _running = true;
 
@@ -76,9 +85,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                 }
 
                                 if (_connection == null)
-                                {
-                                    _connection = _connections.AvailableEndpoints.FirstOrDefault()?.Via;
-                                }
+                                    continue;
 
                                 var connectionToAttempt = _connections.FindEndpoint(_connection);
 
@@ -97,11 +104,15 @@ namespace RxdSolutions.FusionLink.ExcelClient
                                         client.Open(connectionToAttempt.EndpointAddress, connectionToAttempt.Via);
 
                                         IsConnected = true;
+
+                                        OnConnectionSuccess?.Invoke(this, new EventArgs());
                                     }
                                     catch (TimeoutException)
                                     {
                                         //Ignore and try again on the next pass
                                         IsConnected = false;
+
+                                        OnConnectionFailed?.Invoke(this, new EventArgs());
                                     }
                                     catch (CommunicationException)
                                     {
@@ -109,15 +120,21 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                                         //Looks like the server is dead. Remove from the available list.
                                         _connections.Remove(connectionToAttempt);
+
+                                        OnConnectionFailed?.Invoke(this, new EventArgs());
                                     }
                                     catch (Exception)
                                     {
                                         IsConnected = false;
+
+                                        OnConnectionFailed?.Invoke(this, new EventArgs());
                                     }
                                 }
                             }
-                            catch
+                            catch(Exception ex)
                             {
+                                System.Diagnostics.Debug.Print(ex.ToString());
+
                                 IsConnected = false;
                             }
                         }
@@ -153,6 +170,13 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _connection = connection;
 
             Start();
+        }
+
+        public void SetManualConnection(Uri connection)
+        {
+            _connections.AddManualConnection(connection);
+
+            SetConnection(connection);
         }
 
         public Uri GetConnection()

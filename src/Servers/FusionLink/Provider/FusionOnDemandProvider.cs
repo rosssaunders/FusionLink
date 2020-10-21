@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Threading;
@@ -330,6 +331,53 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception e)
                 {
                     CSMLog.Write(_className, nameof(AddBusinessDays), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public DataTable GetInstrumentSet(int instrumentId, string property)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _instrumentService.GetInstrumentSet(instrumentId, property);
+                }
+                catch (InstrumentNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public DataTable GetInstrumentSet(string reference, string property)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _instrumentService.GetInstrumentSet(reference, property);
+                }
+                catch (InstrumentNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (InvalidFieldException e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });

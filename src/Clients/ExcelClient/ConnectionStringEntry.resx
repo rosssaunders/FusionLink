@@ -117,28 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CalendarNotFoundMessage" xml:space="preserve">
-    <value>The requested calendar could not be found</value>
-  </data>
-  <data name="CurrencyNotFoundMessage" xml:space="preserve">
-    <value>Currency not found</value>
-  </data>
-  <data name="CurveNotFoundMessage" xml:space="preserve">
-    <value>The requested curve could not be found</value>
-  </data>
-  <data name="InstrumentNotFoundMessage" xml:space="preserve">
-    <value>Instrument not found</value>
-  </data>
-  <data name="InvalidFieldMessage" xml:space="preserve">
-    <value>#N/A Invalid Field</value>
-  </data>
-  <data name="PortfolioNotFoundMessage" xml:space="preserve">
-    <value>The requested portfolio could not be found</value>
-  </data>
-  <data name="PortfolioNotLoadedMessage" xml:space="preserve">
-    <value>The requested portfolio is not loaded</value>
-  </data>
-  <data name="PositionNotFoundMessage" xml:space="preserve">
-    <value>The requested position could not be found</value>
-  </data>
+  <metadata name="errorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

@@ -1,4 +1,6 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
+using System.Data;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.Interface

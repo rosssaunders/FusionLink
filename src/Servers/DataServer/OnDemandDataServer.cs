@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.ServiceModel;
 using RxdSolutions.FusionLink.Interface;
 
@@ -193,6 +194,42 @@ namespace RxdSolutions.FusionLink
             catch (PortfolioNotLoadedException)
             {
                 throw new FaultException<PortfolioNotLoadedFaultContract>(new PortfolioNotLoadedFaultContract() { PortfolioId = portfolioId });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public DataTable GetInstrumentSet(int instrumentId, string property)
+        {
+            try
+            {
+                return _onDemandProvider.GetInstrumentSet(instrumentId, property);
+            }
+            catch (InstrumentNotFoundException)
+            {
+                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract() { Instrument = instrumentId.ToString() });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public DataTable GetInstrumentSet(string reference, string property)
+        {
+            try
+            {
+                return _onDemandProvider.GetInstrumentSet(reference, property);
+            }
+            catch (InvalidFieldException)
+            {
+                throw new FaultException<InvalidFieldFaultContract>(new InvalidFieldFaultContract());
+            }
+            catch (InstrumentNotFoundException)
+            {
+                throw new FaultException<InstrumentNotFoundFaultContract>(new InstrumentNotFoundFaultContract() { Instrument = reference});
             }
             catch (Exception ex)
             {

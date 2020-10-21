@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
@@ -581,10 +583,12 @@ namespace RxdSolutions.FusionLink
                         OnPublishQueueChanged?.Invoke(this, new EventArgs());
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     try
                     {
+                        Debug.Print(ex.ToString());
+
                         Stop();
                     }
                     catch (Exception)
@@ -820,7 +824,16 @@ namespace RxdSolutions.FusionLink
             SendMessageToAllClients((s, c) =>
             {
                 if (_instrumentPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
-                    c.SendInstrumentProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+                {
+                    if(e.DataPoint.Value is DataTable)
+                    {
+                        c.SendInstrumentProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, "#N/A Invalid Field");
+                    }
+                    else
+                    {
+                        c.SendInstrumentProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+                    }
+                } 
             });
         }
 

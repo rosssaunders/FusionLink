@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
@@ -597,6 +598,58 @@ namespace RxdSolutions.FusionLink.Client
                 throw new PortfolioNotLoadedException($"{Resources.PortfolioNotLoadedMessage} - {ex.Detail.PortfolioId}");
             }
             catch (FaultException<ErrorFaultContract> ex)   
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public DataTable GetInstrumentSet(int instrumentId, string property)
+        {
+            try
+            {
+                var results = ExecuteBatchRequest(x => x.GetInstrumentSet(instrumentId, property));
+
+                return results;
+            }
+            catch (FaultException<InstrumentNotFoundFaultContract> ex)
+            {
+                throw new InstrumentNotFoundException($"{Resources.PortfolioNotFoundMessage} - {ex.Detail.Instrument}");
+            }
+            catch (FaultException<InvalidFieldFaultContract>)
+            {
+                throw new InvalidFieldException($"{Resources.InvalidFieldMessage}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+            catch (FaultException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public DataTable GetInstrumentSet(string reference, string property)
+        {
+            try
+            {
+                var results = ExecuteBatchRequest(x => x.GetInstrumentSet(reference, property));
+
+                return results;
+            }
+            catch (FaultException<InvalidFieldFaultContract>)
+            {
+                throw new InvalidFieldException($"{Resources.InvalidFieldMessage}");
+            }
+            catch (FaultException<InstrumentNotFoundFaultContract> ex)
+            {
+                throw new InstrumentNotFoundException($"{Resources.InstrumentNotFoundMessage} - {ex.Detail.Instrument}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+            catch (FaultException ex)
             {
                 throw new DataServiceException(ex.Message);
             }

@@ -93,7 +93,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                         if (!found)
                         {
-                            _availableEndpoints.Add(new EndPointAddressVia(endPoint.Address, endPoint.ListenUris[0]));
+                            _availableEndpoints.Add(new EndPointAddressVia(endPoint.Address, endPoint.ListenUris[0], ConnectionType.Automatic));
                             AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                         }
                     }
@@ -141,28 +141,73 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private void OnOfflineEvent(object sender, AnnouncementEventArgs e)
         {
-            lock (_availableEndpoints)
+            try
             {
-                var idx = _availableEndpoints.FindIndex(new Predicate<EndPointAddressVia>(x => x.Via == e.EndpointDiscoveryMetadata.ListenUris[0]));
+                lock (_availableEndpoints)
+                {
+                    var idx = _availableEndpoints.FindIndex(new Predicate<EndPointAddressVia>(x => x.Via == e.EndpointDiscoveryMetadata.ListenUris[0]));
 
-                if(idx != -1)
-                    _availableEndpoints.RemoveAt(idx);
+                    if (idx != -1)
+                        _availableEndpoints.RemoveAt(idx);
 
-                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                    AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                }
+            }
+            catch(Exception ex)
+            {
+                //Sink
+            }
+        }
+
+        internal void AddManualConnection(Uri connection)
+        {
+            try
+            {
+                lock (_availableEndpoints)
+                {
+                    //Check the user name
+                    var remoteUsername = new ConnectionBuilder(connection).GetConnectionUsername();
+                    if (!string.Equals(remoteUsername, Environment.UserName, StringComparison.InvariantCultureIgnoreCase))
+                        return;
+
+                    //Check if we already know about this one
+                    var alreadyExists = _availableEndpoints.Any(x => x.Via == connection);
+                    if (!alreadyExists)
+                    {
+                        _availableEndpoints.Add(new EndPointAddressVia(new EndpointAddress(connection), connection, ConnectionType.Manual));
+                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Sink
             }
         }
 
         private void OnOnlineEvent(object sender, AnnouncementEventArgs e)
         {
-            lock (_availableEndpoints)
+            try
             {
-                //Check the user name
-                var remoteUsername = new ConnectionBuilder(e.EndpointDiscoveryMetadata.Address.Uri).GetConnectionUsername();
-                if (!string.Equals(remoteUsername, Environment.UserName, StringComparison.InvariantCultureIgnoreCase))
-                    return;
+                lock (_availableEndpoints)
+                {
+                    //Check the user name
+                    var remoteUsername = new ConnectionBuilder(e.EndpointDiscoveryMetadata.Address.Uri).GetConnectionUsername();
+                    if (!string.Equals(remoteUsername, Environment.UserName, StringComparison.InvariantCultureIgnoreCase))
+                        return;
 
-                _availableEndpoints.Add(new EndPointAddressVia(e.EndpointDiscoveryMetadata.Address, e.EndpointDiscoveryMetadata.ListenUris[0]));
-                AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                    //Check if we already know about this one
+                    var alreadyExists = _availableEndpoints.Any(x => x.EndpointAddress == e.EndpointDiscoveryMetadata.Address);
+                    if (!alreadyExists)
+                    {
+                        _availableEndpoints.Add(new EndPointAddressVia(e.EndpointDiscoveryMetadata.Address, e.EndpointDiscoveryMetadata.ListenUris[0], ConnectionType.Automatic));
+                        AvailableEndpointsChanged?.Invoke(this, new EventArgs());
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                //Sink
             }
         }
 

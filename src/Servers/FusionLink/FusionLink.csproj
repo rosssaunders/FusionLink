@@ -91,8 +91,20 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisAMTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
@@ -133,6 +145,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisAMTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
@@ -165,6 +181,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="DevExpress.XtraEditors.v18.1">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraEditors.v18.1.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Sophis.Core.Data">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
       <Private>false</Private>
@@ -181,6 +201,14 @@
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisAMTools.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
@@ -205,6 +233,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
@@ -253,6 +285,10 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisAMTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisPortfoliosGUI">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisPortfoliosGUI.dll</HintPath>
       <Private>false</Private>
@@ -275,6 +311,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v18.1">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v18.1">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraEditors.v18.1.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">
@@ -315,6 +355,14 @@
       <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\Finastra\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>..\..\..\libs\Finastra\SophisAMTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
       <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
@@ -345,6 +393,10 @@
     </Reference>
     <Reference Include="DevExpress.XtraTreeList.v11.2">
       <HintPath>..\..\..\libs\Finastra\DevExpress.XtraTreeList.v11.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>..\..\..\libs\Finastra\DevExpress.XtraEditors.v11.2.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.Core.Data">

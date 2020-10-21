@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace RxdSolutions.FusionLink
 {
@@ -111,6 +112,12 @@ namespace RxdSolutions.FusionLink
 
                             break;
 
+                        case DataTable dataTable:
+
+                            if (!AreTablesTheSame(_value as DataTable, dataTable))
+                                updateRequired = true;
+
+                            break;
                     }
                 }
                 
@@ -124,11 +131,36 @@ namespace RxdSolutions.FusionLink
 
         private void CheckValidDataType(object value)
         {
-            var isValid = value is string || value is int || value is long || value is double || value is decimal || value is DateTime || value is null || value is bool;
+            var isValid = value is string 
+                       || value is int 
+                       || value is long 
+                       || value is double 
+                       || value is decimal 
+                       || value is DateTime 
+                       || value is null 
+                       || value is bool
+                       || value is DataTable;
+
             if(!isValid)
             {
                 throw new ApplicationException("Invalid data type passed");
             }
+        }
+
+        public static bool AreTablesTheSame(DataTable tbl1, DataTable tbl2)
+        {
+            if (tbl1.Rows.Count != tbl2.Rows.Count || tbl1.Columns.Count != tbl2.Columns.Count)
+                return false;
+
+            for (int i = 0; i < tbl1.Rows.Count; i++)
+            {
+                for (int c = 0; c < tbl1.Columns.Count; c++)
+                {
+                    if (!Equals(tbl1.Rows[i][c], tbl2.Rows[i][c]))
+                        return false;
+                }
+            }
+            return true;
         }
     }
 }

@@ -6,7 +6,9 @@ using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Linq;
+using ExcelClientUI;
 using ExcelDna.Integration;
 using ExcelDna.Integration.CustomUI;
 using RxdSolutions.FusionLink.Client;
@@ -40,6 +42,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _application = ExcelDnaUtil.Application as Microsoft.Office.Interop.Excel.Application;
 
             _client.OnConnectionStatusChanged += (s,e) => Refresh();
+            _connectionMonitor.OnConnectionFailed += (s, e) => Refresh();
+            _connectionMonitor.OnConnectionSuccess += (s, e) => Refresh();
         }
 
         public bool OnRefreshEnabled(IRibbonControl control)
@@ -58,7 +62,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             if (_client.IsConnecting)
                 return false;
 
-            return _availableConnections.AvailableEndpoints.Count > 0;
+            return true;
         }
 
         public bool OnConnectionActionEnabled(IRibbonControl control)
@@ -107,21 +111,18 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (_availableConnections.IsSearchingForEndPoints)
             {
-                return BuildMessage(Resources.SearchingForServersMessage).ToString();
+                return BuildMessageButton(Resources.SearchingForServersMessage).ToString();
             }
 
-            if(_availableConnections.AvailableEndpoints.Count == 0)
-            {
-                return BuildMessage(Resources.NoEndPointsAvailableMessage).ToString();
-            }
+            var items = new List<XElement>();
 
             var connections = GetAliveEndPoints().Select(endPoint =>
             {
                 string GetCurrentFlag()
                 {
-                    if(_client.State == System.ServiceModel.CommunicationState.Opened)
+                    if (_client.State == System.ServiceModel.CommunicationState.Opened)
                     {
-                        if(_client.Via.Equals(endPoint))
+                        if (_client.Via.Equals(endPoint.Via))
                         {
                             return " (Current)";
                         }
@@ -130,17 +131,29 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     return string.Empty;
                 }
 
-                var cb = new ConnectionBuilder(endPoint);
+                string GetConnectionFlag()
+                {
+                    if (endPoint.ConnectionType == ConnectionType.Manual)
+                    {
+                        return " [Manual]";
+                    }
+
+                    return string.Empty;
+                }
+
+                var cb = new ConnectionBuilder(endPoint.Via);
 
                 var processId = cb.GetProcessId();
-                var connectionName = cb.GetConnectionName() + GetCurrentFlag();
+                var connectionName = cb.GetConnectionName() + GetConnectionFlag() + GetCurrentFlag();
 
-                var item = (Id: processId, MenuItem: new XElement(_customUINS + "button",
-                        new XAttribute("id", $"Process{processId}Button"),
-                        new XAttribute("label", connectionName),
-                        new XAttribute("tag", endPoint.ToString()),
-                        new XAttribute("onAction", "OnConnect"),
-                        new XAttribute("imageMso", "ServerConnection")));
+                var item = (Id: processId,
+                            MenuItem: new XElement(_customUINS + "button",
+                                            new XAttribute("id", $"Process{processId}{endPoint.ConnectionType}Button"),
+                                            new XAttribute("label", connectionName),
+                                            new XAttribute("tag", endPoint.Via.ToString()),
+                                            new XAttribute("onAction", "OnConnect"),
+                                            new XAttribute("imageMso", "ServerConnection"))
+                           );
 
                 return item;
             }
@@ -148,17 +161,30 @@ namespace RxdSolutions.FusionLink.ExcelClient
             .OrderBy(x => x.Id)
             .Select(x => x.MenuItem);
 
-            var menu = BuildPopupMenu(connections);
+            items.AddRange(connections);
+
+            var menu = BuildPopupMenu(items);
+
+            //Seperator
+            menu.Add(new XElement(_customUINS + "menuSeparator",
+                            new XAttribute("id", $"seperator")));
+
+            menu.Add(new XElement(_customUINS + "button",
+                        new XAttribute("id", $"ManualConnection"),
+                        new XAttribute("label", "Enter Connection"),
+                        new XAttribute("tag", $"ManualConnection"),
+                        new XAttribute("onAction", "OnConnect"),
+                        new XAttribute("imageMso", "ServerConnection")));
 
             return menu.ToString();
         }
 
-        private IEnumerable<Uri> GetAliveEndPoints()
+        private IEnumerable<EndPointAddressVia> GetAliveEndPoints()
         {
-            return _availableConnections.AvailableEndpoints.Select(x => x.Via);
+            return _availableConnections.AvailableEndpoints;
         }
                
-        private XElement BuildMessage(string message)
+        private XElement BuildMessageButton(string message)
         {
             var loadingMessageMenu = BuildPopupMenu(
                     new[] {
@@ -189,6 +215,23 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             if (control.Tag == "0")
                 return;
+
+            if(control.Tag == "ManualConnection")
+            {
+                var form = new ConnectionStringEntry();
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(NativeWindow.FromHandle((IntPtr)_application.Hwnd));
+
+                if (result == DialogResult.OK)
+                {
+                    if(Uri.TryCreate(form.ConnectionTextBox.Text, UriKind.Absolute, out Uri uri))
+                    {
+                        _connectionMonitor.SetManualConnection(uri);
+                    }
+                }
+
+                return;
+            }
 
             _connectionMonitor.SetConnection(new Uri(control.Tag));
         }

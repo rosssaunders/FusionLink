@@ -1094,11 +1094,22 @@
                    Grid.Column="1"
                    Grid.ColumnSpan="3"
                    Style="{StaticResource FieldValue}"
-                   Text="{Binding ServerUri}" />
+                   Text="{Binding ServerUri}"
+                   Name="ConnectionString"/>
 
+        <Button Grid.Row="6"
+                Grid.Column="4"
+                Margin="10"
+                Name="CopyConnectionStringButton"
+                Click="CopyConnectionStringButton_Click"
+                >
+            Copy to clipboard
+        </Button>
+        
         <TextBlock Grid.Row="7"
                    Grid.Column="0"
                    Style="{StaticResource FieldLabel}">Terminal Services:</TextBlock>
+        
         <TextBlock Grid.Row="7"
                    Grid.Column="1"
                    Style="{StaticResource FieldValue}"

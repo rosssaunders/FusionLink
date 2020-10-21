@@ -17,11 +17,8 @@ namespace RxdSolutions.FusionLink.Services
 {
     public class TransactionService
     {
-        private readonly PositionService positionService;
-
-        public TransactionService(PositionService positionService)
+        public TransactionService()
         {
-            this.positionService = positionService;
         }
 
         public List<Transaction> GetPositionTransactions(int positionId, DateTime startDate, DateTime endDate)

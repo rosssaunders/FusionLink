@@ -1,11 +1,14 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace RxdSolutions.FusionLink.Interface
 {
     [ServiceContract(Namespace = "http://schemas.rxdsolutions.co.uk/fusionlink")]
+    [ServiceKnownType(typeof(DataTable))]
     public interface IOnDemandServer
     {
         [OperationContract]
@@ -57,6 +60,18 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(PortfolioNotLoadedFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
         List<Transaction> GetPortfolioTransactions(int portfolioId, DateTime startDate, DateTime endDate);
+
+        [OperationContract(Name = "GetInstrumentSetById")]
+        [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        [FaultContract(typeof(InvalidFieldFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        DataTable GetInstrumentSet(int instrumentId, string property);
+
+        [OperationContract(Name = "GetInstrumentSetByReference")]
+        [FaultContract(typeof(InstrumentNotFoundFaultContract))]
+        [FaultContract(typeof(InvalidFieldFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        DataTable GetInstrumentSet(string reference, string property);
 
         [OperationContract(Name = "AddBusinessDays")]
         [FaultContract(typeof(CalendarNotFoundFaultContract))]

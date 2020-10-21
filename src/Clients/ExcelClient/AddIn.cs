@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.ServiceModel;
+using System.Windows.Forms;
 using ExcelDna.Integration;
 using ExcelDna.Registration;
 using RxdSolutions.FusionLink.Client;
@@ -66,6 +67,8 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                 CustomRibbon.Refresh();
             });
+
+            Application.EnableVisualStyles();
         }
 
         private void Client_OnConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)

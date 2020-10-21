@@ -1,8 +1,11 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using RxdSolutions.FusionLink.Model;
+using RxdSolutions.FusionLink.Provider;
+using sophis.instrument;
 
 namespace RxdSolutions.FusionLink.Services
 {
@@ -48,6 +51,30 @@ namespace RxdSolutions.FusionLink.Services
             {
                 return $"Unknown Instrument Type '{nameof(instrument)}'";
             }
+        }
+
+        public DataTable GetInstrumentSet(int instrumentId, string property)
+        {
+            var item = new InstrumentPropertyValue(instrumentId, null, property, this);
+
+            var result = item.GetValue();
+
+            if(result is DataTable dt)
+            {
+                return dt;
+            }
+
+            throw new InvalidFieldException("Invalid Property value for set");
+        }
+
+        public DataTable GetInstrumentSet(string reference, string property)
+        {
+            var inst = CSMInstrument.GetCodeWithReference(reference);
+
+            if (inst == 0)
+                throw new InstrumentNotFoundException();
+
+            return GetInstrumentSet(inst, property);
         }
     }
 }
