@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using RxdSolutions.FusionLink.Client.Properties;
@@ -117,7 +119,7 @@ namespace RxdSolutions.FusionLink.Client
 
                 try
                 {
-                    var address = new EndpointAddress(endpointAddress.Uri, EndpointIdentity.CreateUpnIdentity("rsaunders@bhdgsystematic.com"));
+                    var address = new EndpointAddress(endpointAddress.Uri, CreateIdentity());
 
                     var binding = _binding;
 
@@ -703,6 +705,24 @@ namespace RxdSolutions.FusionLink.Client
         private void Callback_OnInstrumentPropertyReceived(object sender, InstrumentPropertyReceivedEventArgs e)
         {
             OnInstrumentPropertyReceived?.Invoke(sender, e);
+        }
+
+        static EndpointIdentity CreateIdentity()
+        {
+            var self = WindowsIdentity.GetCurrent();
+
+            // Need an UPN string here
+            string domain = Environment.UserDomainName;
+            if (domain != null)
+            {
+                string[] split = self.Name.Split('\\');
+                if (split.Length == 2)
+                {
+                    return EndpointIdentity.CreateUpnIdentity(split[1] + "@" + domain);
+                }
+            }
+
+            throw new ApplicationException("Unable to generate a UPN");
         }
 
         #region IDisposable Support

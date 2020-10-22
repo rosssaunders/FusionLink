@@ -8,9 +8,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
     public class ComAddIn : ExcelComAddIn
     {
         private readonly ConnectionMonitor monitor;
-        private readonly AvailableConnections availableConnections;
+        private readonly ServerConnectionMonitor availableConnections;
 
-        public ComAddIn(ConnectionMonitor monitor, AvailableConnections availableConnections)
+        public ComAddIn(ConnectionMonitor monitor, ServerConnectionMonitor availableConnections)
         {
             this.monitor = monitor;
             this.availableConnections = availableConnections;
@@ -20,7 +20,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         {
             AddIn.IsShuttingDown = true;
 
-            monitor.Stop();
+            monitor.Close();
             monitor.Dispose();
 
             availableConnections.Dispose();

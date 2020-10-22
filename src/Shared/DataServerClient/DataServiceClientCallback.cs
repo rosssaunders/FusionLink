@@ -1,9 +1,11 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
+using System.ServiceModel;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.Client
 {
+    [CallbackBehavior(UseSynchronizationContext = false)]
     public class DataServiceCallbackClient : IRealTimeCallbackClient
     {
         public event EventHandler<PositionValueReceivedEventArgs> OnPositionValueReceived;

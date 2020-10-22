@@ -9,7 +9,7 @@ using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
 {
-    public class AvailableConnections : IDisposable
+    public class ServerConnectionMonitor : IDisposable
     {
         public event EventHandler<EventArgs> AvailableEndpointsChanged;
 
@@ -20,7 +20,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         private readonly ServiceHost _announcementServiceHost;
         private readonly AnnouncementService _announcementService;
 
-        public AvailableConnections()
+        public ServerConnectionMonitor()
         {
             _availableEndpoints = new List<EndPointAddressVia>();
 

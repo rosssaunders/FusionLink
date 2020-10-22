@@ -15,7 +15,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
         //The client needs to be static so the Excel functions (which must be static) can access it.
         public static DataServiceClient Client; 
         public static ConnectionMonitor ConnectionMonitor;
-        public static AvailableConnections AvailableConnections;
+        public static ServerConnectionMonitor AvailableConnections;
 
         public static bool IsShuttingDown;
 
@@ -37,8 +37,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
             Client = new DataServiceClient(CreateTcpBinding());
         }
 
-        public void AutoOpen()
+        public AddIn()
         {
+            Application.EnableVisualStyles();
+
             RegisterFunctions();
 
             // setup error handler
@@ -48,14 +50,16 @@ namespace RxdSolutions.FusionLink.ExcelClient
             app.RTD.ThrottleInterval = 100;
 
             //Monitor for FusionLink connections
-            AvailableConnections = new AvailableConnections();
+            AvailableConnections = new ServerConnectionMonitor();
 
             //Open the client connection
             ConnectionMonitor = new ConnectionMonitor(AvailableConnections);
             ConnectionMonitor.RegisterClient(Client);
-            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(ConnectionMonitor, AvailableConnections));
+        }
 
-            Client.OnConnectionStatusChanged += Client_OnConnectionStatusChanged;
+        public void AutoOpen()
+        {
+            ExcelComAddInHelper.LoadComAddIn(new ComAddIn(ConnectionMonitor, AvailableConnections));
 
             //Start the monitor
             AvailableConnections.FindAvailableServicesAsync().ContinueWith(result =>
@@ -63,12 +67,14 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 if (IsShuttingDown)
                     return;
 
-                ConnectionMonitor.Start();
+                var firstConnection = AvailableConnections.AvailableEndpoints.FirstOrDefault();
+                if (firstConnection is object)
+                    ConnectionMonitor.SetConnection(firstConnection.Via);
 
                 CustomRibbon.Refresh();
-            });
 
-            Application.EnableVisualStyles();
+                Client.OnConnectionStatusChanged += Client_OnConnectionStatusChanged;
+            });
         }
 
         private void Client_OnConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
@@ -78,7 +84,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public void AutoClose()
         {
-            ConnectionMonitor.Stop();
+            ConnectionMonitor.Close();
 
             Client?.Close();
         }

@@ -28,7 +28,7 @@ namespace RxdSolutions.FusionLink
 
         private readonly AutoResetEvent _clientMonitorResetEvent;
         private readonly int _clientCheckInterval;
-        private Thread _clientMonitorThread;
+        private readonly Thread _clientMonitorThread;
         private bool _isClosed = false;
 
         private CancellationTokenSource _cancellationTokenSource;
@@ -216,12 +216,10 @@ namespace RxdSolutions.FusionLink
 
                 SendMessageToAllClients((s, c) =>
                 {
-
                     if (_positionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Column)))
                     {
                         c.SendPositionValue(dp.Key.Id, dp.Key.Column, dp.Value);
                     }
-
                 });
             }
             catch (Exception ex)
@@ -248,12 +246,10 @@ namespace RxdSolutions.FusionLink
 
                 SendMessageToAllClients((s, c) =>
                 {
-
                     if (_flatPositionSubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.PortfolioId, dp.Key.InstrumentId, dp.Key.Column)))
                     {
                         c.SendFlatPositionValue(dp.Key.PortfolioId, dp.Key.InstrumentId, dp.Key.Column, dp.Value);
                     }
-
                 });
             }
             catch (Exception ex)
@@ -663,19 +659,17 @@ namespace RxdSolutions.FusionLink
                     return;
 
                 // send number to clients
-                foreach (var key in _clients.Keys.ToList())
+                foreach (var kvp in _clients)
                 {
-                    var c = _clients[key];
-
                     try
                     {
-                        send.Invoke(key, c);
+                        send.Invoke(kvp.Key, kvp.Value);
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.Print(ex.ToString());
+                        Debug.Print(ex.ToString());
 
-                        Unregister(key);
+                        Unregister(kvp.Key);
                     }
                 }
             }
@@ -685,10 +679,8 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((s, c) =>
             {
-
                 if (_systemSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendSystemValue(e.DataPoint.Key, e.DataPoint.Value);
-
             });
         }
 
@@ -696,10 +688,8 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((s, c) =>
             {
-
                 if (_portfolioSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPortfolioValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
-
             });
         }
 
@@ -707,10 +697,8 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((s, c) =>
             {
-
                 if (_positionSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPositionValue(e.DataPoint.Key.Id, e.DataPoint.Key.Column, e.DataPoint.Value);
-
             });
         }
 
@@ -718,10 +706,8 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((s, c) =>
             {
-
                 if (_flatPositionSubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendFlatPositionValue(e.DataPoint.Key.PortfolioId, e.DataPoint.Key.InstrumentId, e.DataPoint.Key.Column, e.DataPoint.Value);
-
             });
         }
 
@@ -729,10 +715,8 @@ namespace RxdSolutions.FusionLink
         {
             SendMessageToAllClients((s, c) =>
             {
-
                 if (_portfolioPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
                     c.SendPortfolioProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
-
             });
         }
 

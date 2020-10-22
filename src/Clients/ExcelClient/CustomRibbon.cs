@@ -25,7 +25,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         private ConnectionMonitor _connectionMonitor;
         private DataServiceClient _client;
-        private AvailableConnections _availableConnections;
+        private ServerConnectionMonitor _availableConnections;
 
         public CustomRibbon()
         {
@@ -218,22 +218,39 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
             if(control.Tag == "ManualConnection")
             {
-                var form = new ConnectionStringEntry();
-                form.StartPosition = FormStartPosition.CenterParent;
+                var form = new ConnectionStringEntry
+                {
+                    StartPosition = FormStartPosition.CenterParent
+                };
+
                 var result = form.ShowDialog(NativeWindow.FromHandle((IntPtr)_application.Hwnd));
 
                 if (result == DialogResult.OK)
                 {
                     if(Uri.TryCreate(form.ConnectionTextBox.Text, UriKind.Absolute, out Uri uri))
                     {
-                        _connectionMonitor.SetManualConnection(uri);
+                        try
+                        {
+                            _connectionMonitor.SetManualConnection(uri);
+                        }
+                        catch
+                        {
+                            MessageBox.Show($"Unable to connect to {uri}. Please try a different connection.");
+                        }
                     }
                 }
 
                 return;
             }
 
-            _connectionMonitor.SetConnection(new Uri(control.Tag));
+            try
+            {
+                _connectionMonitor.SetConnection(new Uri(control.Tag));
+            }
+            catch
+            {
+                MessageBox.Show($"Unable to connect to {control.Tag}. Please try a different connection.");
+            }
         }
 
         public void OnRefresh(IRibbonControl control)

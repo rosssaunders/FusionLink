@@ -9,10 +9,10 @@ namespace RxdSolutions.FusionLink.ExcelClient
     public class ConnectionNameExcelObservable : IExcelObservable
     {
         private readonly DataServiceClient _rtdClient;
-        private readonly AvailableConnections _availableConnections;
+        private readonly ServerConnectionMonitor _availableConnections;
         private IExcelObserver _observer;
 
-        public ConnectionNameExcelObservable(DataServiceClient rtdClient, AvailableConnections availableConnections)
+        public ConnectionNameExcelObservable(DataServiceClient rtdClient, ServerConnectionMonitor availableConnections)
         {
             _rtdClient = rtdClient;
             _availableConnections = availableConnections;
