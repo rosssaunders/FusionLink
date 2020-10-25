@@ -99,7 +99,7 @@ namespace RxdSolutions.FusionLink.Provider
                             return _instrumentService.GetValue(h, Property);
 
                         case 'I': // 'Indexes and Baskets'
-                            var i = new Instrument(InstrumentId);
+                            var i = new Index(InstrumentId);
                             return _instrumentService.GetValue(i, Property);
 
                         case 'L': // 'Repos'

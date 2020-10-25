@@ -1,6 +1,7 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Resources;
@@ -179,7 +180,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             return menu.ToString();
         }
 
-        private IEnumerable<EndPointAddressVia> GetAliveEndPoints()
+        private IEnumerable<EndpointAddressVia> GetAliveEndPoints()
         {
             return _availableConnections.AvailableEndpoints;
         }
@@ -307,6 +308,11 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 _application.SetStatusBarWithResetDelay(ex.Message, 5);
             }
+        }
+
+        public void OnHelp(IRibbonControl control)
+        {
+            Process.Start("https://github.com/RXDSolutions/FusionLinkDocs/wiki");
         }
 
         private Task RefreshAvailableConnections()

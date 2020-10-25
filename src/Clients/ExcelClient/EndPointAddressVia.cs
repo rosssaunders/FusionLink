@@ -10,9 +10,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
         Manual
     }
 
-    public class EndPointAddressVia
+    public class EndpointAddressVia
     {
-        public EndPointAddressVia(EndpointAddress endpointAddress, Uri via, ConnectionType connectionType)
+        public EndpointAddressVia(EndpointAddress endpointAddress, Uri via, ConnectionType connectionType)
         {
             EndpointAddress = endpointAddress;
             Via = via;

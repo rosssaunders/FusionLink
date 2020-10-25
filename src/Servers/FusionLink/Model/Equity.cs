@@ -93,5 +93,109 @@ namespace RxdSolutions.FusionLink.Model
                 return dt;
             }
         }
+
+        public DataTable VolatilityCallAsk => GetVolatility(eMVolatilityCurveType.M_vcCallAsk);
+
+        public DataTable VolatilityCallBid => GetVolatility(eMVolatilityCurveType.M_vcCallBid);
+
+        public DataTable VolatilityCallManagement => GetVolatility(eMVolatilityCurveType.M_vcCallManagement);
+
+        public DataTable VolatilityCallMarket => GetVolatility(eMVolatilityCurveType.M_vcCallMarket);
+
+        public DataTable VolatilityCallResult => GetVolatility(eMVolatilityCurveType.M_vcCallResult);
+
+        public DataTable VolatilityEndOfList => GetVolatility(eMVolatilityCurveType.M_vcEndOfList);
+
+        public DataTable VolatilityPutAsk => GetVolatility(eMVolatilityCurveType.M_vcPutAsk);
+
+        public DataTable VolatilityPutBid => GetVolatility(eMVolatilityCurveType.M_vcPutBid);
+
+        public DataTable VolatilityPutManagement => GetVolatility(eMVolatilityCurveType.M_vcPutManagement);
+
+        public DataTable VolatilityPutMarket => GetVolatility(eMVolatilityCurveType.M_vcPutMarket);
+
+        public DataTable VolatilityPutResult => GetVolatility(eMVolatilityCurveType.M_vcPutResult);
+
+        private DataTable GetVolatility(eMVolatilityCurveType curveType)
+        {
+            using CSMEquity equity = CSMInstrument.GetInstance(code);
+            var dt = new DataTable("Volatility");
+
+            dt.Columns.Add("Maturity");
+            dt.Columns.Add("Stike");
+            dt.Columns.Add("Volatility");
+
+            using (var volSurface = equity.GetVolatilitySurface())
+            using (var atmCurve = volSurface.GetAtmVolatilityCurve(curveType))
+            using (var smiles = atmCurve.GetSmiles())
+            {
+                //using var atmPoint
+                for (var i = 0; i < atmCurve.GetPointCount(); i++)
+                {
+                    using var atmPoint = new SSMVolatilityPoint();
+                    if (atmCurve.GetNthPoint(i, atmPoint))
+                    {
+                        using var smile = atmPoint.fSmile;
+
+                        var maturity = DateToString(atmPoint.fMaturity, atmPoint.fType);
+
+                        dt.Rows.Add(
+                            maturity,
+                            "ATM",
+                            atmPoint.fVolatility);
+
+                        if (smile is object)
+                        {
+                            for (var j = 0; j < smile.GetPointCount(); j++)
+                            {
+                                using var ssmPoint = new SSMSmilePoint();
+                                if (smile.GetNthPoint(j, ssmPoint))
+                                {
+                                    dt.Rows.Add(
+                                        maturity,
+                                        ssmPoint.fStrike,
+                                        ssmPoint.fVolatility);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dt;
+        }
+
+        private string DateToString(int maturity, eMVolatilityPointType type)
+        {
+            string text = "";
+            if (type != eMVolatilityPointType.M_vpAbsoluteDate)
+            {
+                text += maturity;
+                if (type == eMVolatilityPointType.M_vpDay)
+                {
+                    text += "d";
+                }
+                else if (type == eMVolatilityPointType.M_vpWeek)
+                {
+                    text += "w";
+                }
+                else if (type == eMVolatilityPointType.M_vpMonth)
+                {
+                    text += "m";
+                }
+                else
+                {
+                    text += "y";
+                }
+            }
+            else
+            {
+                int date = CSMMarketData.GetCurrentMarketData().GetDate();
+                using var csmday = new CSMDay(maturity + date);
+                var dateTime = new DateTime((int)csmday.fYear, (int)csmday.fMonth, (int)csmday.fDay);
+                text = dateTime.ToShortDateString();
+            }
+            return text;
+        }
     }
 }

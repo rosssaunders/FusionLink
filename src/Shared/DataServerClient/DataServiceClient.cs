@@ -40,7 +40,7 @@ namespace RxdSolutions.FusionLink.Client
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
 
-        public DataServiceClient(Binding binding)
+        public DataServiceClient()
         {
             _connectionLock = new object();
             _positionCellValueSubscriptions = new HashSet<(int, string)>();
@@ -49,7 +49,7 @@ namespace RxdSolutions.FusionLink.Client
             _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
             _instrumentPropertySubscriptions = new HashSet<(object Id, string Property)>();
             _systemSubscriptions = new HashSet<SystemProperty>();
-            _binding = binding;
+            _binding = CreateTcpBinding();
         }
 
         public CommunicationState State 
@@ -158,6 +158,18 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public void Test(EndpointAddress endpointAddress, Uri via)
+        {
+            lock (_connectionLock)
+            {
+                var address = new EndpointAddress(endpointAddress.Uri, CreateIdentity());
+                var binding = _binding;
+                var callback = new DataServiceCallbackClient();
+                var realTimeServer = DuplexChannelFactory<IRealTimeServer>.CreateChannel(callback, _binding, address, via);
+                ((IChannel)realTimeServer).Open();
+            }
+        }
+
         public void Close()
         {
             lock(_connectionLock)
@@ -240,6 +252,19 @@ namespace RxdSolutions.FusionLink.Client
                     IsConnecting = false;
                 }
             }
+        }
+
+        private static NetTcpBinding CreateTcpBinding()
+        {
+            var binding = new NetTcpBinding
+            {
+                MaxReceivedMessageSize = int.MaxValue,
+                SendTimeout = new TimeSpan(0, 5, 0),
+                ReceiveTimeout = new TimeSpan(0, 5, 0)
+            };
+            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
+            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
+            return binding;
         }
 
         public void LoadPositions()
@@ -739,6 +764,15 @@ namespace RxdSolutions.FusionLink.Client
                     _portfolioCellValueSubscriptions.Clear();
                     _systemSubscriptions.Clear();
                     _portfolioPropertySubscriptions.Clear();
+
+                    try 
+                    {
+                        Close();
+                    }
+                    catch
+                    {
+                        //Sink
+                    }
                 }
 
                 disposedValue = true;

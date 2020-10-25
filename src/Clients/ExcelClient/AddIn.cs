@@ -19,22 +19,9 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public static bool IsShuttingDown;
 
-        private static NetTcpBinding CreateTcpBinding()
-        {
-            var binding = new NetTcpBinding
-            {
-                MaxReceivedMessageSize = int.MaxValue,
-                SendTimeout = new TimeSpan(0, 5, 0),
-                ReceiveTimeout = new TimeSpan(0, 5, 0)
-            };
-            binding.ReaderQuotas.MaxArrayLength = int.MaxValue;
-            binding.Security.Transport.ProtectionLevel = System.Net.Security.ProtectionLevel.EncryptAndSign;
-            return binding;
-        }
-
         static AddIn()
         {
-            Client = new DataServiceClient(CreateTcpBinding());
+            Client = new DataServiceClient();
         }
 
         public AddIn()

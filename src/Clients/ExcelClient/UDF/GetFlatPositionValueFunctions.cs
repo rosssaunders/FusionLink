@@ -7,7 +7,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
     {
         [ExcelFunction(Name = "GETFLATPOSITIONVALUE",
                        Description = "Returns flat position cell value",
-                       Category = "Get-Flat-Position-Value")]
+                       HelpTopic = "Get-Flat-Position-Value")]
         public static object GetFlatPositionValue(int portfolioId, int instrumentId, string column)
         {
             if (ExcelDnaUtil.IsInFunctionWizard())
@@ -18,7 +18,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         [ExcelFunction(Name = "FPSV",
                        Description = "Returns flat position cell value",
-                       Category = "Get-Flat-Position-Value")]
+                       HelpTopic = "Get-Flat-Position-Value")]
         public static object FPSV(int portfolioId, int instrumentId, string column)
         {
             return GetFlatPositionValue(portfolioId, instrumentId, column);

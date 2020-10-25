@@ -658,6 +658,8 @@ namespace RxdSolutions.FusionLink
                 if (_clients.Count == 0)
                     return;
 
+                var clientsToRemove = new List<string>();
+
                 // send number to clients
                 foreach (var kvp in _clients)
                 {
@@ -669,9 +671,15 @@ namespace RxdSolutions.FusionLink
                     {
                         Debug.Print(ex.ToString());
 
-                        Unregister(kvp.Key);
+                        clientsToRemove.Add(kvp.Key);
                     }
                 }
+
+                if(clientsToRemove.Count > 0)
+                    foreach(var clientToRemove in clientsToRemove)
+                    {
+                        Unregister(clientToRemove);
+                    }
             }
         }
 

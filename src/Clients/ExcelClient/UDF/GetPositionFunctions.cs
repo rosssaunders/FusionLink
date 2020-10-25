@@ -79,7 +79,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         [ExcelFunction(Name = "GETFLATPOSITIONS",
                        Description = "Returns a list of instrument ids of the given portfolio. By default only includes open positions.",
-                       HelpTopic = "Get-Positions")]
+                       HelpTopic = "Get-Flat-Positions")]
         public static object GetFlatPositions([ExcelArgument(Name = "portfolio_id", Description = "The Portfolio Id")] object[] portfolioId,
                                               [ExcelArgument(Name = "include_all_positions", Description = "Include all positions")] bool includeAll = false)
         {

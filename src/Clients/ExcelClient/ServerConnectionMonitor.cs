@@ -1,10 +1,13 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
+using System.Threading;
 using System.Threading.Tasks;
+using RxdSolutions.FusionLink.Client;
 using RxdSolutions.FusionLink.Interface;
 
 namespace RxdSolutions.FusionLink.ExcelClient
@@ -15,14 +18,17 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
         public bool IsSearchingForEndPoints { get; private set; }
 
-        private readonly List<EndPointAddressVia> _availableEndpoints;
+        private readonly List<EndpointAddressVia> _availableEndpoints;
         
         private readonly ServiceHost _announcementServiceHost;
         private readonly AnnouncementService _announcementService;
 
+        private readonly Thread _aliveConnectionMonitor;
+        private readonly AutoResetEvent _resetEvent;
+
         public ServerConnectionMonitor()
         {
-            _availableEndpoints = new List<EndPointAddressVia>();
+            _availableEndpoints = new List<EndpointAddressVia>();
 
             // Subscribe the announcement events
             _announcementService = new AnnouncementService();
@@ -33,9 +39,56 @@ namespace RxdSolutions.FusionLink.ExcelClient
             _announcementServiceHost = new ServiceHost(_announcementService);
             _announcementServiceHost.AddServiceEndpoint(new UdpAnnouncementEndpoint());
             _announcementServiceHost.Open();
+
+            _resetEvent = new AutoResetEvent(false);
+            _aliveConnectionMonitor = new Thread(MonitorConnectionsForDeadEndpoints)
+            {
+                IsBackground = true,
+                Name = "AliveConnectionMonitor",
+                Priority = ThreadPriority.Lowest
+            };
+
+            _aliveConnectionMonitor.Start();
         }
 
-        public IReadOnlyList<EndPointAddressVia> AvailableEndpoints
+        private void MonitorConnectionsForDeadEndpoints(object state)
+        {
+            var waitTime = TimeSpan.FromSeconds(5);
+
+            while (!disposedValue)
+            {
+                lock (_availableEndpoints)
+                {
+                    var toRemove = new List<EndpointAddressVia>();
+
+                    foreach (var connection in _availableEndpoints)
+                    {
+                        try
+                        {
+                            using var client = new DataServiceClient();
+                            client.Test(connection.EndpointAddress, connection.Via);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.Print(ex.ToString());
+
+                            //Remove from the list of available connections
+                            toRemove.Add(connection);
+                        }
+                    }
+
+                    if (toRemove.Count > 0)
+                    {
+                        foreach(var ep in toRemove)
+                            _availableEndpoints.Remove(ep);
+                    }
+                }
+
+                _resetEvent.WaitOne(waitTime);
+            }
+        }
+
+        public IReadOnlyList<EndpointAddressVia> AvailableEndpoints
         {
             get
             {
@@ -93,7 +146,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
 
                         if (!found)
                         {
-                            _availableEndpoints.Add(new EndPointAddressVia(endPoint.Address, endPoint.ListenUris[0], ConnectionType.Automatic));
+                            _availableEndpoints.Add(new EndpointAddressVia(endPoint.Address, endPoint.ListenUris[0], ConnectionType.Automatic));
                             AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                         }
                     }
@@ -129,7 +182,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
-        public void Remove(EndPointAddressVia ea)
+        public void Remove(EndpointAddressVia ea)
         {
             lock (_availableEndpoints)
             {
@@ -145,7 +198,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 lock (_availableEndpoints)
                 {
-                    var idx = _availableEndpoints.FindIndex(new Predicate<EndPointAddressVia>(x => x.Via == e.EndpointDiscoveryMetadata.ListenUris[0]));
+                    var idx = _availableEndpoints.FindIndex(new Predicate<EndpointAddressVia>(x => x.Via == e.EndpointDiscoveryMetadata.ListenUris[0]));
 
                     if (idx != -1)
                         _availableEndpoints.RemoveAt(idx);
@@ -174,7 +227,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     var alreadyExists = _availableEndpoints.Any(x => x.Via == connection);
                     if (!alreadyExists)
                     {
-                        _availableEndpoints.Add(new EndPointAddressVia(new EndpointAddress(connection), connection, ConnectionType.Manual));
+                        _availableEndpoints.Add(new EndpointAddressVia(new EndpointAddress(connection), connection, ConnectionType.Manual));
                         AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                     }
                 }
@@ -200,7 +253,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                     var alreadyExists = _availableEndpoints.Any(x => x.EndpointAddress == e.EndpointDiscoveryMetadata.Address);
                     if (!alreadyExists)
                     {
-                        _availableEndpoints.Add(new EndPointAddressVia(e.EndpointDiscoveryMetadata.Address, e.EndpointDiscoveryMetadata.ListenUris[0], ConnectionType.Automatic));
+                        _availableEndpoints.Add(new EndpointAddressVia(e.EndpointDiscoveryMetadata.Address, e.EndpointDiscoveryMetadata.ListenUris[0], ConnectionType.Automatic));
                         AvailableEndpointsChanged?.Invoke(this, new EventArgs());
                     }
                 }
@@ -211,7 +264,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
         }
 
-        public EndPointAddressVia FindEndpoint(Uri connection)
+        public EndpointAddressVia FindEndpoint(Uri connection)
         {
             lock (_availableEndpoints)
             {
@@ -229,6 +282,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 if (disposing)
                 {
+                    _resetEvent.Set();
                     _announcementServiceHost.Close();
                 }
 

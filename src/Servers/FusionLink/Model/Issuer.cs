@@ -7,7 +7,7 @@ using sophis.instrument;
 
 namespace RxdSolutions.FusionLink.Model
 {
-    public class Issuer : Instrument
+    public class Issuer : Equity
     {
         public Issuer(int code) : base(code)
         {
@@ -19,15 +19,6 @@ namespace RxdSolutions.FusionLink.Model
             {
                 using CSMIssuer instrument = CSMInstrument.GetInstance(code);
                 return instrument.GetIndexCode();
-            }
-        }
-
-        public int IssuerCode
-        {
-            get
-            {
-                using CSMIssuer instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetIssuerCode();
             }
         }
 

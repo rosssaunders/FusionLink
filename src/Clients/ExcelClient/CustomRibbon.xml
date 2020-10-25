@@ -18,7 +18,7 @@
           <dynamicMenu id="ConnectionsMenu"
                        label="Change connection"
                        screentip="Change connection"
-                       supertip="Displays a list of available FusionLink instances that can be connected to. If none are available this button is disabled."
+                       supertip="Displays a list of available FusionLink instances that can be connected to."
                        getContent="OnGetContent"
                        invalidateContentOnDrop="true"
                        getEnabled='OnConnectionsEnabled'
@@ -43,6 +43,16 @@
                   getEnabled='OnConnectionActionEnabled'
                   screentip="Calculate Portfolios"
                   supertip="Causes FusionLink to perform an F9 on the portfolios subscribed to via the GETPORTFOLIOVALUE and GETPOSITIONVALUE functions.&#13;&#13;Note: This will not trigger a calcution in this workbook when in manual calc mode.&#13;&#13;See the Wiki for more information."  />
+        </group>
+        <group id="help"
+               label="Help">
+          <button id="loadHelp"
+                  label="Help"
+                  size="large"
+                  imageMso="Help"
+                  onAction="OnHelp"
+                  screentip="Load Online Help"
+                   />
         </group>
       </tab>
     </tabs>
