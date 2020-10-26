@@ -2,13 +2,13 @@
 
 FusionLink is a Xll library for Excel and a FusionInvest Toolkit which provides the ability to subscribe to real-time and query data from a FusionInvest client.
 
-![Demo](https://github.com/RXDSolutions/FusionLink/wiki/images/RealTimeDemo.gif)
+![Demo](https://github.com/RXDSolutions/FusionLinkDocs/wiki/images/RealTimeDemo.gif)
 
 ## Getting Started
 
 ### Prerequisites
 
-1. A Toolkit license for Finastra FusionInvest / FusionCapital.
+1. A Toolkit license for Finastra FusionInvest / FusionCapital (Sophis).
 2. Knowledge of Toolkit development
 3. Knowledge of C#, WCF and ExcelDNA development.
 3. Visual Studio 2019
@@ -57,7 +57,6 @@ Various build configurations are supplied for versions 7.1.3.14, 7.1.3.19 & 7.2.
 ## Authors
 
 * [Ross Saunders](https://github.com/rosssaunders) 
-* [Debra Saunders](https://github.com/debrasaunders)
 
 ## License
 
@@ -66,7 +65,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * [Philippe Bonneau](http://www.it-quants.com/Blogs.aspx) for the inspiration on using the MFC Caption Bar within Sophis.
-
-## Build Status
-* Client - [![Build status](https://dev.azure.com/rxd/FusionInvest/_apis/build/status/FusionInvest-Client-CI)](https://dev.azure.com/rxd/FusionInvest/_build/latest?definitionId=2)
-* Server - [![Build status](https://dev.azure.com/rxd/FusionInvest/_apis/build/status/FusionInvest-Server-CI)](https://dev.azure.com/rxd/FusionInvest/_build/latest?definitionId=1)
