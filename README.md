@@ -58,10 +58,6 @@ Various build configurations are supplied for versions 7.1.3.14, 7.1.3.19 & 7.2.
 
 * [Ross Saunders](https://github.com/rosssaunders) 
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
 ## Acknowledgments
 
 * [Philippe Bonneau](http://www.it-quants.com/Blogs.aspx) for the inspiration on using the MFC Caption Bar within Sophis.
