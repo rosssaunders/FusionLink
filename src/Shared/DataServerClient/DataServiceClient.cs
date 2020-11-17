@@ -27,8 +27,10 @@ namespace RxdSolutions.FusionLink.Client
         private readonly HashSet<(int Id, string Column)> _portfolioCellValueSubscriptions;
         private readonly HashSet<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly HashSet<(object Id, string Property)> _instrumentPropertySubscriptions;
+        private readonly HashSet<(object Id, string Property)> _currencyPropertySubscriptions;
 
         private readonly HashSet<SystemProperty> _systemSubscriptions;
+
         private readonly Binding _binding;
 
         public event EventHandler<ConnectionStatusChangedEventArgs> OnConnectionStatusChanged;
@@ -39,6 +41,7 @@ namespace RxdSolutions.FusionLink.Client
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
+        public event EventHandler<CurrencyPropertyReceivedEventArgs> OnCurrencyPropertyReceived;
 
         public DataServiceClient()
         {
@@ -49,6 +52,7 @@ namespace RxdSolutions.FusionLink.Client
             _portfolioPropertySubscriptions = new HashSet<(int Id, PortfolioProperty Property)>();
             _instrumentPropertySubscriptions = new HashSet<(object Id, string Property)>();
             _systemSubscriptions = new HashSet<SystemProperty>();
+            _currencyPropertySubscriptions = new HashSet<(object Id, string Property)>();
             _binding = CreateTcpBinding();
         }
 
@@ -131,6 +135,7 @@ namespace RxdSolutions.FusionLink.Client
                     _callback.OnServiceStatusReceived += Callback_OnServiceStatusReceived;
                     _callback.OnPortfolioPropertyReceived += Callback_OnPortfolioPropertyReceived;
                     _callback.OnInstrumentPropertyReceived += Callback_OnInstrumentPropertyReceived;
+                    _callback.OnCurrencyPropertyReceived += Callback_OnCurrencyPropertyReceived;
 
                     _realTimeServer = DuplexChannelFactory<IRealTimeServer>.CreateChannel(_callback, binding, address, via);
 
@@ -142,6 +147,7 @@ namespace RxdSolutions.FusionLink.Client
                     _realTimeServer.SubscribeToPortfolioValues(_portfolioCellValueSubscriptions.ToList());
                     _realTimeServer.SubscribeToPortfolioProperties(_portfolioPropertySubscriptions.ToList());
                     _realTimeServer.SubscribeToInstrumentProperties(_instrumentPropertySubscriptions.ToList());
+                    _realTimeServer.SubscribeToCurrencyProperties(_currencyPropertySubscriptions.ToList());
 
                     foreach (var ps in _systemSubscriptions)
                         _realTimeServer.SubscribeToSystemValue(ps);
@@ -366,6 +372,28 @@ namespace RxdSolutions.FusionLink.Client
                     _instrumentPropertySubscriptions.Add((instrument, property));
 
                 InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToInstrumentProperty(instrument, property));
+            }
+        }
+
+        public void SubscribeToCurrencyProperty(object currency, string property)
+        {
+            lock (_currencyPropertySubscriptions)
+            {
+                if (!_currencyPropertySubscriptions.Contains((currency, property)))
+                    _currencyPropertySubscriptions.Add((currency, property));
+
+                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToCurrencyProperty(currency, property));
+            }
+        }
+
+        public void UnsubscribeToCurrencyProperty(object currency, string property)
+        {
+            lock (_currencyPropertySubscriptions)
+            {
+                if (_currencyPropertySubscriptions.Contains((currency, property)))
+                    _currencyPropertySubscriptions.Remove((currency, property));
+
+                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromCurrencyProperty(currency, property));
             }
         }
 
@@ -682,6 +710,80 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+        public DataTable GetCurrencySet(int currencyId, string property)
+        {
+            try
+            {
+                var results = ExecuteBatchRequest(x => x.GetCurrencySet(currencyId, property));
+
+                return results;
+            }
+            catch (FaultException<InvalidFieldFaultContract>)
+            {
+                throw new InvalidFieldException($"{Resources.InvalidFieldMessage}");
+            }
+            catch (FaultException<InstrumentNotFoundFaultContract> ex)
+            {
+                throw new InstrumentNotFoundException($"{Resources.InstrumentNotFoundMessage} - {ex.Detail.Instrument}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+            catch (FaultException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public DataTable GetCurrencySet(string currency, string property)
+        {
+            try
+            {
+                var results = ExecuteBatchRequest(x => x.GetCurrencySet(currency, property));
+
+                return results;
+            }
+            catch (FaultException<InvalidFieldFaultContract>)
+            {
+                throw new InvalidFieldException($"{Resources.InvalidFieldMessage}");
+            }
+            catch (FaultException<CurrencyNotFoundFaultContract> ex)
+            {
+                throw new CurrencyNotFoundException($"{Resources.CurrencyNotFoundMessage} - {ex.Detail.Currency}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+            catch (FaultException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
+        public DataTable GetReportSqlSourceResults(string reportName, string sourceName)
+        {
+            try
+            {
+                var results = ExecuteBatchRequest(x => x.GetReportSqlSourceResults(reportName, sourceName));
+
+                return results;
+            }
+            catch (FaultException<ReportNotFoundFaultContract> ex)
+            {
+                throw new ReportNotFoundException($"{Resources.ReportNotFoundMessage} - {reportName} - {sourceName}");
+            }
+            catch (FaultException<ErrorFaultContract> ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+            catch (FaultException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
         private void InvokeServerWithErrorHandling(Action action)
         {
             if (_realTimeServer is object && State == CommunicationState.Opened)
@@ -730,6 +832,11 @@ namespace RxdSolutions.FusionLink.Client
         private void Callback_OnInstrumentPropertyReceived(object sender, InstrumentPropertyReceivedEventArgs e)
         {
             OnInstrumentPropertyReceived?.Invoke(sender, e);
+        }
+
+        private void Callback_OnCurrencyPropertyReceived(object sender, CurrencyPropertyReceivedEventArgs e)
+        {
+            OnCurrencyPropertyReceived?.Invoke(sender, e);
         }
 
         static EndpointIdentity CreateIdentity()

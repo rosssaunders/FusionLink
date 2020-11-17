@@ -31,5 +31,11 @@ namespace RxdSolutions.FusionLink
         DataTable GetInstrumentSet(int instrumentId, string property);
      
         DataTable GetInstrumentSet(string reference, string property);
+        
+        DataTable GetReportSqlSourceResults(string reportName, string sourceName);
+        
+        DataTable GetCurrencySet(int currencyId, string property);
+        
+        DataTable GetCurrencySet(string reference, string property);
     }
 }

@@ -9,6 +9,7 @@ using RxdSolutions.FusionLink.Listeners;
 using RxdSolutions.FusionLink.Services;
 using sophis.instrument;
 using sophis.portfolio;
+using sophis.static_data;
 using sophis.utils;
 
 namespace RxdSolutions.FusionLink.Provider
@@ -22,11 +23,14 @@ namespace RxdSolutions.FusionLink.Provider
         private readonly IPortfolioListener _portfolioListener;
         private readonly IPositionListener _positionListener;
         private readonly ITransactionListener _transactionListener;
-        private readonly IInstrumentListener _instrumentListener;
-
+        private readonly IInstrumentListener _instrumentStaticListener;
+        private readonly IInstrumentListener _instrumentMarketDataListener;
+        private readonly InstrumentService _instrumentService;
+        private readonly CurrencyService _currencyService;
         private readonly Subscriptions<PortfolioCellValue, string, int> _portfolioCellSubscriptions;
         private readonly Subscriptions<PortfolioPropertyValue, PortfolioProperty, int> _portfolioPropertySubscriptions;
         private readonly Subscriptions<InstrumentPropertyValue, (object Reference, string Property), int> _instrumentPropertySubscriptions;
+        private readonly Subscriptions<CurrencyPropertyValue, (object Reference, string Property), int> _currencyPropertySubscriptions;
         private readonly Subscriptions<PositionCellValue, string, int> _positionCellSubscriptions;
         private readonly Subscriptions<FlatPositionCellValue, string, (int, int)> _flatPositionCellSubscriptions;
         private readonly Dictionary<SystemProperty, SystemValue> _systemValueSubscriptions;
@@ -49,7 +53,8 @@ namespace RxdSolutions.FusionLink.Provider
                        _flatPositionCellSubscriptions.Count > 0 ||
                        _systemValueSubscriptions.Count > 0 ||
                        _portfolioPropertySubscriptions.Count > 0 ||
-                       _instrumentPropertySubscriptions.Count > 0;
+                       _instrumentPropertySubscriptions.Count > 0 ||
+                       _currencyPropertySubscriptions.Count > 0;
             }
         }
 
@@ -57,15 +62,20 @@ namespace RxdSolutions.FusionLink.Provider
                                       IPortfolioListener portfolioListener,
                                       IPositionListener positionListener,
                                       ITransactionListener transactionListener,
-                                      IInstrumentListener instrumentListener,
-                                      InstrumentService instrumentService)
+                                      IInstrumentListener instrumentStaticListener,
+                                      IInstrumentListener instrumentMarketDataListener,
+                                      InstrumentService instrumentService,
+                                      CurrencyService currencyService)
         {
             _context = Dispatcher.CurrentDispatcher;
             _globalFunctions = globalFunctions;
             _portfolioListener = portfolioListener;
             _positionListener = positionListener;
             _transactionListener = transactionListener;
-            _instrumentListener = instrumentListener;
+            _instrumentStaticListener = instrumentStaticListener;
+            _instrumentMarketDataListener = instrumentMarketDataListener;
+            _instrumentService = instrumentService;
+            _currencyService = currencyService;
 
             _mainExtraction = sophis.globals.CSMExtraction.gMain();
 
@@ -74,6 +84,7 @@ namespace RxdSolutions.FusionLink.Provider
             _flatPositionCellSubscriptions = new Subscriptions<FlatPositionCellValue, string, (int portfolioId, int instrumentId)>((ids, column) => new FlatPositionCellValue(ids.portfolioId, ids.instrumentId, column, _mainExtraction));
             _portfolioPropertySubscriptions = new Subscriptions<PortfolioPropertyValue, PortfolioProperty, int>((id, property) => new PortfolioPropertyValue(id, property));
             _instrumentPropertySubscriptions = new Subscriptions<InstrumentPropertyValue, (object Reference, string Property), int>((i, s) => new InstrumentPropertyValue(i, s.Reference, s.Property, instrumentService));
+            _currencyPropertySubscriptions = new Subscriptions<CurrencyPropertyValue, (object Reference, string Property), int>((i, s) => new CurrencyPropertyValue(i, s.Reference, s.Property, currencyService));
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
             _portfolioComputedIds = new List<int>();
 
@@ -81,7 +92,8 @@ namespace RxdSolutions.FusionLink.Provider
             _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
             _positionListener.PositionChanged += PositionListener_PositionChanged;
             _transactionListener.TransactionChanged += TransactionListener_TransactionChanged;
-            _instrumentListener.InstrumentChanged += InstrumentListener_InstrumentChanged;
+            _instrumentStaticListener.InstrumentChanged += InstrumentStaticListener_InstrumentChanged;
+            _instrumentMarketDataListener.InstrumentChanged += InstrumentMarketDataListener_InstrumentChanged;
         }
 
         public void Start()
@@ -227,7 +239,7 @@ namespace RxdSolutions.FusionLink.Provider
                 if (id is string reference)
                     sicovam = CSMInstrument.GetCode(reference);
                 else
-                    sicovam = (int)id;
+                    sicovam = Convert.ToInt32(id);
 
                 _instrumentPropertySubscriptions.Add(sicovam, (id, property));
                 var dp = _instrumentPropertySubscriptions.Get(sicovam, (id, property));
@@ -243,6 +255,59 @@ namespace RxdSolutions.FusionLink.Provider
                 {
                     dp.Error = ex;
                     CSMLog.Write(_className, nameof(SubscribeToInstrumentProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
+            }, DispatcherPriority.Normal);
+        }
+
+        public void SubscribeToCurrencyProperty(object id, string property)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                //Find the sicovam for the id
+                int devise = 0;
+                if (id is string reference)
+                    devise = CSMCurrency.StringToCurrency(reference);
+                else
+                    devise = Convert.ToInt32(id);
+                
+                _currencyPropertySubscriptions.Add(devise, (id, property));
+                var dp = _currencyPropertySubscriptions.Get(devise, (id, property));
+
+                try
+                {
+                    var da = new DataAvailableEventArgs();
+                    da.CurrencyProperties.Add((id, property), dp.GetValue());
+
+                    DataAvailable?.Invoke(this, da);
+                }
+                catch (Exception ex)
+                {
+                    dp.Error = ex;
+                    CSMLog.Write(_className, nameof(SubscribeToCurrencyProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
+                }
+
+            }, DispatcherPriority.Normal);
+        }
+
+        public void UnsubscribeFromCurrencyProperty(object id, string property)
+        {
+            var op = _context.InvokeAsync(() => {
+
+                //Find the sicovam for the id
+                int devise = 0;
+                if (id is string reference)
+                    devise = CSMCurrency.StringToCurrency(reference);
+                else
+                    devise = Convert.ToInt32(id);
+
+                try
+                {
+                    _currencyPropertySubscriptions.Remove(devise, (id, property));
+                }
+                catch (Exception ex)
+                {
+                    CSMLog.Write(_className, nameof(UnsubscribeFromCurrencyProperty), CSMLog.eMVerbosity.M_error, ex.ToString());
                 }
 
             }, DispatcherPriority.Normal);
@@ -337,7 +402,7 @@ namespace RxdSolutions.FusionLink.Provider
                 if (id is string reference)
                     sicovam = CSMInstrument.GetCode(reference);
                 else
-                    sicovam = (int)id;
+                    sicovam = Convert.ToInt32(id);
 
                 try
                 {
@@ -576,9 +641,14 @@ namespace RxdSolutions.FusionLink.Provider
             RefreshPosition(e.PositionId, e.IsLocal);
         }
 
-        private void InstrumentListener_InstrumentChanged(object sender, InstrumentChangedEventArgs e)
+        private void InstrumentStaticListener_InstrumentChanged(object sender, InstrumentChangedEventArgs e)
         {
-            RefreshInstrument(e.InstrumentId, e.IsLocal);
+            RefreshInstrumentStatic(e.InstrumentId, e.IsLocal);
+        }
+
+        private void InstrumentMarketDataListener_InstrumentChanged(object sender, InstrumentChangedEventArgs e)
+        {
+            RefreshInstrumentMarketData(e.InstrumentId, e.IsLocal);
         }
 
         private void RefreshPortfolio(int portfolioId, bool isLocal)
@@ -640,7 +710,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
         }
 
-        private void RefreshInstrument(int instrumentId, bool isLocal)
+        private void RefreshInstrumentStatic(int instrumentId, bool isLocal)
         {
             try
             {
@@ -681,7 +751,50 @@ namespace RxdSolutions.FusionLink.Provider
             }
             catch (Exception ex)
             {
-                CSMLog.Write(_className, nameof(RefreshInstrument), CSMLog.eMVerbosity.M_error, ex.ToString());
+                CSMLog.Write(_className, nameof(RefreshInstrumentStatic), CSMLog.eMVerbosity.M_error, ex.ToString());
+            }
+        }
+
+        private void RefreshInstrumentMarketData(int instrumentId, bool isLocal)
+        {
+            try
+            {
+                void NotifyDataChanged()
+                {
+                    var args = new DataAvailableEventArgs();
+
+                    foreach (var value in _instrumentPropertySubscriptions.Get(instrumentId))
+                    {
+                        if(value.IsMarketData())
+                            args.InstrumentProperties.Add((value.Reference, value.Property), value.GetValue());
+                    }
+
+                    foreach (var value in _currencyPropertySubscriptions.Get(instrumentId))
+                    {
+                        if (value.IsMarketData())
+                            args.CurrencyProperties.Add((value.Reference, value.Property), value.GetValue());
+                    }
+
+                    DataAvailable?.Invoke(this, args);
+                }
+
+                if (isLocal)
+                {
+                    //There must be a Sophis API call which does the same work without the risk of deadlock.
+                    var yield = Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    yield.GetAwaiter().OnCompleted(() =>
+                    {
+                        NotifyDataChanged();
+                    });
+                }
+                else
+                {
+                    NotifyDataChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                CSMLog.Write(_className, nameof(RefreshInstrumentMarketData), CSMLog.eMVerbosity.M_error, ex.ToString());
             }
         }
 

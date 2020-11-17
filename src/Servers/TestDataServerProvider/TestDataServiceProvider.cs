@@ -239,5 +239,15 @@ namespace RxdSolutions.FusionLink
         {
             throw new NotImplementedException();
         }
+
+        public void SubscribeToCurrencyProperty(object id, string property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeFromCurrencyProperty(object id, string property)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

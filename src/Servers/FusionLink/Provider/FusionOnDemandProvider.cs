@@ -24,15 +24,19 @@ namespace RxdSolutions.FusionLink.Provider
         private readonly Dispatcher _context;
         private readonly PositionService _positionService;
         private readonly InstrumentService _instrumentService;
+        private readonly CurrencyService _currencyService;
         private readonly CurveService _curveService;
         private readonly TransactionService _transactionService;
         private readonly PriceService _priceService;
+        private readonly ReportService _reportService;
 
         public FusionOnDemandProvider(PositionService positionService,
                                         InstrumentService instrumentService,
+                                        CurrencyService currencyService,
                                         CurveService curveService,
                                         TransactionService transactionService,
-                                        PriceService priceService)
+                                        PriceService priceService,
+                                        ReportService reportService)
         {
             _context = Dispatcher.CurrentDispatcher;
             _positionService = positionService;
@@ -40,6 +44,8 @@ namespace RxdSolutions.FusionLink.Provider
             _curveService = curveService;
             _transactionService = transactionService;
             _priceService = priceService;
+            _reportService = reportService;
+            _currencyService = currencyService;
         }
 
         public List<int> GetPositions(int portfolioId, PositionsToRequest positions)
@@ -349,6 +355,11 @@ namespace RxdSolutions.FusionLink.Provider
                     CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_verbose, e.ToString());
                     throw;
                 }
+                catch (InvalidFieldException e)
+                {
+                    CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
                 catch (Exception e)
                 {
                     CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_error, e.ToString());
@@ -378,6 +389,79 @@ namespace RxdSolutions.FusionLink.Provider
                 catch (Exception e)
                 {
                     CSMLog.Write(_className, nameof(GetInstrumentSet), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public DataTable GetCurrencySet(int currencyId, string property)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _currencyService.GetCurrencySet(currencyId, property);
+                }
+                catch (CurrencyNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (InvalidFieldException e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public DataTable GetCurrencySet(string reference, string property)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _currencyService.GetCurrencySet(reference, property);
+                }
+                catch (CurrencyNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (InvalidFieldException e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetCurrencySet), CSMLog.eMVerbosity.M_error, e.ToString());
+                    throw;
+                }
+            });
+        }
+
+        public DataTable GetReportSqlSourceResults(string reportName, string sourceName)
+        {
+            return _context.Invoke(() => {
+
+                try
+                {
+                    return _reportService.GetReportSqlSourceResults(reportName, sourceName);
+                }
+                catch (ReportNotFoundException e)
+                {
+                    CSMLog.Write(_className, nameof(GetReportSqlSourceResults), CSMLog.eMVerbosity.M_verbose, e.ToString());
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    CSMLog.Write(_className, nameof(GetReportSqlSourceResults), CSMLog.eMVerbosity.M_error, e.ToString());
                     throw;
                 }
             });

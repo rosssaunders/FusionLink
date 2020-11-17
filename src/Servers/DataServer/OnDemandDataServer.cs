@@ -236,5 +236,57 @@ namespace RxdSolutions.FusionLink
                 throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
             }
         }
+
+        public DataTable GetReportSqlSourceResults(string reportName, string sourceName)
+        {
+            try
+            {
+                return _onDemandProvider.GetReportSqlSourceResults(reportName, sourceName);
+            }
+            catch (ReportNotFoundException)
+            {
+                throw new FaultException<ReportNotFoundFaultContract>(new ReportNotFoundFaultContract() { Report = reportName, Source = sourceName });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public DataTable GetCurrencySet(int currencyId, string property)
+        {
+            try
+            {
+                return _onDemandProvider.GetCurrencySet(currencyId, property);
+            }
+            catch (CurrencyNotFoundException)
+            {
+                throw new FaultException<CurrencyNotFoundFaultContract>(new CurrencyNotFoundFaultContract() { Currency = currencyId.ToString() });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public DataTable GetCurrencySet(string reference, string property)
+        {
+            try
+            {
+                return _onDemandProvider.GetCurrencySet(reference, property);
+            }
+            catch (InvalidFieldException)
+            {
+                throw new FaultException<InvalidFieldFaultContract>(new InvalidFieldFaultContract());
+            }
+            catch (CurrencyNotFoundException)
+            {
+                throw new FaultException<CurrencyNotFoundFaultContract>(new CurrencyNotFoundFaultContract() { Currency = reference });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
     }
 }

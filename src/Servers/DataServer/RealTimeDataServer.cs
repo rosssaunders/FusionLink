@@ -24,6 +24,7 @@ namespace RxdSolutions.FusionLink
         private readonly Subscriptions<(int Id, string Column)> _portfolioSubscriptions;
         private readonly Subscriptions<(int Id, PortfolioProperty Property)> _portfolioPropertySubscriptions;
         private readonly Subscriptions<(object Id, string Property)> _instrumentPropertySubscriptions;
+        private readonly Subscriptions<(object Id, string Property)> _currencyPropertySubscriptions;
         private readonly Subscriptions<SystemProperty> _systemSubscriptions;
 
         private readonly AutoResetEvent _clientMonitorResetEvent;
@@ -41,13 +42,7 @@ namespace RxdSolutions.FusionLink
         public event EventHandler<DataAvailableEventArgs> OnDataReceived;
         public event EventHandler<EventArgs> OnPublishQueueChanged;
 
-        public int ClientCount
-        {
-            get
-            {
-                return _clients.Count;
-            }
-        }
+        public int ClientCount => _clients.Count;
 
         public string DefaultMessage { get; set; } = Resources.DefaultGettingDataMessage;
 
@@ -88,6 +83,11 @@ namespace RxdSolutions.FusionLink
             _instrumentPropertySubscriptions.OnValueChanged += InstrumentPropertyPointChanged;
             _instrumentPropertySubscriptions.SubscriptionAdded += InstrumentPropertySubscriptionAdded;
             _instrumentPropertySubscriptions.SubscriptionRemoved += InstrumentPropertySubscriptionRemoved;
+
+            _currencyPropertySubscriptions = new Subscriptions<(object, string)>() { DefaultMessage = DefaultMessage };
+            _currencyPropertySubscriptions.OnValueChanged += CurrencyPropertyPointChanged;
+            _currencyPropertySubscriptions.SubscriptionAdded += CurrencyPropertySubscriptionAdded;
+            _currencyPropertySubscriptions.SubscriptionRemoved += CurrencyPropertySubscriptionRemoved;
 
             _clientMonitorResetEvent = new AutoResetEvent(false);
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
@@ -619,6 +619,13 @@ namespace RxdSolutions.FusionLink
                     dp.Value = kvp.Value;
             }
 
+            foreach (var kvp in e.CurrencyProperties)
+            {
+                var dp = _currencyPropertySubscriptions.Get(kvp.Key);
+                if (dp is object)
+                    dp.Value = kvp.Value;
+            }
+
             foreach (var kvp in e.PositionValues)
             {
                 var dp = _positionSubscriptions.Get(kvp.Key);
@@ -829,6 +836,34 @@ namespace RxdSolutions.FusionLink
             });
         }
 
+        private void CurrencyPropertySubscriptionRemoved(object sender, SubscriptionChangedEventArgs<(object Id, string Property)> e)
+        {
+            _realTimeProvider.UnsubscribeFromCurrencyProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void CurrencyPropertySubscriptionAdded(object sender, SubscriptionChangedEventArgs<(object Id, string Property)> e)
+        {
+            _realTimeProvider.SubscribeToCurrencyProperty(e.Key.Id, e.Key.Property);
+        }
+
+        private void CurrencyPropertyPointChanged(object sender, DataPointChangedEventArgs<(object Id, string Property)> e)
+        {
+            SendMessageToAllClients((s, c) =>
+            {
+                if (_currencyPropertySubscriptions.IsSubscribed(s, e.DataPoint.Key))
+                {
+                    if (e.DataPoint.Value is DataTable)
+                    {
+                        c.SendCurrencyProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, "#N/A Invalid Field");
+                    }
+                    else
+                    {
+                        c.SendCurrencyProperty(e.DataPoint.Key.Id, e.DataPoint.Key.Property, e.DataPoint.Value);
+                    }
+                }
+            });
+        }
+
         private void PortfolioSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int Id, string Column)> e)
         {
             _realTimeProvider.SubscribeToPortfolio(e.Key.Id, e.Key.Column);
@@ -852,6 +887,59 @@ namespace RxdSolutions.FusionLink
         private void FlatPositionSubscriptionAdded(object sender, SubscriptionChangedEventArgs<(int PortfolioId, int InstrumentId, string Column)> e)
         {
             _realTimeProvider.SubscribeToFlatPosition(e.Key.PortfolioId, e.Key.InstrumentId, e.Key.Column);
+        }
+
+        public void SubscribeToCurrencyProperty(object currency, string propertyName)
+        {
+            try
+            {
+                var dp = _currencyPropertySubscriptions.Add(OperationContext.Current.SessionId, (currency, propertyName));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
+
+                SendMessageToAllClients((s, c) =>
+                {
+                    if (_currencyPropertySubscriptions.IsSubscribed(OperationContext.Current.SessionId, (dp.Key.Id, dp.Key.Property)))
+                    {
+                        c.SendCurrencyProperty(dp.Key.Id, dp.Key.Property, dp.Value);
+                    }
+
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void UnsubscribeFromCurrencyProperty(object currency, string propertyName)
+        {
+            try
+            {
+                _currencyPropertySubscriptions.Remove(OperationContext.Current.SessionId, (currency, propertyName));
+
+                OnSubscriptionChanged?.Invoke(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                throw new FaultException<ErrorFaultContract>(new ErrorFaultContract() { Message = ex.Message });
+            }
+        }
+
+        public void SubscribeToCurrencyProperties(List<(object Id, string Property)> items)
+        {
+            foreach (var (id, property) in items)
+            {
+                SubscribeToCurrencyProperty(id, property);
+            }
+        }
+
+        public void UnsubscribeFromCurrencyProperties(List<(object Id, string Property)> items)
+        {
+            foreach (var (Id, Property) in items)
+            {
+                UnsubscribeFromCurrencyProperty(Id, Property);
+            }
         }
     }
 }

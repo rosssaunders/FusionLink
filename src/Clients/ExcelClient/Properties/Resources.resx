@@ -141,6 +141,12 @@
   <data name="InvalidFieldMessage" xml:space="preserve">
     <value>#N/A Invalid Field</value>
   </data>
+  <data name="InvalidReportName" xml:space="preserve">
+    <value>Invalid Report Name</value>
+  </data>
+  <data name="InvalidSourceName" xml:space="preserve">
+    <value>Invalid Source Name</value>
+  </data>
   <data name="LoadPortfoliosRequestedMessage" xml:space="preserve">
     <value>A F8 has been requested</value>
   </data>

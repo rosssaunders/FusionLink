@@ -34,6 +34,16 @@ namespace RxdSolutions.FusionLink
             return _onDemandServer.GetCurrencyPriceHistory(reference, startDate, endDate);
         }
 
+        public DataTable GetCurrencySet(int instrumentId, string property)
+        {
+            return _onDemandServer.GetCurrencySet(instrumentId, property);
+        }
+
+        public DataTable GetCurrencySet(string reference, string property)
+        {
+            return _onDemandServer.GetCurrencySet(reference, property);
+        }
+
         public List<CurvePoint> GetCurvePoints(string curency, string family, string reference)
         {
             return _onDemandServer.GetCurvePoints(curency, family, reference);
@@ -79,6 +89,11 @@ namespace RxdSolutions.FusionLink
             return _onDemandServer.GetPositionTransactions(positionId, startDate, endDate);
         }
 
+        public DataTable GetReportSqlSourceResults(string reportName, string sourceName)
+        {
+            return _onDemandServer.GetReportSqlSourceResults(reportName, sourceName);
+        }
+
         public ServiceStatus GetServiceStatus()
         {
             return _realTimeServer.GetServiceStatus();
@@ -97,6 +112,16 @@ namespace RxdSolutions.FusionLink
         public void RequestCalculate()
         {
             _realTimeServer.RequestCalculate();
+        }
+
+        public void SubscribeToCurrencyProperties(List<(object Id, string Property)> list)
+        {
+            _realTimeServer.SubscribeToCurrencyProperties(list);
+        }
+
+        public void SubscribeToCurrencyProperty(object instrument, string propertyName)
+        {
+            _realTimeServer.SubscribeToCurrencyProperty(instrument, propertyName);
         }
 
         public void SubscribeToFlatPositionValue(int portgolioId, int instrumentId, string column)
@@ -157,6 +182,16 @@ namespace RxdSolutions.FusionLink
         public void Unregister()
         {
             _realTimeServer.Unregister();
+        }
+
+        public void UnsubscribeFromCurrencyProperties(List<(object Id, string Property)> list)
+        {
+            _realTimeServer.UnsubscribeFromCurrencyProperties(list);
+        }
+
+        public void UnsubscribeFromCurrencyProperty(object instrument, string propertyName)
+        {
+            _realTimeServer.UnsubscribeFromCurrencyProperty(instrument, propertyName);
         }
 
         public void UnsubscribeFromFlatPositionValue(int portfolioId, int instrumentId, string column)

@@ -29,7 +29,9 @@ namespace RxdSolutions.FusionLink
         void SubscribeToPortfolioProperty(int id, PortfolioProperty property);
 
         void SubscribeToInstrumentProperty(object id, string property);
-        
+
+        void SubscribeToCurrencyProperty(object id, string property);
+
         void UnsubscribeFromPortfolio(int portfolioId, string column);
 
         void UnsubscribeFromPosition(int positionId, string column);
@@ -41,5 +43,7 @@ namespace RxdSolutions.FusionLink
         void UnsubscribeFromPortfolioProperty(int id, PortfolioProperty property);
 
         void UnsubscribeFromInstrumentProperty(object id, string property);
+
+        void UnsubscribeFromCurrencyProperty(object id, string property);
     }
 }

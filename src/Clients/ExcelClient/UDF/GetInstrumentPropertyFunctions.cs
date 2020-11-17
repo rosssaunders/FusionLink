@@ -56,7 +56,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
                 }
                 else
                 {
-                    object[,] array = ConvertDataTableToExcel(results);
+                    object[,] array = DataHelper.ConvertDataTableToExcel(results);
 
                     return ExcelRangeResizer.TransformToExcelRange(array);
                 }
@@ -65,29 +65,6 @@ namespace RxdSolutions.FusionLink.ExcelClient
             {
                 return ExcelRangeResizer.TransformToExcelRange(ExcelStaticData.GetExcelRangeError(ex.Message));
             }
-        }
-
-        private static object[,] ConvertDataTableToExcel(DataTable data)
-        {
-            int rowCount = data.Rows.Count;
-            int columnCount = data.Columns.Count;
-
-            object[,] arr = new object[rowCount + 1, columnCount];
-
-            for(int i = 0; i < columnCount; i++)
-            {
-                arr[0, i] = data.Columns[i].ColumnName;
-            }
-
-            for (int i = 0; i < rowCount; i++)
-            {
-                for (int j = 0; j < columnCount; j++)
-                {
-                    arr[i + 1, j] = data.Rows[i][j];
-                }
-            }
-
-            return arr;
         }
     }
 }

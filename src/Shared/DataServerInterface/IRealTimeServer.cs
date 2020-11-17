@@ -92,5 +92,17 @@ namespace RxdSolutions.FusionLink.Interface
 
         [OperationContract(IsOneWay = true)]
         void UnsubscribeFromInstrumentProperties(List<(object Id, string Property)> list);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToCurrencyProperty(object instrument, string propertyName);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromCurrencyProperty(object instrument, string propertyName);
+
+        [OperationContract(IsOneWay = true)]
+        void SubscribeToCurrencyProperties(List<(object Id, string Property)> list);
+
+        [OperationContract(IsOneWay = true)]
+        void UnsubscribeFromCurrencyProperties(List<(object Id, string Property)> list);
     }
 }

@@ -1,22 +1,15 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
+using System.Diagnostics;
 
 namespace RxdSolutions.FusionLink.Listeners
 {
-    public class AggregateInstrumentListener : IInstrumentListener
+    public class AggregateInstrumentStaticListener : IInstrumentListener
     {
-        private readonly InstrumentActionListener _actionListener;
-        private readonly InstrumentEventListener _eventListener;
-
         public event EventHandler<InstrumentChangedEventArgs> InstrumentChanged;
 
-        public AggregateInstrumentListener(InstrumentActionListener actionListener, InstrumentEventListener eventListener)
+        public AggregateInstrumentStaticListener()
         {
-            _actionListener = actionListener;
-            _eventListener = eventListener;
-
             InstrumentActionListener.InstrumentChanged += OnInstrumentChanged;
             InstrumentEventListener.InstrumentChanged += OnInstrumentChanged;
         }

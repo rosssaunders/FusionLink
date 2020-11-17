@@ -131,5 +131,14 @@ namespace RxdSolutions.FusionLink.Client.Properties {
                 return ResourceManager.GetString("PositionNotFoundMessage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report not found.
+        /// </summary>
+        internal static string ReportNotFoundMessage {
+            get {
+                return ResourceManager.GetString("ReportNotFoundMessage", resourceCulture);
+            }
+        }
     }
 }

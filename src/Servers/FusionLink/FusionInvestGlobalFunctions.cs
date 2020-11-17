@@ -20,7 +20,7 @@ namespace RxdSolutions.FusionLink
 
         public override void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
         {
-            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, m_Mode, this.fLoadingPortfolio));
+            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, this.fLoadingPortfolio));
 
             base.EndPortfolioCalculation(extraction, folioId);
         }
@@ -47,7 +47,7 @@ namespace RxdSolutions.FusionLink
 
         public override void EndPortfolioCalculation(CSMExtraction extraction, int folioId)
         {
-            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, m_Mode, this.fLoadingPortfolio));
+            PortfolioCalculationEnded?.Invoke(this, new PortfolioCalculationEndedEventArgs(extraction, folioId, CSMPortfolioColumn.GetRefreshVersion(), fInPortfolioCalculation, this.fLoadingPortfolio));
 
             base.EndPortfolioCalculation(extraction, folioId);
         }

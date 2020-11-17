@@ -39,6 +39,7 @@ namespace RxdSolutions.FusionLink
         private static TransactionEventListener _transactionEventListener;
         private static InstrumentActionListener _instrumentActionListener;
         private static InstrumentEventListener _instrumentEventListener;
+        private static PreferenceChangeListener _refChangeListener;
 
         public static ServiceHost DataServersHost;
 
@@ -78,6 +79,8 @@ namespace RxdSolutions.FusionLink
                                 UpdateCaption();
 
                                 InitialiseMenu();
+
+                                InitialiseSophis();
                             }
                             else
                             {
@@ -85,6 +88,10 @@ namespace RxdSolutions.FusionLink
                             }
 
                         }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                    else
+                    {
+                        InitialiseSophis();
                     }
                 }
             }
@@ -101,7 +108,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                AutomaticComputingPreferenceChangeListener.Stop();
+                _refChangeListener.Dispose();
 
                 RealTimeDataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 RealTimeDataServer.Close();
@@ -110,7 +117,23 @@ namespace RxdSolutions.FusionLink
             catch (Exception ex)
             {
                 CSMLog.Write("Main", "Close", CSMLog.eMVerbosity.M_error, ex.ToString());
-            } 
+            }
+        }
+
+        /// <remarks>
+        /// Sophis seems to initialize these when you first open a Portfolio View in the UI
+        /// Which a user might want to use FusionLink as more of a headless server
+        /// http://www.it-quants.com/Blogs/tabid/83/EntryId/72/Fusion-Capital-Sophis-v7-how-to-listen-to-coherency-events-in-a-batch-server-mode.aspx
+        /// </remarks>
+        private void InitialiseSophis()
+        {
+            Dispatcher.CurrentDispatcher.InvokeAsync(new Action(() =>
+            {
+                Sophis.Event.EventModelValue.Initialize();
+                Sophis.Event.EventModelRisque.Initialize();
+                Sophis.Event.EventModelDRT.Initialize();
+
+            }), DispatcherPriority.Normal);
         }
 
         private CSMGlobalFunctions GetGlobalFunctions()
@@ -155,8 +178,8 @@ namespace RxdSolutions.FusionLink
             CSMInstrumentAction.Register("InstrumentActionListenerModif", CSMInstrumentAction.eMOrder.M_oModification, _instrumentActionListener);
             CSMInstrumentAction.Register("InstrumentActionListenerCreate", CSMInstrumentAction.eMOrder.M_oCreation, _instrumentActionListener);
 
-            AutomaticComputingPreferenceChangeListener.Start();
-            AutomaticComputingPreferenceChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
+            _refChangeListener = new PreferenceChangeListener();
+            _refChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
         }
 
         private void RegisterScenarios()
@@ -216,28 +239,35 @@ namespace RxdSolutions.FusionLink
             var aggregatePortfolioListener = new AggregatePortfolioListener(_portfolioActionListener, _portfolioEventListener);
             var aggregatePositionListener = new AggregatePositionListener(_positionActionListener, _positionEventListener);
             var aggregateTransactionListener = new AggregateTransactionListener(_transactionActionListener, _transactionEventListener);
-            var aggregateInstrumentListener = new AggregateInstrumentListener(_instrumentActionListener, _instrumentEventListener);
+            var aggregateInstrumentStaticListener = new AggregateInstrumentStaticListener();
+            var aggregateInstrumentMarketDataListener = new AggregateInstrumentMarketDataListener();
 
             var positionService = new PositionService();
             var instrumentService = new InstrumentService();
+            var currencyService = new CurrencyService();
             var curveService = new CurveService();
             var transactionService = new TransactionService();
             var priceService = new PriceService();
+            var reportService = new ReportService();
 
             var realTimeProvider = new FusionRealTimeProvider(_globalFunctions as IGlobalFunctions,
                                                                     aggregatePortfolioListener,
                                                                     aggregatePositionListener,
                                                                     aggregateTransactionListener,
-                                                                    aggregateInstrumentListener,
-                                                                    instrumentService);
+                                                                    aggregateInstrumentStaticListener,
+                                                                    aggregateInstrumentMarketDataListener,
+                                                                    instrumentService,
+                                                                    currencyService);
 
             CreateRealTimeDataServerFromConfig(realTimeProvider);
 
             var onDemandProvider = new FusionOnDemandProvider(positionService,
                                                                 instrumentService,
+                                                                currencyService,
                                                                 curveService,
                                                                 transactionService,
-                                                                priceService);
+                                                                priceService,
+                                                                reportService);
 
             CreateOnDemandDataServerFromConfig(onDemandProvider);
 

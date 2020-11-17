@@ -1,6 +1,4 @@
 ﻿//  Copyright (c) RXD Solutions. All rights reserved.
-
-
 using System;
 using System.Runtime.ExceptionServices;
 using RxdSolutions.FusionLink.Interface;

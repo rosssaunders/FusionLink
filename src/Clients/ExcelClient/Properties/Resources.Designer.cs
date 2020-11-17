@@ -133,6 +133,24 @@ namespace RxdSolutions.FusionLink.ExcelClient.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Report Name.
+        /// </summary>
+        internal static string InvalidReportName {
+            get {
+                return ResourceManager.GetString("InvalidReportName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Source Name.
+        /// </summary>
+        internal static string InvalidSourceName {
+            get {
+                return ResourceManager.GetString("InvalidSourceName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A F8 has been requested.
         /// </summary>
         internal static string LoadPortfoliosRequestedMessage {

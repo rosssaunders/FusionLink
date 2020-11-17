@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using sophis.backoffice_kernel;
 using sophis.instrument;
+using sophis.market_data;
 using sophis.static_data;
 using sophis.utils;
 
@@ -100,6 +101,15 @@ namespace RxdSolutions.FusionLink.Model
             {
                 using var instrument = CSMInstrument.GetInstance(code);
                 return instrument.GetType_API().ToString();
+            }
+        }
+
+        [MarketData]
+        public double Last
+        {
+            get
+            {
+                return CSMMarketData.GetCurrentMarketData().GetSpot(code);
             }
         }
     }

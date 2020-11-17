@@ -67,6 +67,26 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.DRT.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkitGUI">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
       <Private>false</Private>
@@ -141,6 +161,26 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.DRT.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
@@ -203,8 +243,28 @@
       <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="SophisDotNetCore">
       <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.DRT.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetCore">
@@ -272,6 +332,26 @@
     <Reference Include="MFCCaptionBar">
       <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
       <Private>true</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.DRT.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Sophis.DotNetCore">
       <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
@@ -353,6 +433,27 @@
     </Reference>
     <Reference Include="SophisDotNetToolkit">
       <HintPath>..\..\..\libs\Finastra\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
+      <Aliases></Aliases>
+    </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>..\..\..\libs\Finastra\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>..\..\..\libs\Finastra\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>..\..\..\libs\Finastra\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>..\..\..\libs\Finastra\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>..\..\..\libs\Finastra\Sophis.Event.DRT.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SophisDotNetCore">
@@ -446,6 +547,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetDir)*.* C:\Users\rsaunders\source\repos\stash\sophisinstaller\Src\Win32\UAT\FusionInvest\Toolkits\ /y" />
+    <Exec Command="xcopy $(TargetDir)*.* C:\Users\rsaunders\source\repos\stash\sophisinstaller\Src\Win32\UAT\FusionInvest\FusionLinkServer\ /y" />
   </Target>
 </Project>

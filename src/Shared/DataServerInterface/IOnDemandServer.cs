@@ -65,17 +65,34 @@ namespace RxdSolutions.FusionLink.Interface
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
         [FaultContract(typeof(InvalidFieldFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
-        DataTable GetInstrumentSet(int instrumentId, string property);
+        DataTable GetInstrumentSet(int instrumentId, string propertyName);
 
         [OperationContract(Name = "GetInstrumentSetByReference")]
         [FaultContract(typeof(InstrumentNotFoundFaultContract))]
         [FaultContract(typeof(InvalidFieldFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
-        DataTable GetInstrumentSet(string reference, string property);
+        DataTable GetInstrumentSet(string reference, string propertyName);
 
         [OperationContract(Name = "AddBusinessDays")]
         [FaultContract(typeof(CalendarNotFoundFaultContract))]
         [FaultContract(typeof(ErrorFaultContract))]
         DateTime AddBusinessDays(DateTime baseDate, int daysToAdd, string currency, CalendarType calendarType, string name);
+
+        [OperationContract(Name = "GetReportSqlSourceResults")]
+        [FaultContract(typeof(ReportNotFoundFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        DataTable GetReportSqlSourceResults(string reportName, string sourceName);
+
+        [OperationContract(Name = "GetCurrencySetById")]
+        [FaultContract(typeof(CurrencyNotFoundFaultContract))]
+        [FaultContract(typeof(InvalidFieldFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        DataTable GetCurrencySet(int instrumentId, string propertyName);
+
+        [OperationContract(Name = "GetCurrencySetByReference")]
+        [FaultContract(typeof(CurrencyNotFoundFaultContract))]
+        [FaultContract(typeof(InvalidFieldFaultContract))]
+        [FaultContract(typeof(ErrorFaultContract))]
+        DataTable GetCurrencySet(string reference, string propertyName);
     }
 }

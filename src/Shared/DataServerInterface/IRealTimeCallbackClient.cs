@@ -27,6 +27,9 @@ namespace RxdSolutions.FusionLink.Interface
         void SendInstrumentProperty(object id, string propertyName, object value);
 
         [OperationContract(IsOneWay = true)]
+        void SendCurrencyProperty(object id, string propertyName, object value);
+
+        [OperationContract(IsOneWay = true)]
         void SendSystemValue(SystemProperty propertyName, object value);
 
         [OperationContract]

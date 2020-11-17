@@ -13,6 +13,7 @@ namespace RxdSolutions.FusionLink.Client
         public event EventHandler<PortfolioValueReceivedEventArgs> OnPortfolioValueReceived;
         public event EventHandler<PortfolioPropertyReceivedEventArgs> OnPortfolioPropertyReceived;
         public event EventHandler<InstrumentPropertyReceivedEventArgs> OnInstrumentPropertyReceived;
+        public event EventHandler<CurrencyPropertyReceivedEventArgs> OnCurrencyPropertyReceived;
         public event EventHandler<SystemValueReceivedEventArgs> OnSystemValueReceived;
         public event EventHandler<ServiceStatusReceivedEventArgs> OnServiceStatusReceived;
 
@@ -70,6 +71,13 @@ namespace RxdSolutions.FusionLink.Client
             LastReceivedMessageTimestamp = DateTime.UtcNow;
 
             OnSystemValueReceived?.Invoke(this, new SystemValueReceivedEventArgs(property, value));
+        }
+
+        public void SendCurrencyProperty(object id, string propertyName, object value)
+        {
+            LastReceivedMessageTimestamp = DateTime.UtcNow;
+
+            OnCurrencyPropertyReceived?.Invoke(this, new CurrencyPropertyReceivedEventArgs(id, propertyName, value));
         }
     }
 }

@@ -141,4 +141,7 @@
   <data name="PositionNotFoundMessage" xml:space="preserve">
     <value>The requested position could not be found</value>
   </data>
+  <data name="ReportNotFoundMessage" xml:space="preserve">
+    <value>Report not found</value>
+  </data>
 </root>
