@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Client.Properties;
 using RxdSolutions.FusionLink.Interface;
 
@@ -275,7 +276,14 @@ namespace RxdSolutions.FusionLink.Client
 
         public void LoadPositions()
         {
-            _realTimeServer.LoadPositions();
+            if(GetServiceStatus() == ServiceStatus.Started)
+            {
+                _realTimeServer.LoadPositions();
+            }
+            else
+            {
+                throw new ApplicationException("Not connected");
+            }
         }
 
         public void RequestCalculate()
@@ -305,7 +313,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_positionCellValueSubscriptions.Contains((positionId, column)))
                     _positionCellValueSubscriptions.Add((positionId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToPositionValue(positionId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToPositionValue(positionId, column));
             }
         }
 
@@ -316,7 +324,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_flatPositionCellValueSubscriptions.Contains((portfolioId, instrumentId, column)))
                     _flatPositionCellValueSubscriptions.Add((portfolioId, instrumentId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToFlatPositionValue(portfolioId, instrumentId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToFlatPositionValue(portfolioId, instrumentId, column));
             }
         }
 
@@ -327,7 +335,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_portfolioCellValueSubscriptions.Contains((folioId, column)))
                     _portfolioCellValueSubscriptions.Add((folioId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToPortfolioValue(folioId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToPortfolioValue(folioId, column));
             }
         }
 
@@ -338,7 +346,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_systemSubscriptions.Contains(property))
                     _systemSubscriptions.Add(property);
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToSystemValue(property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToSystemValue(property));
             }
         }
 
@@ -349,7 +357,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_portfolioPropertySubscriptions.Contains((folioId, property)))
                     _portfolioPropertySubscriptions.Add((folioId, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToPortfolioProperty(folioId, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToPortfolioProperty(folioId, property));
             }
         }
 
@@ -360,7 +368,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_portfolioPropertySubscriptions.Contains((folioId, property)))
                     _portfolioPropertySubscriptions.Remove((folioId, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPortfolioProperty(folioId, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromPortfolioProperty(folioId, property));
             }
         }
 
@@ -371,7 +379,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_instrumentPropertySubscriptions.Contains((instrument, property)))
                     _instrumentPropertySubscriptions.Add((instrument, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToInstrumentProperty(instrument, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToInstrumentProperty(instrument, property));
             }
         }
 
@@ -382,7 +390,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (!_currencyPropertySubscriptions.Contains((currency, property)))
                     _currencyPropertySubscriptions.Add((currency, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.SubscribeToCurrencyProperty(currency, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.SubscribeToCurrencyProperty(currency, property));
             }
         }
 
@@ -393,7 +401,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_currencyPropertySubscriptions.Contains((currency, property)))
                     _currencyPropertySubscriptions.Remove((currency, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromCurrencyProperty(currency, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromCurrencyProperty(currency, property));
             }
         }
 
@@ -404,7 +412,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_instrumentPropertySubscriptions.Contains((instrument, property)))
                     _instrumentPropertySubscriptions.Remove((instrument, property));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromInstrumentProperty(instrument, property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromInstrumentProperty(instrument, property));
             }
         }
 
@@ -415,7 +423,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_positionCellValueSubscriptions.Contains((positionId, column)))
                     _positionCellValueSubscriptions.Remove((positionId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPositionValue(positionId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromPositionValue(positionId, column));
             }
         }
 
@@ -426,7 +434,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_flatPositionCellValueSubscriptions.Contains((portfolioId, instrumentId, column)))
                     _flatPositionCellValueSubscriptions.Remove((portfolioId, instrumentId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromFlatPositionValue(portfolioId, instrumentId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromFlatPositionValue(portfolioId, instrumentId, column));
             }
         }
 
@@ -437,7 +445,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_portfolioCellValueSubscriptions.Contains((folioId, column)))
                     _portfolioCellValueSubscriptions.Remove((folioId, column));
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromPortfolioValue(folioId, column));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromPortfolioValue(folioId, column));
             }
         }
 
@@ -448,7 +456,7 @@ namespace RxdSolutions.FusionLink.Client
                 if (_systemSubscriptions.Contains(property))
                     _systemSubscriptions.Remove(property);
 
-                InvokeServerWithErrorHandling(() => _realTimeServer.UnsubscribeFromSystemValue(property));
+                InvokeServerWithErrorHandlingAsync(() => _realTimeServer.UnsubscribeFromSystemValue(property));
             }
         }
 
@@ -784,13 +792,28 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
-        private void InvokeServerWithErrorHandling(Action action)
+        //private void InvokeServerWithErrorHandling(Action action)
+        //{
+        //    if (_realTimeServer is object && State == CommunicationState.Opened)
+        //    {
+        //        try
+        //        {
+        //            action();
+        //        }
+        //        catch (FaultException<ErrorFaultContract> ex)
+        //        {
+        //            throw new DataServiceException(ex.Detail.Message);
+        //        }
+        //    }
+        //}
+
+        private void InvokeServerWithErrorHandlingAsync(Action action)
         {
             if (_realTimeServer is object && State == CommunicationState.Opened)
             {
                 try
                 {
-                    action();
+                    Task.Run(action);
                 }
                 catch (FaultException<ErrorFaultContract> ex)
                 {

@@ -28,9 +28,9 @@ namespace RxdSolutions.FusionLink
 {
     public class Main : IMain
     {
-        private static CSMGlobalFunctions _globalFunctions;
         private static CSMApi _api;
 
+        private static PortfolioCalculationListener _portfolioCalculationListener;
         private static PortfolioActionListener _portfolioActionListener;
         private static PortfolioEventListener _portfolioEventListener;
         private static PositionActionListener _positionActionListener;
@@ -39,7 +39,7 @@ namespace RxdSolutions.FusionLink
         private static TransactionEventListener _transactionEventListener;
         private static InstrumentActionListener _instrumentActionListener;
         private static InstrumentEventListener _instrumentEventListener;
-        private static PreferenceChangeListener _refChangeListener;
+        private static PreferenceChangeListener _prefChangeListener;
 
         public static ServiceHost DataServersHost;
 
@@ -108,7 +108,7 @@ namespace RxdSolutions.FusionLink
         {
             try
             {
-                _refChangeListener.Dispose();
+                _prefChangeListener.Dispose();
 
                 RealTimeDataServer.OnClientConnectionChanged -= OnClientConnectionChanged;
                 RealTimeDataServer.Close();
@@ -136,22 +136,9 @@ namespace RxdSolutions.FusionLink
             }), DispatcherPriority.Normal);
         }
 
-        private CSMGlobalFunctions GetGlobalFunctions()
-        {
-            if(string.Equals(Process.GetCurrentProcess().ProcessName, "SophisValue", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return new FusionInvestGlobalFunctions();
-            }
-            else
-            {
-                return new SophisRisqueGlobalFunctions();
-            }
-        }
-
         private void RegisterListeners()
         {
-            _globalFunctions = GetGlobalFunctions();
-            CSMGlobalFunctions.Register(_globalFunctions);
+            _portfolioCalculationListener = new PortfolioCalculationListener();
 
             _portfolioEventListener = new PortfolioEventListener();
             CSMPortfolioEvent.Register("PortfolioEventListener", CSMPortfolioEvent.eMOrder.M_oAfter, _portfolioEventListener);
@@ -178,8 +165,9 @@ namespace RxdSolutions.FusionLink
             CSMInstrumentAction.Register("InstrumentActionListenerModif", CSMInstrumentAction.eMOrder.M_oModification, _instrumentActionListener);
             CSMInstrumentAction.Register("InstrumentActionListenerCreate", CSMInstrumentAction.eMOrder.M_oCreation, _instrumentActionListener);
 
-            _refChangeListener = new PreferenceChangeListener();
-            _refChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
+            _prefChangeListener = new PreferenceChangeListener();
+            _prefChangeListener.Start();
+            _prefChangeListener.AutomaticComputingChanged += AutomaticComputingChanged;
         }
 
         private void RegisterScenarios()
@@ -250,14 +238,14 @@ namespace RxdSolutions.FusionLink
             var priceService = new PriceService();
             var reportService = new ReportService();
 
-            var realTimeProvider = new FusionRealTimeProvider(_globalFunctions as IGlobalFunctions,
-                                                                    aggregatePortfolioListener,
-                                                                    aggregatePositionListener,
-                                                                    aggregateTransactionListener,
-                                                                    aggregateInstrumentStaticListener,
-                                                                    aggregateInstrumentMarketDataListener,
-                                                                    instrumentService,
-                                                                    currencyService);
+            var realTimeProvider = new FusionRealTimeProvider(_portfolioCalculationListener,
+                                                                aggregatePortfolioListener,
+                                                                aggregatePositionListener,
+                                                                aggregateTransactionListener,
+                                                                aggregateInstrumentStaticListener,
+                                                                aggregateInstrumentMarketDataListener,
+                                                                instrumentService,
+                                                                currencyService);
 
             CreateRealTimeDataServerFromConfig(realTimeProvider);
 

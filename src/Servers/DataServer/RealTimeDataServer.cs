@@ -31,6 +31,7 @@ namespace RxdSolutions.FusionLink
         private readonly int _clientCheckInterval;
         private readonly Thread _clientMonitorThread;
         private bool _isClosed = false;
+        private DateTime _lastMessageSentToAllClients;
 
         private CancellationTokenSource _cancellationTokenSource;
         private Task _dataPublisher;
@@ -93,7 +94,6 @@ namespace RxdSolutions.FusionLink
             _clientCheckInterval = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
             _clientMonitorThread = new Thread(new ThreadStart(CheckClientsAlive));
             _clientMonitorThread.Name = "FusionLinkClientConnectionMonitor";
-            _clientMonitorThread.Start();
 
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -117,6 +117,8 @@ namespace RxdSolutions.FusionLink
                 _realTimeProvider.Start();
 
                 OnStatusChanged?.Invoke(this, new EventArgs());
+
+                _clientMonitorThread.Start();
             }
 
             SendServiceStatus();
@@ -652,9 +654,12 @@ namespace RxdSolutions.FusionLink
         {
             while (!_isClosed)
             {
-                SendMessageToAllClients((sessionId, client) => client.Heartbeat());
+                if((DateTime.Now - _lastMessageSentToAllClients).TotalSeconds > 1)
+                {
+                    SendMessageToAllClients((sessionId, client) => client.Heartbeat());
 
-                _clientMonitorResetEvent.WaitOne(_clientCheckInterval);
+                    _clientMonitorResetEvent.WaitOne(_clientCheckInterval);
+                }
             }
         }
 
@@ -673,6 +678,8 @@ namespace RxdSolutions.FusionLink
                     try
                     {
                         send.Invoke(kvp.Key, kvp.Value);
+
+                        _lastMessageSentToAllClients = DateTime.Now;
                     }
                     catch (Exception ex)
                     {

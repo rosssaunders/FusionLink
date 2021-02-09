@@ -306,7 +306,7 @@ namespace RxdSolutions.FusionLink.ExcelClient
             }
             catch(Exception ex)
             {
-                _application.SetStatusBarWithResetDelay(ex.Message, 5);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

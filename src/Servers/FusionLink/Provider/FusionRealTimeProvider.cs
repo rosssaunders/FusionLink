@@ -19,7 +19,7 @@ namespace RxdSolutions.FusionLink.Provider
         private readonly string _className = nameof(FusionRealTimeProvider);
 
         private readonly Dispatcher _context;
-        private readonly IGlobalFunctions _globalFunctions;
+        private readonly PortfolioCalculationListener _calculationListener;
         private readonly IPortfolioListener _portfolioListener;
         private readonly IPositionListener _positionListener;
         private readonly ITransactionListener _transactionListener;
@@ -58,7 +58,7 @@ namespace RxdSolutions.FusionLink.Provider
             }
         }
 
-        public FusionRealTimeProvider(IGlobalFunctions globalFunctions, 
+        public FusionRealTimeProvider(PortfolioCalculationListener calculationListener, 
                                       IPortfolioListener portfolioListener,
                                       IPositionListener positionListener,
                                       ITransactionListener transactionListener,
@@ -68,7 +68,7 @@ namespace RxdSolutions.FusionLink.Provider
                                       CurrencyService currencyService)
         {
             _context = Dispatcher.CurrentDispatcher;
-            _globalFunctions = globalFunctions;
+            _calculationListener = calculationListener;
             _portfolioListener = portfolioListener;
             _positionListener = positionListener;
             _transactionListener = transactionListener;
@@ -88,7 +88,8 @@ namespace RxdSolutions.FusionLink.Provider
             _systemValueSubscriptions = new Dictionary<SystemProperty, SystemValue>();
             _portfolioComputedIds = new List<int>();
 
-            _globalFunctions.PortfolioCalculationEnded += GlobalFunctions_PortfolioCalculationEnded;
+            _calculationListener.PortfolioCalculationEnded += CalculationListener_PortfolioCalculationEnded;
+            _calculationListener.F9CalculationEnded += CalculationListener_F9CalculationEnded;
             _portfolioListener.PortfolioChanged += PortfolioListener_PortfolioChanged;
             _positionListener.PositionChanged += PositionListener_PositionChanged;
             _transactionListener.TransactionChanged += TransactionListener_TransactionChanged;
@@ -416,91 +417,62 @@ namespace RxdSolutions.FusionLink.Provider
             }, DispatcherPriority.Normal);
         }
 
-        private void GlobalFunctions_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
+        private void CalculationListener_F9CalculationEnded(object sender, F9CalculationEndedEventArgs e)
         {
             if (IsRunning && HasSubscriptions)
             {
-                switch (e.InPortfolioCalculation)
+                RefreshData();
+            }
+        }
+
+        private void CalculationListener_PortfolioCalculationEnded(object sender, PortfolioCalculationEndedEventArgs e)
+        {
+            if (IsRunning && HasSubscriptions)
+            {
+                switch (CSMPreference.GetAutomaticComputatingType())
                 {
-                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcFullCalculation:
-
-                        _portfolioComputedIds.Add(e.FolioId);
-
-                        _context.InvokeAsync(() =>
-                        {
-                            try
-                            {
-                                if (_portfolioComputedIds.Count == 0)
-                                    return;
-
-                                ComputePortfolios(_portfolioComputedIds);
-
-                                _portfolioComputedIds.Clear();
-
-                                RefreshData();
-                            }
-                            catch (Exception ex)
-                            {
-                                CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
-                            }
-
-                        }, DispatcherPriority.ApplicationIdle);
-
+                    case eMAutomaticComputingType.M_acQuotation:
+                    case eMAutomaticComputingType.M_acLast:
+                    case eMAutomaticComputingType.M_acNothing:
                         break;
 
-                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcJustSumming:
+                    case eMAutomaticComputingType.M_acPortfolioWithoutPNL:
+                    case eMAutomaticComputingType.M_acPortfolioOnlyPNL:
+                    case eMAutomaticComputingType.M_acFolio:
 
-                        switch (CSMPreference.GetAutomaticComputatingType())
+                        try
                         {
-                            case eMAutomaticComputingType.M_acQuotation:
-                            case eMAutomaticComputingType.M_acLast:
-                            case eMAutomaticComputingType.M_acNothing:
-                                break;
+                            var id = e.ExtractionId;
 
-                            case eMAutomaticComputingType.M_acPortfolioWithoutPNL:
-                            case eMAutomaticComputingType.M_acPortfolioOnlyPNL:
-                            case eMAutomaticComputingType.M_acFolio:
+                            if (id == 1)
+                            {
+                                _portfolioRefreshCount++;
 
-                                try
+                                _context.InvokeAsync(() =>
                                 {
-                                    var id = e.Extraction.GetInternalID();
-
-                                    if (id == 1)
+                                    try
                                     {
-                                        _portfolioRefreshCount++;
+                                        if (_portfolioRefreshCount == 0)
+                                            return;
 
-                                        _context.InvokeAsync(() =>
-                                        {
-                                            try
-                                            {
-                                                if (_portfolioRefreshCount == 0)
-                                                    return;
+                                        RefreshData();
 
-                                                RefreshData();
-
-                                                _portfolioRefreshCount = 0;
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
-                                            }
-
-                                        }, DispatcherPriority.ApplicationIdle);
+                                        _portfolioRefreshCount = 0;
                                     }
-                                }
-                                catch (Exception ex)
-                                {
-                                    CSMLog.Write(_className, nameof(GlobalFunctions_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
-                                }
+                                    catch (Exception ex)
+                                    {
+                                        CSMLog.Write(_className, nameof(CalculationListener_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
+                                    }
 
-                                break;
+                                }, DispatcherPriority.ApplicationIdle);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            CSMLog.Write(_className, nameof(CalculationListener_PortfolioCalculationEnded), CSMLog.eMVerbosity.M_error, ex.ToString());
                         }
 
-                        //Do Nothing for now.
                         break;
-
-                    case sophis.misc.CSMGlobalFunctions.eMPortfolioCalculationType.M_pcNotInPortfolio:
-                        return;
                 }
             }
         }

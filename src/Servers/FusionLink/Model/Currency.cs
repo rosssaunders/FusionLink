@@ -1,4 +1,6 @@
-﻿using sophis.backoffice_kernel;
+﻿using System.Data;
+using RxdSolutions.FusionLink.Helpers;
+using sophis.backoffice_kernel;
 using sophis.instrument;
 using sophis.market_data;
 using sophis.static_data;
@@ -23,6 +25,37 @@ namespace RxdSolutions.FusionLink.Model
                 using var name = new CMString();
                 currency.GetName(name);
                 return name.StringValue;
+            }
+        }
+
+        public bool InverseRic
+        {
+            get
+            {
+                using var currency = CSMCurrency.GetCSRCurrency(code);
+                return currency.InverseRic(); ;
+            }
+        }
+
+        public DataTable Holidays
+        {
+            get
+            {
+                using var currency = CSMCurrency.GetCSRCurrency(code);
+
+                var dt = new DataTable()
+                {
+                    TableName = "BankHolidays"
+                };
+                dt.Columns.Add("Date");
+
+                var numBankHolidays = currency.GetBankHolidayDayCount();
+                for(var i = 0; i < numBankHolidays; i++)
+                {
+                    dt.Rows.Add(currency.GetNthBankHolidayDay(i).ToDateTime());
+                }
+
+                return dt;
             }
         }
 
