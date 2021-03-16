@@ -234,15 +234,6 @@ namespace RxdSolutions.FusionLink.Model
             }
         }
 
-        public int SettlementAtDPlus
-        {
-            get
-            {
-                using CSMSwap instrument = CSMInstrument.GetInstance(code);
-                return instrument.GetSettlementAtDPlus();
-            }
-        }
-
         public string SettlementCurrency
         {
             get

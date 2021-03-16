@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RxdSolutions.FusionLink.Helpers;
+using sophis.DAL;
 using sophis.instrument;
 using sophis.market_data;
 using sophis.static_data;
@@ -77,8 +78,15 @@ namespace RxdSolutions.FusionLink.Model
 
                 for (int i = 0; i <= equity.GetRepoMarginCount(); i++)
                 {
+#if SOPHIS713
                     var rmObj = new SSMRepoMargin();
-                    if(equity.GetNthRepoMargin(i, rmObj))
+#endif
+
+#if SOPHIS2021
+                    var rmObj = new SSMRepoMargin();
+#endif
+
+                    if (equity.GetNthRepoMargin(i, rmObj))
                     {
                         var maturity = sophis.value.CSMAmDateUtils.DateToString(rmObj.fMaturity);
 

@@ -22,8 +22,16 @@ namespace RxdSolutions.FusionLink.Model
             get
             {
                 using var currency = CSMCurrency.GetCSRCurrency(code);
+
+#if SOPHIS713
                 using var name = new CMString();
                 currency.GetName(name);
+#endif
+
+#if SOPHIS2021
+                using var name = currency.GetName();
+#endif
+
                 return name.StringValue;
             }
         }

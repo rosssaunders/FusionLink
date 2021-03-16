@@ -18,9 +18,16 @@ namespace RxdSolutions.FusionLink.Provider
                     return Error.Message;
                 }
 
+#if SOPHIS713
                 return sophis.globals.CSMApi.gApi().IsRTconnected();
+#endif
+
+#if SOPHIS2021
+                return CSMApi.GetInstance().IsRTconnected();
+#endif
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ex.Message;
             }

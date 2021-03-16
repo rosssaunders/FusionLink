@@ -55,7 +55,13 @@ namespace RxdSolutions.FusionLink.Services
 
             var sql = $"DATENEG >= TO_DATE('{startDate.ToString("yyyyMMdd")}', 'YYYYMMDD') AND DATENEG <= TO_DATE('{endDate.ToString("yyyyMMdd")}', 'YYYYMMDD')";
 
+#if SOPHIS713
             using var extraction = new CSMExtraction(sql, "GetPortfolioTransactions");
+#endif
+
+#if SOPHIS2021
+            using var extraction = new CSMExtraction(sql, "GetPortfolioTransactions", 0);
+#endif
 
             //Add the Fund as the Entry point to the extraction
             var entryPoints = new ArrayList();
@@ -178,7 +184,9 @@ namespace RxdSolutions.FusionLink.Services
         {
             return positionType switch
             {
+#if SOPHIS713
                 eMPositionType.M_pVirtualForValue => "Virtual For Value",
+#endif
 
                 eMPositionType.M_pVirtualCashPerCurrency => "Virtual Cash Per Currency",
 

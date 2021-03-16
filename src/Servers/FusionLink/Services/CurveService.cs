@@ -46,7 +46,13 @@ namespace RxdSolutions.FusionLink.Services
 
                 double multiplier = 1;
 
+#if SOPHIS713
                 if (yieldPoint.fType == 'x')
+#endif
+
+#if SOPHIS2021
+                if (yieldPoint.fType == eMPeriodNature.M_eRelativeEndMonthFuture)
+#endif
                 {
                     string startDateOffset = yieldPoint.fStartDate > 0 ? $"{yieldPoint.fStartDate}" : "";
                     cp.Tenor = $"{yieldPoint.fMaturity}{yieldPoint.fType}{startDateOffset}";
@@ -69,7 +75,7 @@ namespace RxdSolutions.FusionLink.Services
 
         private int GetPointCount(SSMYieldCurve curve)
         {
-#if V72
+#if SOPHIS2021
             return curve.fPoints.fPointCount;
 #else
             return curve.fPointCount;
@@ -78,7 +84,7 @@ namespace RxdSolutions.FusionLink.Services
 
         private SSMYieldPoint GetPointList(SSMYieldCurve curve)
         {
-#if V72
+#if SOPHIS2021
             return curve.fPoints.fPointList;
 #else
             return curve.fPointList;

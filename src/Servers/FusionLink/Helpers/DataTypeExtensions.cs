@@ -24,12 +24,27 @@ namespace RxdSolutions.FusionLink.Helpers
             return str;
         }
 
-        public static string GetName(this CSMCalendar calendar)
+#if SOPHIS713
+
+public static string GetName(this CSMCalendar calendar)
         {
             using var str = new CMString();
             calendar.GetName(str);
             return str.StringValue;
         }
+
+#endif
+
+#if SOPHIS2021
+
+        public static string GetName(this CSMCalendar calendar)
+        {
+            using var str = calendar.GetName();
+            return str.StringValue;
+        }
+
+#endif
+
 
         public static object ConvertSophisNumber(this double number)
         {
@@ -53,11 +68,25 @@ namespace RxdSolutions.FusionLink.Helpers
             return name.StringValue;
         }
 
-        public static string GetMetaModelName(this CSMMetaModel metaModel)
+#if SOPHIS713
+
+public static string GetMetaModelName(this CSMMetaModel metaModel)
         {
             using var str = metaModel.GetName();
             return str.StringValue;
         }
+
+#endif
+
+#if SOPHIS2021
+
+        public static string GetMetaModelName(this CSMPricer metaModel)
+        {
+            using var str = metaModel.GetName();
+            return str.StringValue;
+        }
+
+#endif
 
         public static string GetPartialPaymentMethod(this eMPartialRedemptionType partialPaymentType)
         {
@@ -160,6 +189,7 @@ namespace RxdSolutions.FusionLink.Helpers
             return ayc.fName;
         }
 
+
         public static string GetMarketName(this CSMMarket market)
         {
             using var mkt = market;
@@ -167,9 +197,16 @@ namespace RxdSolutions.FusionLink.Helpers
             if (mkt is null)
                 return "";
 
+#if SOPHIS713
             using var str = new CMString();
             mkt.GetName(str);
             return str.StringValue;
+#endif
+
+#if SOPHIS2021
+            using var str = mkt.GetName();
+            return str.StringValue;
+#endif
         }
 
         public static string GetAllotmentName(this int code)
@@ -221,10 +258,10 @@ namespace RxdSolutions.FusionLink.Helpers
                     
                     return ConvertLong((long)cv.integerValue, cs.@null);
 
-#if !V72
+#if SOPHIS713
                 case NSREnums.eMDataType.M_dPascalString:
-#endif
                 case NSREnums.eMDataType.M_dUnicodeString:
+#endif
                 case NSREnums.eMDataType.M_dNullTerminatedString:
 
                     var stringValue = ConvertString(cv.GetString());

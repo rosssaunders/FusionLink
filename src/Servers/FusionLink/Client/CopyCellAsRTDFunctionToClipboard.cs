@@ -55,8 +55,19 @@ namespace RxdSolutions.FusionLink.Client
             }
         }
 
+#if SOPHIS2021
+
+        public override void Action(CSMExtraction extraction, ArrayList positionList, CMString ActionName)
+        {
+
+#endif
+
+#if SOPHIS713
+
         public override void Action(ArrayList positionList, CMString ActionName)
         {
+
+#endif
             try
             {
                 var sb = new StringBuilder();

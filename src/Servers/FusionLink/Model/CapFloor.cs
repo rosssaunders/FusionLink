@@ -82,7 +82,14 @@ namespace RxdSolutions.FusionLink.Model
             get
             {
                 using CSMCapFloor instrument = CSMInstrument.GetInstance(code);
+
+#if SOPHIS713
                 return instrument.GetCurrentMetaModel().GetName();
+#endif
+
+#if SOPHIS2021
+                return instrument.GetCurrentPricer().GetName();
+#endif
             }
         }
 

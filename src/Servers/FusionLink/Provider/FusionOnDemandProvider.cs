@@ -277,16 +277,26 @@ namespace RxdSolutions.FusionLink.Provider
                                     for(int i = 0; i < curObject.GetPlaceCount(); i++)
                                     {
                                         var place = curObject.GetNthPlace(i);
+
+#if SOPHIS713
                                         using var placeName = new CMString();
                                         place.GetName(placeName);
-                                        if(placeName.StringValue == name)
-                                        {
-                                            return place;
-                                        }
+#endif
+
+#if SOPHIS2021
+                                        using var placeName = place.GetName();
+#endif
+
                                         if (placeName.StringValue == name)
                                         {
                                             return place;
                                         }
+                                        
+                                        if (placeName.StringValue == name)
+                                        {
+                                            return place;
+                                        }
+                                        
                                         place.Dispose();
                                     }
 
@@ -297,18 +307,21 @@ namespace RxdSolutions.FusionLink.Provider
                                 {
                                     for (int i = 0; i < curObject.GetMarketCount(); i++)
                                     {
-                                        var market = curObject.GetNthMarket(i);
+                                        using var market = curObject.GetNthMarket(i);
+
+#if SOPHIS713
                                         using var marketName = new CMString();
                                         market.GetName(marketName);
+#endif
+
+#if SOPHIS2021
+                                        using var marketName = market.GetName();
+#endif
+
                                         if (marketName.StringValue == name)
                                         {
                                             return market;
                                         }
-                                        if (marketName.StringValue == name)
-                                        {
-                                            return market;
-                                        }
-                                        market.Dispose();
                                     }
 
                                     return null;

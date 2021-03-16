@@ -43,7 +43,14 @@ namespace RxdSolutions.FusionLink.Ribbon
             else
             {
                 var fwkElement = new DiagnosticsView(new DiagnosticsViewModel(Main.DataServersHost, Main.RealTimeDataServer));
+
+#if SOPHIS713
                 WPFAdapter.Instance.OpenWindow(fwkElement, Resources.DashboardWindowCaption, wndKey, false);
+#endif
+
+#if SOPHIS2021
+                WPFAdapter.Instance.OpenWindow(fwkElement, Resources.DashboardWindowCaption, wndKey);
+#endif
             }
         }
     }

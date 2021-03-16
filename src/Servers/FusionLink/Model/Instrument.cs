@@ -39,6 +39,7 @@ namespace RxdSolutions.FusionLink.Model
             }
         }
 
+#if SOPHIS713
         public string Name
         {
             get
@@ -49,6 +50,19 @@ namespace RxdSolutions.FusionLink.Model
                 return name.StringValue;
             }
         }
+#endif
+
+#if SOPHIS2021
+        public string Name
+        {
+            get
+            {
+                using var instrument = CSMInstrument.GetInstance(code);
+                using var name = instrument.GetName();
+                return name.StringValue;
+            }
+        }
+#endif
 
         public string Allotment
         {
@@ -77,9 +91,17 @@ namespace RxdSolutions.FusionLink.Model
             {
                 using var instrument = CSMInstrument.GetInstance(code);
                 using var market = instrument.GetCSRMarket();
+
+#if SOPHIS713
                 using var name = new CMString();
                 market.GetName(name);
                 return name.StringValue;
+#endif
+
+#if SOPHIS2021
+                using var name = market.GetName();
+                return name.StringValue;
+#endif
             }
         }
 

@@ -72,8 +72,20 @@ namespace RxdSolutions.FusionLink.Client
             Clipboard.SetText(sb.ToString());
         }
 
+#if SOPHIS2021
+
+        public override void Action(CSMExtraction extraction, ArrayList positionList, CMString ActionName)
+        {
+
+#endif
+
+#if SOPHIS713
+
         public override void Action(ArrayList positionList, CMString ActionName)
         {
+
+#endif
+
             if (positionList.Count == 0)
                 return;
 

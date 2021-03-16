@@ -48,8 +48,15 @@ namespace RxdSolutions.FusionLink.Listeners
         {
             _realtimeEventHandler = new SophisEventHandler(ProcessRealTimeEvent);
 
+#if SOPHIS713
             SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Thread.MainProcess, Layer.Model, PortfolioF9.ClassWhat);
             SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Thread.MainProcess, Layer.Model, PortfolioAnyComputationEnded.ClassWhat); 
+#endif
+
+#if SOPHIS2021
+            SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Layer.Model, PortfolioAnyComputationEnded.ClassWhat);
+#endif
+
         }
 
         private void OnPortfolioCalculated(object sender, PortfolioCalculationEndedEventArgs e)
@@ -59,6 +66,7 @@ namespace RxdSolutions.FusionLink.Listeners
 
         private void ProcessRealTimeEvent(IEvent evt, ref bool deleteEvent)
         {
+#if SOPHIS713
             if (evt is PortfolioF9 f9)
             {
                 var folioCode = f9.FolioCode;
@@ -67,7 +75,11 @@ namespace RxdSolutions.FusionLink.Listeners
                 
                 F9CalculationEnded?.Invoke(this, eventArgs);
             }
-            else if(evt is PortfolioAnyComputationEnded ce)
+
+            return;
+#endif
+
+            if (evt is PortfolioAnyComputationEnded ce)
             {
                 var extractionId = ce.ExtractionId;
                 var folioCode = ce.FolioCode;

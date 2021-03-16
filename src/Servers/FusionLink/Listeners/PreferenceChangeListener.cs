@@ -3,8 +3,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using Sophis.Event;
-using Thread = Sophis.Event.Thread;
 
 namespace RxdSolutions.FusionLink.Listeners
 {

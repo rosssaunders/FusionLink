@@ -31,9 +31,17 @@ namespace RxdSolutions.FusionLink.Model
             {
                 using CSMInterestRate instrument = CSMInstrument.GetInstance(code);
                 using var calendar = instrument.GetCalendarCalculation();
+
+#if SOPHIS713
                 using var name = new CMString();
                 calendar.GetName(name);
                 return name.StringValue;
+#endif
+
+#if SOPHIS2021
+                using var name = calendar.GetName();
+                return name.StringValue;
+#endif
             }
         }
 

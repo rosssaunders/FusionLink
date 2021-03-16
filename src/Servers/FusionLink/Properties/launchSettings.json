@@ -5,6 +5,12 @@
       "executablePath": "$(Sophis_v71319_x64)\\SophisValue.exe",
       "workingDirectory": "$(Sophis_v71319_x64)",
       "nativeDebugging": false
+    },
+    "SophisValue_v2021_x64": {
+      "commandName": "Executable",
+      "executablePath": "C:\\FINASTRA\\CLIENT\\SophisValue.exe",
+      "workingDirectory": "C:\\FINASTRA\\CLIENT\\",
+      "nativeDebugging": false
     }
   }
 }

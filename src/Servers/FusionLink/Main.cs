@@ -58,7 +58,13 @@ namespace RxdSolutions.FusionLink
             {
                 if (UserRight.CanOpen())
                 {
-                    _api = sophis.globals.CSMApi.gApi();
+#if SOPHIS713
+                     _api = sophis.globals.CSMApi.gApi();
+#endif
+
+#if SOPHIS2021
+                    _api = CSMApi.GetInstance();
+#endif
 
                     _context = Dispatcher.CurrentDispatcher;
 

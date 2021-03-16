@@ -15,8 +15,16 @@ namespace RxdSolutions.FusionLink.Listeners
         {
             _realtimeEventHandler = new SophisEventHandler(ProcessRealTimeEvent);
 
+#if SOPHIS713
             SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Thread.MainProcess, Layer.Model, Quotation.ClassWhat);
             SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Thread.MainProcess, Layer.Model, HistoricPrice.ClassWhat);
+#endif
+
+#if SOPHIS2021
+            SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Layer.Model, Quotation.ClassWhat);
+            SophisEventManager.Instance.AddHandler(_realtimeEventHandler, Layer.Model, HistoricPrice.ClassWhat);
+#endif
+
         }
 
         private void OnInstrumentChanged(object sender, InstrumentChangedEventArgs e)

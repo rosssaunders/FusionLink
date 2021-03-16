@@ -8,7 +8,7 @@
     <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Platforms>x64</Platforms>
-    <Configurations>Develop_713;Develop_72;Debug_713;Debug_72;Release_713;Release_72</Configurations>
+    <Configurations>Develop_713;Develop_2021;</Configurations>
     <Authors>RXD Solutions</Authors>
     <Copyright>Copyright ©2019 RXD Solutions</Copyright>
     <Product>FusionLink</Product>
@@ -17,7 +17,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Develop_713'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SOPHIS713</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Develop_72'">
     <DefineConstants>DEBUG;TRACE;V72</DefineConstants>
@@ -35,6 +35,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release_72'">
     <DefineConstants>TRACE;V72</DefineConstants>
     <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop_2021|x64'">
+    <DefineConstants>TRACE;SOPHIS2021</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -57,374 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release_713'">
-    <Reference Include="MFCCaptionBar10">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Reporting">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Reporting.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Risque">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Risque.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Value">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Value.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.DRT">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.DRT.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Ribbon.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.DotNetCore.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisAMTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraEditors.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCommodity">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCommodity.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCPPI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCPPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitFinance">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitFinance.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitMonteCarlo">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitMonteCarlo.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release_72'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Sophis.DotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Reporting">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Reporting.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Risque">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Risque.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Value">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Value.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.DRT">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.DRT.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisAMTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Ribbon.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraEditors.v18.1">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraEditors.v18.1.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_713'">
-    <Reference Include="MFCCaptionBar10">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Reporting">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Reporting.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.DotNetCore.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Risque">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Risque.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Value">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.Value.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.DRT">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Event.DRT.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisAMTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraTreeList.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v11.2">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\DevExpress.XtraEditors.v11.2.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\Sophis.Windows.Ribbon.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCommodity">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCommodity.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCPPI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitCPPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitFinance">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitFinance.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitMonteCarlo">
-      <HintPath>..\..\..\libs\RXDSolutions\7_1\SophisDotNetToolkitMonteCarlo.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug_72'">
-    <Reference Include="MFCCaptionBar">
-      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBar12.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Reporting">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Reporting.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Risque">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Risque.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.Value">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.Value.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Event.DRT">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Event.DRT.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.DotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.DotNetCore.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkit">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetCore">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisAMTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisPortfoliosGUI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisPortfoliosGUI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets.Core">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Widgets">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Widgets.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetTools">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetValue">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetValue.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraTreeList.v18.1">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraTreeList.v18.1.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="DevExpress.XtraEditors.v18.1">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\DevExpress.XtraEditors.v18.1.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Core.Data">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Core.Data.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Sophis.Windows.Ribbon">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\Sophis.Windows.Ribbon.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCommodity">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitCommodity.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitCPPI">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitCPPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitFinance">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitFinance.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SophisDotNetToolkitMonteCarlo">
-      <HintPath>..\..\..\libs\RXDSolutions\7_2\SophisDotNetToolkitMonteCarlo.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Develop_713'">
     <Reference Include="MFCCaptionBar10">
@@ -525,6 +160,109 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Develop_2021'">
+    <Reference Include="MFCCaptionBar10">
+      <HintPath>..\..\..\libs\RXDSolutions\MFCCaptionBarNet\MFCCaptionBar10.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkit">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkit.dll</HintPath>
+      <Private>false</Private>
+      <Aliases></Aliases>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets.Core">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Windows.Widgets.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Reporting">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Reporting.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Core">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Event.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Risque">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Event.Risque.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.Value">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Event.Value.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Event.DRT">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Event.DRT.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.DotNetCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetCore">
+      <HintPath>C:\FINASTRA\CLIENT\SophisAMTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitGUI">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitBackOffice">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitBackOffice.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisPortfoliosGUI">
+      <HintPath>C:\FINASTRA\CLIENT\SophisPortfoliosGUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Widgets">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Windows.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetTools">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetTools.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetValue">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetValue.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Windows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.2">
+      <HintPath>C:\FINASTRA\CLIENT\DevExpress.XtraTreeList.v19.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.2">
+      <HintPath>C:\FINASTRA\CLIENT\DevExpress.XtraEditors.v19.2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Core.Data">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Core.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sophis.Windows.Ribbon">
+      <HintPath>C:\FINASTRA\CLIENT\Sophis.Windows.Ribbon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCommodity">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitCommodity.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitCPPI">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitCPPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitFinance">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitFinance.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SophisDotNetToolkitMonteCarlo">
+      <HintPath>C:\FINASTRA\CLIENT\SophisDotNetToolkitMonteCarlo.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServerInterface\DataServiceInterface.csproj" />
     <ProjectReference Include="..\DataServer.Wpf\DataServer.Wpf.csproj" />
@@ -547,6 +285,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetDir)*.* C:\Users\rsaunders\source\repos\stash\sophisinstaller\Src\Win32\UAT\FusionInvest\FusionLinkServer\ /y" />
+    <Exec Command="xcopy $(TargetDir)*.* C:\FINASTRA\CLIENT\FusionLinkServer\ /y" />
   </Target>
 </Project>
